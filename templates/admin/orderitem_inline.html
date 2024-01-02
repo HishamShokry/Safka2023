@@ -1,0 +1,29 @@
+{% extends 'admin/edit_inline/tabular.html' %}
+
+{% block inline_field_sets %}
+    {{ block.super }}
+    <script>
+        (function($) {
+            $(document).ready(function() {
+                alert('sdds');
+                function updateTotalPriceDisplay(row) {
+                    var quantity = parseFloat($('input[name$="quantity"]', row).val()) || 0;
+                    var itemPrice = parseFloat($('input[name$="item_price"]', row).val()) || 0;
+                    var total = quantity * itemPrice;
+                    $('.field-total_price_display p', row).text(total.toFixed(2));
+                    // console.log(quantity);
+                }
+
+                $('input[name$="quantity"], input[name$="item_price"]').on('input', function() {
+                    var row = $(this).closest('tr');
+                    updateTotalPriceDisplay(row);
+                });
+
+                // Initial calculation for existing rows
+                $('tr[id^="orderitem_set-"]').each(function() {
+                    updateTotalPriceDisplay($(this));
+                });
+            });
+        })(django.jQuery);
+    </script>
+{% endblock %}

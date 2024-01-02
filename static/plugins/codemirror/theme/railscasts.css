@@ -1,0 +1,60 @@
+@charset "UTF-8";
+body { direction: rtl ; }
+/*
+
+    Name:       Railscasts
+    Author:     Ryan Bates (http://railscasts.com)
+
+    CodeMirror template by Jan T. Sott (https://github.com/idleberg/base16-codemirror)
+    Original Base16 color scheme by Chris Kempson (https://github.com/chriskempson/base16)
+
+*/
+
+.cm-s-railscasts.CodeMirror {background: #2b2b2b; color: #f4f1ed;}
+.cm-s-railscasts div.CodeMirror-selected {background: #272935 !important;}
+.cm-s-railscasts .CodeMirror-gutters {background: #2b2b2b; border-left: 0px;}
+.cm-s-railscasts .CodeMirror-linenumber {color: #5a647e;}
+.cm-s-railscasts .CodeMirror-cursor {border-right: 1px solid #d4cfc9 !important;}
+
+.cm-s-railscasts span.cm-comment {color: #bc9458;}
+.cm-s-railscasts span.cm-atom {color: #b6b3eb;}
+.cm-s-railscasts span.cm-number {color: #b6b3eb;}
+
+.cm-s-railscasts span.cm-property, .cm-s-railscasts span.cm-attribute {color: #a5c261;}
+.cm-s-railscasts span.cm-keyword {color: #da4939;}
+.cm-s-railscasts span.cm-string {color: #ffc66d;}
+
+.cm-s-railscasts span.cm-variable {color: #a5c261;}
+.cm-s-railscasts span.cm-variable-2 {color: #6d9cbe;}
+.cm-s-railscasts span.cm-def {color: #cc7833;}
+.cm-s-railscasts span.cm-error {background: #da4939; color: #d4cfc9;}
+.cm-s-railscasts span.cm-bracket {color: #f4f1ed;}
+.cm-s-railscasts span.cm-tag {color: #da4939;}
+.cm-s-railscasts span.cm-link {color: #b6b3eb;}
+
+.cm-s-railscasts .CodeMirror-matchingbracket { text-decoration: underline; color: white !important;}
+.cm-s-railscasts .CodeMirror-activeline-background { background: #303040; }
+
+
+svg[class*=right], svg[class*=left], [class*=right].fas, [class*=left].fas {
+    transform: scaleX(-1) !important;
+}
+
+.product-item__badge {
+    transform: rotate(-45deg) translateZ(0) !important;
+}
+
+#st_gdpr_iframe {
+    left: 0 !important;
+    right: -5000px;
+}
+
+.product-form__item select.single-option-selector {
+    background-position: calc(23px) calc(1rem + 10px), calc(27px) calc(1rem + 10px);
+}
+
+.card__badge {
+    -ms-transform: rotate(-45deg) translateZ(0);
+    -webkit-transform: rotate(-45deg) translateZ(0);
+    transform: rotate(-45deg) translateZ(0);
+}

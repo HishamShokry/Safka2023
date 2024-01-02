@@ -1,0 +1,113 @@
+@charset "UTF-8";
+body { direction: rtl ; }
+/* This is a compiled file, to make changes persist, consider editing under the templates directory */
+.pace {
+  -webkit-pointer-events: none;
+  pointer-events: none;
+
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 2000;
+  width: 100%;
+  height: 12px;
+  background: #fff;
+}
+
+.pace-inactive {
+  display: none;
+}
+
+.pace .pace-progress {
+  background-color: #FF2C00;
+  position: fixed;
+  top: 0;
+  left: 100%;
+  width: 100%;
+  height: 12px;
+  overflow: hidden;
+
+  -webkit-border-top-right-radius: 0; border-top-left-radius: 0; border-bottom-left-radius: 4px; border-bottom-right-radius: 0;
+  -moz-border-top-right-radius: 0; border-top-left-radius: 0; border-bottom-left-radius: 4px; border-bottom-right-radius: 0;
+  -o-border-top-right-radius: 0; border-top-left-radius: 0; border-bottom-left-radius: 4px; border-bottom-right-radius: 0;
+  border-top-right-radius: 0; border-top-left-radius: 0; border-bottom-left-radius: 4px; border-bottom-right-radius: 0;
+
+  -webkit-box-shadow: inset -1px 0 #BF1B00, inset 0 -1px #BF1B00, inset 0 2px rgba(255, 255, 255, 0.5), inset 0 6px rgba(255, 255, 255, .3);
+  -moz-box-shadow: inset -1px 0 #BF1B00, inset 0 -1px #BF1B00, inset 0 2px rgba(255, 255, 255, 0.5), inset 0 6px rgba(255, 255, 255, .3);
+  -o-box-shadow: inset -1px 0 #BF1B00, inset 0 -1px #BF1B00, inset 0 2px rgba(255, 255, 255, 0.5), inset 0 6px rgba(255, 255, 255, .3);
+  box-shadow: inset -1px 0 #BF1B00, inset 0 -1px #BF1B00, inset 0 2px rgba(255, 255, 255, 0.5), inset 0 6px rgba(255, 255, 255, .3);
+}
+
+.pace .pace-activity {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: -28px;
+  bottom: 0;
+
+  -webkit-background-image: radial-gradient(rgba(255, 255, 255, .65) 0%, rgba(255, 255, 255, .15) 100%);
+  -moz-background-image: radial-gradient(rgba(255, 255, 255, .65) 0%, rgba(255, 255, 255, .15) 100%);
+  -o-background-image: radial-gradient(rgba(255, 255, 255, .65) 0%, rgba(255, 255, 255, .15) 100%);
+  background-image: radial-gradient(rgba(255, 255, 255, .65) 0%, rgba(255, 255, 255, .15) 100%);
+
+  -webkit-background-size: 28px 100%;
+  -moz-background-size: 28px 100%;
+  -o-background-size: 28px 100%;
+  background-size: 28px 100%;
+
+  -webkit-animation: pace-theme-mac-osx-motion 500ms linear infinite;
+  -moz-animation: pace-theme-mac-osx-motion 500ms linear infinite;
+  -ms-animation: pace-theme-mac-osx-motion 500ms linear infinite;
+  -o-animation: pace-theme-mac-osx-motion 500ms linear infinite;
+  animation: pace-theme-mac-osx-motion 500ms linear infinite;
+}
+
+@-webkit-keyframes pace-theme-mac-osx-motion {
+  0% { -webkit-transform: none; transform: none; }
+  100% { -webkit-transform: translate(+28px, 0); transform: translate(+28px, 0); }
+}
+@-moz-keyframes pace-theme-mac-osx-motion {
+  0% { -moz-transform: none; transform: none; }
+  100% { -moz-transform: translate(+28px, 0); transform: translate(+28px, 0); }
+}
+@-o-keyframes pace-theme-mac-osx-motion {
+  0% { -o-transform: none; transform: none; }
+  100% { -o-transform: translate(+28px, 0); transform: translate(+28px, 0); }
+}
+@-ms-keyframes pace-theme-mac-osx-motion {
+  0% { -ms-transform: none; transform: none; }
+  100% { -ms-transform: translate(+28px, 0); transform: translate(+28px, 0); }
+}
+@keyframes pace-theme-mac-osx-motion {
+  0% { transform: none; transform: none; }
+  100% { transform: translate(+28px, 0); transform: translate(+28px, 0); }
+}
+
+
+svg[class*=right], svg[class*=left], [class*=right].fas, [class*=left].fas {
+    transform: scaleX(-1) !important;
+}
+
+.product-item__badge {
+    transform: rotate(-45deg) translateZ(0) !important;
+}
+
+#st_gdpr_iframe {
+    left: 0 !important;
+    right: -5000px;
+}
+
+.product-form__item select.single-option-selector {
+    background-position: calc(23px) calc(1rem + 10px), calc(27px) calc(1rem + 10px);
+}
+
+.card__badge {
+    -ms-transform: rotate(-45deg) translateZ(0);
+    -webkit-transform: rotate(-45deg) translateZ(0);
+    transform: rotate(-45deg) translateZ(0);
+}

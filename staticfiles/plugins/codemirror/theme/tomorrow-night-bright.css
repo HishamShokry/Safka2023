@@ -1,0 +1,61 @@
+@charset "UTF-8";
+body { direction: rtl ; }
+/*
+
+    Name:       Tomorrow Night - Bright
+    Author:     Chris Kempson
+
+    Port done by Gerard Braad <me@gbraad.nl>
+
+*/
+
+.cm-s-tomorrow-night-bright.CodeMirror { background: #000000; color: #eaeaea; }
+.cm-s-tomorrow-night-bright div.CodeMirror-selected { background: #424242; }
+.cm-s-tomorrow-night-bright .CodeMirror-gutters { background: #000000; border-left: 0px; }
+.cm-s-tomorrow-night-bright .CodeMirror-guttermarker { color: #e78c45; }
+.cm-s-tomorrow-night-bright .CodeMirror-guttermarker-subtle { color: #777; }
+.cm-s-tomorrow-night-bright .CodeMirror-linenumber { color: #424242; }
+.cm-s-tomorrow-night-bright .CodeMirror-cursor { border-right: 1px solid #6A6A6A; }
+
+.cm-s-tomorrow-night-bright span.cm-comment { color: #d27b53; }
+.cm-s-tomorrow-night-bright span.cm-atom { color: #a16a94; }
+.cm-s-tomorrow-night-bright span.cm-number { color: #a16a94; }
+
+.cm-s-tomorrow-night-bright span.cm-property, .cm-s-tomorrow-night-bright span.cm-attribute { color: #99cc99; }
+.cm-s-tomorrow-night-bright span.cm-keyword { color: #d54e53; }
+.cm-s-tomorrow-night-bright span.cm-string { color: #e7c547; }
+
+.cm-s-tomorrow-night-bright span.cm-variable { color: #b9ca4a; }
+.cm-s-tomorrow-night-bright span.cm-variable-2 { color: #7aa6da; }
+.cm-s-tomorrow-night-bright span.cm-def { color: #e78c45; }
+.cm-s-tomorrow-night-bright span.cm-bracket { color: #eaeaea; }
+.cm-s-tomorrow-night-bright span.cm-tag { color: #d54e53; }
+.cm-s-tomorrow-night-bright span.cm-link { color: #a16a94; }
+.cm-s-tomorrow-night-bright span.cm-error { background: #d54e53; color: #6A6A6A; }
+
+.cm-s-tomorrow-night-bright .CodeMirror-activeline-background { background: #2a2a2a; }
+.cm-s-tomorrow-night-bright .CodeMirror-matchingbracket { text-decoration: underline; color: white !important; }
+
+
+svg[class*=right], svg[class*=left], [class*=right].fas, [class*=left].fas {
+    transform: scaleX(-1) !important;
+}
+
+.product-item__badge {
+    transform: rotate(-45deg) translateZ(0) !important;
+}
+
+#st_gdpr_iframe {
+    left: 0 !important;
+    right: -5000px;
+}
+
+.product-form__item select.single-option-selector {
+    background-position: calc(23px) calc(1rem + 10px), calc(27px) calc(1rem + 10px);
+}
+
+.card__badge {
+    -ms-transform: rotate(-45deg) translateZ(0);
+    -webkit-transform: rotate(-45deg) translateZ(0);
+    transform: rotate(-45deg) translateZ(0);
+}

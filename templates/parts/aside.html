@@ -1,0 +1,146 @@
+{% load static %}
+{% load active_link_tags %}
+<!-- Main Sidebar Container -->
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+  <!-- Brand Logo -->
+  <a href="{% url 'dashboard' %}" class="brand-link">
+    <img src="{% static 'dist/img/logo.png' %}" alt="Safka Logo" class="brand-image img-circle elevation-3"
+      style="opacity: .8">
+    <span class="brand-text font-weight-bold">صفقة</span>
+  </a>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <!-- Sidebar user panel (optional) -->
+    <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+      <div class="image">
+        <img src="{{user.profile_photo.url}}" class="img-circle elevation-2" alt="User Image">
+      </div>
+      <div class="info">
+        <a href="{% url 'profile' %}" class="d-block">{{ user.first_name }} {{ user.last_name }}</a>
+      </div>
+    </div>
+
+    <!-- SidebarSearch Form -->
+    <div class="form-inline">
+      <div class="input-group" data-widget="sidebar-search">
+        <input class="form-control form-control-sidebar" type="search" placeholder="ابحث" aria-label="Search">
+        <div class="input-group-append">
+          <button class="btn btn-sidebar">
+            <i class="fas fa-search fa-fw"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar Menu -->
+    <nav class="mt-2">
+      <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+        <!-- Add icons to the links using the .nav-icon class
+                 with font-awesome or any other icon font library -->
+        <li class="nav-item">
+          <a href="{% url 'dashboard' %}" class="nav-link {% active_link 'dashboard' 'active' %}">
+            <i class="nav-icon fas fa-tachometer-alt"></i>
+            <p>
+              Dashboard
+              <!-- <i class="right fas fa-angle-left"></i> -->
+            </p>
+          </a>
+        </li>
+        <li class="nav-item" id='affiliate-menu-list'>
+          <a href="#" id='affiliate-menu' class="nav-link">
+            <i class="nav-icon fas fa-table"></i>
+            <p>
+              افيليت
+              <i class="fas fa-angle-left right"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{% url 'category' %}" id='category-menu' class="nav-link {% active_link 'category' 'active' %}">
+                <i class="nav-icon fas fa-sitemap"></i>
+                <p>اقسام</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'products' %}" id='products-menu' class="nav-link {% active_link 'products' 'active' %}">
+                <i class=" nav-icon fas fa-shopping-bag"></i>
+                <p>منتجات</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'list_of_product' %}" id='list_of_product-menu' class="nav-link {% active_link 'list_of_product' 'active' %}">
+                <i class="nav-icon fas fa-shopping-bag"></i>
+                <p>قائمة المنتجات</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'shipping' %}" id='shipping-menu' class="nav-link {% active_link 'shipping' 'active' %}">
+                <i class="nav-icon fas fa-box-open"></i>
+                <p>شركات الشحن</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'price_shipping' %}" id='price_shipping-menu' class="nav-link {% active_link 'price_shipping' 'active' %}">
+                <i class="nav-icon fas fa-box-open"></i>
+                <p>اسعار الشحن</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'inventory' %}" id='inventory-menu'
+                class="nav-link {% active_link 'inventory' 'active' %}">
+                <i class="nav-icon fas fa-warehouse"></i>
+                <p>المخازن</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'orders' %}" id='orders-menu' class="nav-link {% active_link 'orders' 'active' %}">
+                <i class="nav-icon fas fa-shopping-cart"></i>
+                <p>طلبات</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'requests' %}" id='requests-menu' class="nav-link {% active_link 'requests' 'active' %}">
+                <i class="nav-icon fas fa-comment-dollar"></i>
+                <p>طلبات سحب</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'vendors_accounts' %}" id='vendors_accounts-menu'
+                class="nav-link {% active_link 'vendors_accounts' 'active' %}">
+                <i class="nav-icon fas fa-hand-holding-usd"></i>
+                <p>حسابات تجار</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'marketers_accounts' %}" id='marketers_accounts-menu'
+                class="nav-link {% active_link 'marketers_accounts' 'active' %}">
+                <i class="nav-icon fas fa-hand-holding-usd"></i>
+                <p>حسابات مسوقين</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'support' %}" id='support-menu' class="nav-link {% active_link 'support' 'active' %}">
+            <i class="nav-icon fas fa-headset"></i>
+            <p>
+              الدعم الفني
+            </p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'logout' %}" class="nav-link">
+            <i class="nav-icon fas fa-sign-out-alt"></i>
+            <p>
+              تسجيل خروج
+            </p>
+          </a>
+        </li>
+      </ul>
+
+    </nav>
+    <!-- /.sidebar-menu -->
+  </div>
+  <!-- /.sidebar -->
+</aside>

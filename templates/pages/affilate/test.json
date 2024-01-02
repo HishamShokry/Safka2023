@@ -1,0 +1,160 @@
+{
+    "id": 3,
+    "items": [
+      {
+        "id": 13,
+        "product": {
+          "id": 115,
+          "product_variant_set": [
+            {
+              "id": 26,
+              "size_name": "صغير",
+              "color_name": "احمر",
+              "color_hex": "#FF0000FF",
+              "quantity": 1,
+              "product": 115,
+              "size": 1,
+              "color": 2
+            }
+          ],
+          "category_name": null,
+          "inventory_name": "مخزن 2",
+          "vendor_name": "vendor1@safka.com",
+          "access_to_name": [
+            "marketer1@safka.com"
+          ],
+          "name": "منتج 223",
+          "purchase_price": "150.00",
+          "sale_price": "300.00",
+          "image": "/media/product_images/default_profile_ehZCKew.jpg",
+          "description": "http://127.0.0.1:8000/affiliate/list_of_producthttp://127.0.0.1:8000/affiliate/list_of_producthttp://127.0.0.1:8000/affiliate/list_of_product",
+          "note": "http://127.0.0.1:8000/affiliate/list_of_producthttp://127.0.0.1:8000/affiliate/list_of_product",
+          "media_url": "http://127.0.0.1:8000/affiliate/list_of_product",
+          "is_active": true,
+          "access_type": "private",
+          "barcode": "SK3892525",
+          "created_at": "2023-12-10T22:55:21.521021Z",
+          "updated_at": "2023-12-12T01:15:25.127623Z",
+          "inventory": 2,
+          "vendor": 2,
+          "category": null,
+          "access_to": [
+            3
+          ]
+        },
+        "quantity": 50,
+        "total_item_price": "15000.00",
+        "order": 3,
+        "variant": 26
+      },
+      {
+        "id": 14,
+        "product": {
+          "id": 114,
+          "product_variant_set": [
+            {
+              "id": 27,
+              "size_name": "كبير",
+              "color_name": "أخضر",
+              "color_hex": "#02FF00FF",
+              "quantity": 1,
+              "product": 114,
+              "size": 3,
+              "color": 6
+            }
+          ],
+          "category_name": null,
+          "inventory_name": "مخزن 2",
+          "vendor_name": "vendor1@safka.com",
+          "access_to_name": [
+            "marketer1@safka.com"
+          ],
+          "name": "منتج 222",
+          "purchase_price": "150.00",
+          "sale_price": "300.00",
+          "image": "/media/product_images/default_profile_9e5jv8H.jpg",
+          "description": "http://127.0.0.1:8000/affiliate/list_of_producthttp://127.0.0.1:8000/affiliate/list_of_producthttp://127.0.0.1:8000/affiliate/list_of_product",
+          "note": "http://127.0.0.1:8000/affiliate/list_of_producthttp://127.0.0.1:8000/affiliate/list_of_product",
+          "media_url": "http://127.0.0.1:8000/affiliate/list_of_product",
+          "is_active": true,
+          "access_type": "private",
+          "barcode": "SK2744456",
+          "created_at": "2023-12-10T22:54:40.894690Z",
+          "updated_at": "2023-12-12T01:15:34.102024Z",
+          "inventory": 2,
+          "vendor": 2,
+          "category": null,
+          "access_to": [
+            3
+          ]
+        },
+        "quantity": 50,
+        "total_item_price": "15000.00",
+        "order": 3,
+        "variant": 27
+      },
+      {
+        "id": 15,
+        "product": {
+          "id": 113,
+          "product_variant_set": [],
+          "category_name": null,
+          "inventory_name": "مخزن 2",
+          "vendor_name": "vendor1@safka.com",
+          "access_to_name": [
+            "marketer1@safka.com"
+          ],
+          "name": "منتج 221",
+          "purchase_price": "150.00",
+          "sale_price": "300.00",
+          "image": "/media/product_images/default_profile_lHpw6NG.jpg",
+          "description": "http://127.0.0.1:8000/affiliate/list_of_producthttp://127.0.0.1:8000/affiliate/list_of_producthttp://127.0.0.1:8000/affiliate/list_of_product",
+          "note": "http://127.0.0.1:8000/affiliate/list_of_producthttp://127.0.0.1:8000/affiliate/list_of_product",
+          "media_url": "http://127.0.0.1:8000/affiliate/list_of_product",
+          "is_active": true,
+          "access_type": "private",
+          "barcode": "SK2871671",
+          "created_at": "2023-12-10T22:45:54.794853Z",
+          "updated_at": "2023-12-10T22:45:54.794922Z",
+          "inventory": 2,
+          "vendor": 2,
+          "category": null,
+          "access_to": [
+            3
+          ]
+        },
+        "quantity": 100,
+        "total_item_price": "30000.00",
+        "order": 3,
+        "variant": 26
+      }
+    ],
+    "marketer_name": "marketer1@safka.com",
+    "governorate_name": "الجيزة",
+    "city_name": "أبو رواش (Abu Rawash)",
+    "shipping_company_name": "شركة شحن 1",
+    "status": "pending",
+    "barcode": "SK1275839",
+    "barcode_returned": "SK2235764R",
+    "client_name": "dsadasd",
+    "client_phone1": "dsadasdasd",
+    "client_phone2": "asdasdasdas",
+    "client_address": "asdasdasdasd",
+    "shiping_price": 40,
+    "commission": -58540,
+    "total": 1500,
+    "total_items_price": "60000.00",
+    "note": "dasdsa",
+    "whats1_clicked": 4,
+    "phone1_clicked": 0,
+    "sms1_clicked": 0,
+    "whats2_clicked": 0,
+    "phone2_clicked": 0,
+    "sms2_clicked": 0,
+    "created_at": "2023-12-11T23:35:15.979072Z",
+    "updated_at": "2023-12-12T21:14:19.390157Z",
+    "marketer": 3,
+    "governorate": 2,
+    "city": 86,
+    "shipping_company": 1
+  }

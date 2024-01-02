@@ -1,0 +1,64 @@
+@charset "UTF-8";
+body { direction: rtl ; }
+/*
+
+    Name:       Paraíso (Light)
+    Author:     Jan T. Sott
+
+    Color scheme by Jan T. Sott (https://github.com/idleberg/Paraiso-CodeMirror)
+    Inspired by the art of Rubens LP (http://www.rubenslp.com.br)
+
+*/
+
+.cm-s-paraiso-light.CodeMirror { background: #e7e9db; color: #41323f; }
+.cm-s-paraiso-light div.CodeMirror-selected { background: #b9b6b0; }
+.cm-s-paraiso-light .CodeMirror-line::selection, .cm-s-paraiso-light .CodeMirror-line > span::selection, .cm-s-paraiso-light .CodeMirror-line > span > span::selection { background: #b9b6b0; }
+.cm-s-paraiso-light .CodeMirror-line::-moz-selection, .cm-s-paraiso-light .CodeMirror-line > span::-moz-selection, .cm-s-paraiso-light .CodeMirror-line > span > span::-moz-selection { background: #b9b6b0; }
+.cm-s-paraiso-light .CodeMirror-gutters { background: #e7e9db; border-left: 0px; }
+.cm-s-paraiso-light .CodeMirror-guttermarker { color: black; }
+.cm-s-paraiso-light .CodeMirror-guttermarker-subtle { color: #8d8687; }
+.cm-s-paraiso-light .CodeMirror-linenumber { color: #8d8687; }
+.cm-s-paraiso-light .CodeMirror-cursor { border-right: 1px solid #776e71; }
+
+.cm-s-paraiso-light span.cm-comment { color: #e96ba8; }
+.cm-s-paraiso-light span.cm-atom { color: #815ba4; }
+.cm-s-paraiso-light span.cm-number { color: #815ba4; }
+
+.cm-s-paraiso-light span.cm-property, .cm-s-paraiso-light span.cm-attribute { color: #48b685; }
+.cm-s-paraiso-light span.cm-keyword { color: #ef6155; }
+.cm-s-paraiso-light span.cm-string { color: #fec418; }
+
+.cm-s-paraiso-light span.cm-variable { color: #48b685; }
+.cm-s-paraiso-light span.cm-variable-2 { color: #06b6ef; }
+.cm-s-paraiso-light span.cm-def { color: #f99b15; }
+.cm-s-paraiso-light span.cm-bracket { color: #41323f; }
+.cm-s-paraiso-light span.cm-tag { color: #ef6155; }
+.cm-s-paraiso-light span.cm-link { color: #815ba4; }
+.cm-s-paraiso-light span.cm-error { background: #ef6155; color: #776e71; }
+
+.cm-s-paraiso-light .CodeMirror-activeline-background { background: #CFD1C4; }
+.cm-s-paraiso-light .CodeMirror-matchingbracket { text-decoration: underline; color: white !important; }
+
+
+svg[class*=right], svg[class*=left], [class*=right].fas, [class*=left].fas {
+    transform: scaleX(-1) !important;
+}
+
+.product-item__badge {
+    transform: rotate(-45deg) translateZ(0) !important;
+}
+
+#st_gdpr_iframe {
+    left: 0 !important;
+    right: -5000px;
+}
+
+.product-form__item select.single-option-selector {
+    background-position: calc(23px) calc(1rem + 10px), calc(27px) calc(1rem + 10px);
+}
+
+.card__badge {
+    -ms-transform: rotate(-45deg) translateZ(0);
+    -webkit-transform: rotate(-45deg) translateZ(0);
+    transform: rotate(-45deg) translateZ(0);
+}
