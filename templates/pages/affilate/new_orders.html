@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+  <!-- Content goes here -->
+  <div class="content-wrapper">
+    {% include 'pages/affilate/orders/partials/orders_header.html' %}
+    {% include 'pages/affilate/orders/partials/orders_table.html' %}
+  </div>
+
+  <!-- JavaScript files -->
+  {% include 'pages/affilate/orders/partials/orders_scripts.html' %}
+
+
+
+
+<!-- Update city options based on selected governorate -->
+<script>
+  $(document).ready(function () {
+    $("#id_governorate").change(function () {
+      var governorateId = $(this).val();
+      var citySelect = $("#id_city");
+
+      // Make an AJAX request to get cities based on the selected governorate
+      $.ajax({
+        url: `get-cities/${governorateId}/`,
+        success: function (data) {
+          // Clear existing options
+          citySelect.empty();
+
+          // Populate options based on the response
+          $.each(data.cities, function (index, city) {
+            citySelect.append($('<option>').text(city.name).attr('value', city.id));
+          });
+        }
+      });
+    });
+  });
+</script>
+
+<script>
+  $(document).ready(function () {
+    $('.product-select').select2({
+      dropdownParent: $('#addShippingForm'),
+      placeholder: 'اختر منتج',
+      ajax: {
+        url: 'product/search/',  // Adjust the URL to your Django view
+        dataType: 'json',
+        delay: 250,
+        data: function (params) {
+          return {
+            term: params.term,
+            page: params.page || 1
+          };
+        },
+        processResults: function (data, params) {
+          params.page = params.page || 1;
+
+          return {
+            results: data.results,
+            pagination: {
+              more: data.pagination.more
+            }
+          };
+        },
+        cache: true,
+      },
+      dir: 'rtl',
+      width: '100%',
+      selectOnClose: true,
+      // minimumInputLength: 1  // Set the minimum input length before triggering the AJAX request
+    });
+  });
+</script>
+
+
+
+<script>
+  // Update variant options based on selected product
+  $(document).ready(function () {
+    $("#id_items-0-product").change(function () {
+      var productId = $(this).val();
+      var variantSelect = $("#id_items-0-variant");
+
+      // Make an AJAX request to get variants based on the selected product
+      $.ajax({
+        url: `get-variants/${productId}/`,
+        success: function (data) {
+          // Clear existing options
+          variantSelect.empty();
+
+          // Populate options based on the response
+          $.each(data.variants, function (index, variant) {
+            variantSelect.append($('<option>').text(variant.name).attr('value', variant.id));
+          });
+        }
+      });
+    });
+  });
+</script>
+
+
+<script>
+  // Update total item price based on selected product and quantity
+  $(document).ready(function () {
+    $("#id_items-0-quantity").change(function () {
+      var productId = $(this).val();
+      var variantSelect = $("#id_items-0-variant");
+
+      // Make an AJAX request to get variants based on the selected product
+      $.ajax({
+        url: `get-variants/${productId}/`,
+        success: function (data) {
+          // Clear existing options
+          variantSelect.empty();
+
+          // Populate options based on the response
+          $.each(data.variants, function (index, variant) {
+            variantSelect.append($('<option>').text(variant.name).attr('value', variant.id));
+          });
+        }
+      });
+    });
+  });
+</script>
+
+
+<script>
+  function updateTotalItemPrice() {
+    // Get the quantity input value
+    var quantity = document.getElementById('id_items-0-quantity').value;
+
+    // Get the product ID (replace 'product_id' with the actual ID field name)
+    var productId = document.getElementById('id_items-0-product').value;
+
+    // Make an AJAX request to fetch the sale price for the product
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'get_sale_price/' + productId + '/');
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        // Parse the response JSON
+        var response = JSON.parse(xhr.responseText);
+
+        // Extract the sale price
+        var salePrice = response.sale_price;
+
+        // Calculate the total item price
+        var totalItemPrice = quantity * salePrice;
+        var totalItemPriceInput = document.getElementById('id_items-0-total_item_price');
+        totalItemPriceInput.readOnly = true;
+
+        // Update the total_item_price input value
+        totalItemPriceInput.value = totalItemPrice.toFixed(2); // Round to 2 decimal places
+      }
+    };
+    xhr.send();
+  }
+  document.getElementById('id_items-0-quantity').addEventListener('input', updateTotalItemPrice);
+</script>
+
+
+{% endblock %}

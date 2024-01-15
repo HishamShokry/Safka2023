@@ -1,0 +1,27 @@
+
+<!-- Show Message -->
+<script>
+    function showErrorMessage(message) {
+      var errorMessageContainer = $('#error-message-container');
+      errorMessageContainer.text(message);
+      errorMessageContainer.show();  // Display the error message
+  
+      // Optionally, you can hide the error message after a certain duration
+      setTimeout(function () {
+        errorMessageContainer.hide();
+      }, 5000);  // Hide after 5 seconds (adjust the duration as needed)
+    }
+  
+    function showSuccessMessage(message) {
+      var successMessageContainer = $('#success-message-container');
+      successMessageContainer.text(message);
+      successMessageContainer.show();  // Display the success message
+  
+      // Optionally, you can hide the success message after a certain duration
+      setTimeout(function () {
+        successMessageContainer.hide();
+      }, 5000);  // Hide after 5 seconds (adjust the duration as needed)
+    }
+  </script>
+  
+  

@@ -49,7 +49,6 @@ router.register(
 router.register(r"order_api", views.OrderViewSetAdmin, basename="order")
 router.register(r"order_item_api", views.OrderItemViewSetAdmin, basename="order_item")
 
-
 urlpatterns = [
     path("", views.dashboard, name="dashboard"),
     path("dashboard", views.dashboard, name="dashboard"),

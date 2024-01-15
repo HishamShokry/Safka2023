@@ -135,14 +135,14 @@ def orders(request):
             order_items.instance = product
             order_items.save()
             return JsonResponse({'detail': 'Product created successfully'})
+            
         else:
             return JsonResponse({'detail': 'Invalid form data'}, status=400)
-
     else:
         form = OrderForm()
         order_items = OrderForm.items(instance=Product())  
     order = Order.objects.all()
-    return render(request, "pages/affilate/orders.html", {"order": order,  'form': form, 'variant_formset': order_items})
+    return render(request, "pages/affilate/new_orders.html", {"order": order,  'form': form, 'variant_formset': order_items})
 
 
 @login_required
@@ -1160,25 +1160,32 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
         
 
 
-    
-    @action(detail=True, methods=["post"])
-    def post(self, request, *args, **kwargs):
-        order_id = kwargs.get("pk")
-        print(order_id)
-        action_type = request.data.get("action_type")  # Adjust as needed
 
+    def create(self, request, *args, **kwargs):
+        print(request.data)
         try:
-            order = Order.objects.get(id=order_id)
-        except Order.DoesNotExist:
-            return Response({"error": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
+            product_data = request.data
+            variants_data = product_data.pop('product_variant_set', [])[0]  # Extract variants data
+            variants_data = json.loads(variants_data)
+            print(request.data)
+            # Validate and create product
+            product_serializer = OrderSerializer(data=product_data)
+            product_serializer.is_valid(raise_exception=True)
+            product = product_serializer.save()
+            # print(product.id)
+            # Create variants associated with the product
+            for variant_data in variants_data:
+                variant_data['product'] = product.id  # Link variant to the created product
+                variant_serializer = OrderItemSerializer(data=variant_data)
+                variant_serializer.is_valid(raise_exception=True)
+                variant_serializer.save()
 
-        # Update click counters based on the action type
-        order.update_click_counters(action_type)
+            return Response(product_serializer.data, status=status.HTTP_201_CREATED)
 
-        # Serialize the updated order data
-        serializer = OrderSerializer(order)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            # Handle exceptions, log the error, and return an appropriate response
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
 
 
 

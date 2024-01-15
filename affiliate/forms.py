@@ -307,7 +307,7 @@ class OrderItemForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        self.fields["product"].queryset = Product.objects.none()
+        # self.fields["product"].queryset = Product.objects.none()
 
         if 'product' in self.data:
             # If there is data for the "product" field, update the queryset based on the search term

@@ -1,0 +1,200 @@
+
+<!-- Edit row -->
+<script>
+    var currentCategoryId;
+  
+    // Handle click on "Edit" button
+    $('#example2').on('click', '.edit-btn', function () {
+      currentCategoryId = $(this).data('id');
+      // console.log(currentCategoryId);
+      // Make an AJAX request to retrieve product details
+      $.ajax({
+        url: '/affiliate/api/products_api/' + currentCategoryId + '/',  // Update the URL as needed
+        method: 'GET',
+        headers: {
+          'CSRFToken': '{{ csrf_token }}'
+        },
+        success: function (response) {
+          if (response) {
+            // Populate the edit modal with product details
+            $('#editShippingModal #id_name').val(response.name);
+            $('#editShippingModal #id_category').val(response.category);
+            $('#editShippingModal #id_inventory').val(response.inventory);
+            $('#editShippingModal #id_vendor').val(response.vendor);
+            $('#editShippingModal #id_purchase_price').val(response.purchase_price);
+            $('#editShippingModal #id_sale_price').val(response.sale_price);
+  
+            // Populate the image field if there is an existing image
+            if (response.image_url) {
+              $('#editShippingModal #id_image').attr('src', response.image_url);
+            }
+  
+            $('#editShippingModal #id_media_url').val(response.media_url);
+            $('#editShippingModal #id_product_variant_set').val(response.product_variant_set);
+            $('#editShippingModal #id_description').val(response.description);
+            $('#editShippingModal #id_note').val(response.note);
+            $('#editShippingModal #id_access_type').val(response.access_type);
+  
+            // Populate the access_to field with existing values
+            var accessToValues = response.access_to || [];
+            $('#editShippingModal #id_access_to').val(accessToValues);
+  
+            $('#editShippingModal #id_is_active').prop('checked', response.is_active);
+  
+            // Show the edit modal
+            $('#editShippingModal').modal('show');
+  
+  
+  
+            $('#edit-variant').on('click', function () {
+              // Clone the first variant form and append it to the variant-formset-container
+              var newVariantForm = $('.variant-form:first').clone();
+              newVariantForm.find(':input').val('');
+              $('#edit-variant-formset-container').append(newVariantForm);
+            });
+          } else {
+            console.error('Failed to retrieve product details.');
+          }
+        },
+        error: function (error) {
+          console.error('Error retrieving product details:', error);
+  
+        }
+      });
+    });
+  
+    // Handle click on "Save Changes" button in the edit modal
+    $('#updateShippingBtn').on('click', function () {
+      // Create a new FormData object
+      var editFormData = new FormData();
+  
+      // Append updated data to the FormData object
+      editFormData.append('name', $('#editShippingModal #id_name').val());
+      editFormData.append('category', $('#editShippingModal #id_category').val());
+      editFormData.append('inventory', $('#editShippingModal #id_inventory').val());
+      editFormData.append('vendor', $('#editShippingModal #id_vendor').val());
+      editFormData.append('purchase_price', $('#editShippingModal #id_purchase_price').val());
+      editFormData.append('sale_price', $('#editShippingModal #id_sale_price').val());
+  
+      // Append the updated image file if it exists
+      var updatedImageInput = $('#editShippingModal #id_image')[0];
+      if (updatedImageInput.files.length > 0) {
+        editFormData.append('image', updatedImageInput.files[0]);
+      }
+  
+      editFormData.append('media_url', $('#editShippingModal #id_media_url').val());
+      editFormData.append('product_variant_set', $('#editShippingModal #id_product_variant_set').val());
+      editFormData.append('description', $('#editShippingModal #id_description').val());
+      editFormData.append('note', $('#editShippingModal #id_note').val());
+      editFormData.append('access_type', $('#editShippingModal #id_access_type').val());
+  
+      // Append the updated access_to values
+      var updatedAccessToValues = $('#editShippingModal #id_access_to').val() || [];
+      updatedAccessToValues.forEach(function (value) {
+        editFormData.append('access_to', value);
+      });
+  
+      editFormData.append('is_active', $('#editShippingModal #id_is_active').prop('checked'));
+  
+  
+  
+      var product_variant_set = [];
+  
+      $('#edit-variant-formset-container .variant-form').each(function (index, variantForm) {
+        var size = $(variantForm).find('[id^="id_product_variant_set-"][id$="-size"]').val();
+        var color = $(variantForm).find('[id^="id_product_variant_set-"][id$="-color"]').val();
+        var quantity = $(variantForm).find('[id^="id_product_variant_set-"][id$="-quantity"]').val();
+        console.log(size, color, quantity);
+        var variant = {
+          'product': null,
+          'size': size,
+          'color': color,
+          'quantity': quantity
+        };
+        product_variant_set.push(variant);
+      });
+  
+  
+      editFormData.append('product_variant_set', product_variant_set);
+      editFormData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  
+      console.log(editFormData);
+      // Make an AJAX request to update the product on the server
+      $.ajax({
+        url: '/affiliate/api/products_api/' + currentCategoryId + '/',  // Update the URL as needed
+        method: 'PUT',
+        contentType: false,
+        processData: false,
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        data: editFormData,
+      }).done(function (data, textStatus, jqXHR) {
+        console.log(data);
+        showSuccessMessage("تم تعديل المنتج: " + data.name)
+  
+        dataTable.ajax.reload();
+      }).fail(function (jqXHR, textStatus, errorThrown) {
+        if (jqXHR.status === 400) {
+          // Status code 400 indicates a bad request, you can customize this based on your server response
+          var errors = JSON.parse(jqXHR.responseText);
+          if (errors && errors.name) {
+            console.log(errors.name);
+            showErrorMessage(errors.name[0]);
+          }
+          if (errors && errors.image) {
+            console.log(errors.image);
+            showErrorMessage(errors.image[0]);
+          }
+        } else {
+          console.log("Unexpected error:", jqXHR.responseText);
+        }
+      });
+      // Close the modal
+      $('#editShippingModal').modal('hide');
+    });
+  
+  
+  </script>
+  
+
+
+  <!-- Delete row -->
+<script>
+  $('#example2').on('click', '.delete-btn', function () {
+    var row = $(this).closest('tr');
+    var productId = row.find('.edit-btn').data('id');
+
+    // Assuming you have a confirmation modal with ID 'deleteConfirmationModal'
+    $('#deleteConfirmationModal').modal('show');
+
+    // Detach previous click event handlers to prevent multiple bindings
+    $('#confirmDeleteBtn').off('click');
+
+    // Handle confirmation
+    $('#confirmDeleteBtn').on('click', function () {
+      // Send an AJAX request to delete the product
+      $.ajax({
+        url: '/affiliate/api/products_api/' + productId + '/',
+        method: 'DELETE',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        data: {
+          'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function (response) {
+          dataTable.draw(); // Assuming dataTable is the DataTable instance, redraw it after deletion
+          showSuccessMessage('تم حذف منتج.');
+        },
+        error: function (error) {
+          console.error('Error deleting product:', error);
+          showErrorMessage('حدث خطأ أثناء حذف منتج. حاول مرة اخرى.');
+        }
+      });
+
+      // Close the confirmation modal
+      $('#deleteConfirmationModal').modal('hide');
+    });
+  });
+</script>

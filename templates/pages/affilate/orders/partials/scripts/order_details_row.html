@@ -1,0 +1,138 @@
+
+<!-- Order details row -->
+<script>
+  $(document).ready(function () {
+    var currentOrder = null;
+    // Function to fetch and display order details
+    function fetchAndDisplayOrderDetails(orderId) {
+      // URL to fetch order details (replace with your actual URL)
+      var apiUrl = '/affiliate/api/order_api/' + orderId + '/';
+
+      // Make an AJAX request to fetch order details
+      $.ajax({
+        url: apiUrl,
+        type: 'GET',
+        dataType: 'json',
+        success: function (data) {
+          // Display order details in the modal body
+          console.log(data);
+          currentOrder = data;
+          displayOrderDetailsInModal(data);
+        },
+        error: function (error) {
+          console.error('Error fetching order details:', error);
+        }
+      });
+    }
+    // Function to display order details in the modal body
+    function displayOrderDetailsInModal(orderData) {
+      // Create HTML content based on order data
+      var orderId = orderData.id;
+
+      // First row: Order ID, Creation Date, and Last Update Date
+      modalContent = '<div class="row">';
+      modalContent += '  <div class="col-md-4">#: ' + orderData.id + '</div>';
+      modalContent += '  <div class="col-md-4">تاريخ الانشاء: ' + formatDate(orderData.created_at) + '</div>';
+      modalContent += '  <div class="col-md-4">اخر تحديث: ' + formatDate(orderData.updated_at) + '</div>';
+      modalContent += '</div>';
+
+      modalContent += '<br>'
+
+      // Second row: Barcode, Marketer, Shipping Company
+      modalContent += '<div class="row">';
+      modalContent += '  <div class="col-md-4">الكود: ' + orderData.barcode + '</div>';
+      modalContent += '  <div class="col-md-4">المسوق:  ' + orderData.marketer_name + '</div>';
+      modalContent += '  <div class="col-md-4">شركة الشحن:  ' + orderData.shipping_company_name + '</div>';
+      modalContent += '</div>';
+
+      modalContent += '<br>'
+
+      modalContent += '<p>الحالة: ' + orderData.status + '</p>';
+      modalContent += '<table class="table table-bordered table-striped table-hover">';
+      modalContent += '<thead class="bg-primary">';
+      // Order items table
+      modalContent += '<h5>تفاصيل العميل:</h5>';
+      modalContent += '<th>اسم العميل</th>';
+      modalContent += '<th>رقم العميل (1)</th>';
+      modalContent += '<th>رقم العميل (2)</th>';
+      modalContent += '<th>عنوان العميل</th>';
+      modalContent += '</thead>';
+      modalContent += '<tr>'
+      modalContent += '<td>اسم العميل: ' + orderData.client_name + '</td>';
+      modalContent += '<td>' + orderData.client_phone1;
+      modalContent += '<a href="#"><i class="fab fa-whatsapp" onclick="handleClick(\'' + orderId + '\', \'whats1\', \'' + orderData.barcode + '\',\'' + orderData.client_phone1 + '\')"></i></a>';
+      modalContent += '<span id="counter-whats1" class="badge">' + orderData.whats1_clicked + '</span>';
+      modalContent += '<a href="tel:+2' + orderData.client_phone1 + '"><i class="fas fa-phone-alt" onclick="handleClick(\'' + orderId + '\', \'phone1\', \'' + orderData.barcode + '\',\'' + orderData.client_phone1 + '\')"></i></a>';
+      modalContent += '<span id="counter-call1" class="badge">' + orderData.phone1_clicked + '</span>' + '</td>';
+
+      modalContent += '<td>' + orderData.client_phone2;
+      modalContent += '<a href="#"><i class="fab fa-whatsapp" onclick="handleClick(\'' + orderId + '\', \'whats2\', \'' + orderData.barcode + '\',\'' + orderData.client_phone2 + '\')"></i></a>';
+      modalContent += '<span id="counter-whats2" class="badge">' + orderData.whats2_clicked + '</span>';
+      modalContent += '<a href="tel:+2' + orderData.client_phone2 + '"><i class="fas fa-phone-alt" onclick="handleClick(\'' + orderId + '\', \'phone2\', \'' + orderData.barcode + '\',\'' + orderData.client_phone2 + '\')"></i></a>';
+      modalContent += '<span id="counter-call2" class="badge">' + orderData.phone2_clicked + '</span>' + '</td>';
+      modalContent += '<td>' + orderData.client_address + ", " + orderData.city_name + ", " + orderData.governorate_name + '</td>';
+      modalContent += '</tr>'
+      modalContent += '</table>'
+      modalContent += '<br>'
+      // Order items table
+      modalContent += '<h5>تفاصيل الطلب:</h5>';
+      modalContent += '<table class="table table-bordered table-striped table-hover">';
+      modalContent += '<thead class="bg-primary"><tr><th>المنتج</th><th>لخاصية</th><th>الكمية</th><th>السعر</th><th>السعر الإجمالي</th></tr></thead>';
+      modalContent += '<tbody>';
+      orderData.items.forEach(function (item) {
+        modalContent += '<tr>';
+        modalContent += '<td>' + item.product.name + '</td>';
+        item.product.product_variant_set.forEach(function (variant) {
+          modalContent += '<td>' + variant.size_name + ' x ' + variant.color_name + '</td>';
+          // Add more details from the variant if needed
+        });
+        modalContent += '<td>' + item.quantity + '</td>';
+        modalContent += '<td>' + item.product.sale_price + '</td>';
+        modalContent += '<td>' + item.total_item_price + '</td>';
+        modalContent += '</tr>';
+      });
+      modalContent += '</tbody>';
+      modalContent += '</table>';
+      modalContent += '<br>'
+      // Total table
+      modalContent += '<h5>مصاريف الطلب:</h5>';
+      modalContent += '<table class="table table-bordered table-striped table-hover">';
+      modalContent += '<thead class="bg-primary"><tr><th>الشحن</th><th>العمولة</th><th>اجمالي منتجات</th><th>اجمالي مصاريف</th></tr></thead>';
+      modalContent += '<tbody>';
+      modalContent += '<tr>';
+      modalContent += '<td>' + orderData.shiping_price + '</td>';
+      modalContent += '<td>' + orderData.commission + '</td>';
+      modalContent += '<td>' + orderData.total_items_price + '</td>';
+      modalContent += '<td>' + orderData.total + '</td>';
+      modalContent += '</tr>';
+      modalContent += '</tbody>';
+      modalContent += '</table>';
+      modalContent += '<br>'
+      modalContent += '  <label class="form-label" for="note">ملاحظة</label>'
+      modalContent += '<textarea class="form-control" id="note" readonly>' + orderData.note + '</textarea>';
+
+      // Add other order details as needed
+
+      // Display HTML content in the modal body
+      $('#orderDetailsBody').html(modalContent);
+
+      // Show the modal
+      $('#orderModal').modal('show');
+    }
+    var orderId = null;
+    // Handle click on .btn-show-details button within the table with id 'example2'
+    $('#example2').on('click', '.btn-show-details', function () {
+      // Find the closest table row
+      var row = $(this).closest('tr');
+
+      // Extract the order ID from the button's data-id attribute
+      orderId = row.find('.btn-show-details').data('id');
+
+      // Log the order ID for debugging
+      // console.log(orderId);
+
+      // Fetch and display order details in the modal
+      fetchAndDisplayOrderDetails(orderId);
+    });
+  });
+</script>
