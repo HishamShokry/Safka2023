@@ -1,0 +1,48 @@
+<script>
+  $(document).ready(function () {
+
+    // Initialize Select2 for product-select dropdowns
+    function initializeSelect2Marketers(selectElement) {
+      selectElement.select2({
+        dropdownParent: $('#addShippingForm'),
+        placeholder: 'اختر مسوق',
+        ajax: {
+          url: 'marketer/search/',
+          dataType: 'json',
+          delay: 250,
+          data: (params) => {
+            return {
+              term: params.term,
+              page: params.page || 1
+            };
+          },
+          processResults: (data, params) => {
+            params.page = params.page || 1;
+            return {
+              results: data.results,
+              pagination: {
+                more: data.pagination.more
+              }
+            };
+          },
+          cache: true,
+        },
+        dir: 'rtl',
+        width: '100%',
+        selectOnClose: true,
+      });
+    }
+
+    // Initialize Select2 on existing .product-select elements
+    $('#id_marketer').each(function () {
+      initializeSelect2Marketers($(this));
+    });
+
+
+  });
+
+
+
+
+  
+</script>

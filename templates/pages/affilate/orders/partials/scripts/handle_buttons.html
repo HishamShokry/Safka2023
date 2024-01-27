@@ -1,0 +1,21 @@
+<script>
+  $(document).ready(function () {
+    // Initially hide both buttons
+    $('#saveShippingBtn, #updateShippingBtn').hide();
+
+    // Show the saveShippingBtn when addRowBtn is clicked
+    $('#addRowBtn').on('click', function () {
+      $('#saveShippingBtn').show();
+      $('#updateShippingBtn').hide();
+    });
+
+
+    $(document).on('click', '.edit-btn', function () {
+      console.log('dsdsds');
+      $('#updateShippingBtn').show();
+      $('#saveShippingBtn').hide();
+    });
+
+
+  });
+</script>

@@ -1,0 +1,1133 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1>الطلبات</h1>
+        </div>
+        <div class="col-sm-6">
+          <ol class="breadcrumb float-sm-left">
+            <li class="breadcrumb-item">
+              <a href="#">افيليت</a>
+            </li>
+            <li class="breadcrumb-item active">الطلبات</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+    <!-- /.container-fluid -->
+  </section>
+
+  <!-- Main content -->
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row"></div>
+      <!-- /.card -->
+      <div class="card">
+        <div class="card-header bg-primary">
+          <div class="card-tools">
+            <button type="button" class="btn btn-outline-light btn-sm" data-card-widget="collapse">
+              <i class="fas fa-minus"></i>
+            </button>
+            <button type="button" class="btn btn-danger btn-sm" data-card-widget="remove">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <!-- /.card-header -->
+        <div id="error-message-container" class="alert alert-danger" style="display: none;"></div>
+        <div id="success-message-container" class="alert alert-success" style="display: none;"></div>
+        <div class="card-body">
+          <button id="addRowBtn" class="btn btn-primary float-right"><i class="fas fa-plus"></i></button>
+
+          <!-- Add these input fields above the DataTable -->
+          <form class="form-group row m-2">
+            <label class="form-label" for="date_range">تاريخ:</label>
+            <div class="col-xs-3 ml-">
+              <input type="text" class="form-control" id="date_range" />
+            </div>
+            <div class="col">
+              <button type="button" class="btn btn-primary" id="submitBtn">فلتر</button>
+            </div>
+          </form>
+          <table id="example2" class="table table-bordered table-striped table-hover">
+            <thead class="bg-primary">
+              <tr>
+                <th>#</th>
+                <th>الباركود</th>
+                <th>الحالة</th>
+                <th>اسم العميل</th>
+                <th>رقم الهاتف 1</th>
+                <th>رقم الهاتف 2</th>
+                <th>عنوان العميل</th>
+                <th>سعر الشحن</th>
+                <th>العمولة</th>
+                <th>الإجمالي</th>
+                <th>إجمالي سعر العناصر</th>
+                <th>ملاحظة</th>
+                <th>واتساب (1) مفعل</th>
+                <th>الهاتف (1) مفعل</th>
+                <th>رسالة نصية (1) مفعلة</th>
+                <th>واتساب (2) مفعل</th>
+                <th>الهاتف (2) مفعل</th>
+                <th>رسالة نصية (2) مفعلة</th>
+                <th>تاريخ الإنشاء</th>
+                <th>تاريخ التحديث</th>
+                <th>المسوق</th>
+                <th>المحافظة</th>
+                <th>المدينة</th>
+                <th>شركة الشحن</th>
+                <th>اختر عملية</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot>
+              <tr>
+                <th>#</th>
+                <th>الباركود</th>
+                <th>الحالة</th>
+                <th>اسم العميل</th>
+                <th>رقم الهاتف 1</th>
+                <th>رقم الهاتف 2</th>
+                <th>عنوان العميل</th>
+                <th>سعر الشحن</th>
+                <th>العمولة</th>
+                <th>الإجمالي</th>
+                <th>إجمالي سعر العناصر</th>
+                <th>ملاحظة</th>
+                <th>واتساب (1) مفعل</th>
+                <th>الهاتف (1) مفعل</th>
+                <th>رسالة نصية (1) مفعلة</th>
+                <th>واتساب (2) مفعل</th>
+                <th>الهاتف (2) مفعل</th>
+                <th>رسالة نصية (2) مفعلة</th>
+                <th>تاريخ الإنشاء</th>
+                <th>تاريخ التحديث</th>
+                <th>المسوق</th>
+                <th>المحافظة</th>
+                <th>المدينة</th>
+                <th>شركة الشحن</th>
+                <th>اختر عملية</th>
+              </tr>
+            </tfoot>
+          </table>
+
+
+
+          <div class="modal fade" id="orderModal" tabindex="-1" role="dialog" aria-labelledby="orderModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="orderModalLabel">تفاصيل الطلب</h5>
+                  <button type="button" class="close"  data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body" id="orderDetailsBody">
+
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary"  data-bs-dismiss="modal">اغلاق</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Add Product Modal -->
+
+          <div class="modal fade" id="addShippingModal" tabindex="-1" role="dialog"
+            aria-labelledby="addShippingModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="addShippingModalLabel">اضافة سعر شحن جديد</h5>
+                  <button type="button" class="close"  data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form method="post" id="addShippingForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+
+                    <div id="variant-formset-container">
+                      {{ variant_formset.management_form }}
+                      {% for form in variant_formset %}
+                      <div class="variant-form">
+                        {% csrf_token %}
+                        {{form.as_p}}
+                      </div>
+                      {% endfor %}
+                    </div>
+                    <button type="button" class="btn btn-outline-success" id="add-variant">اضافة منتج</button>
+
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary"  data-bs-dismiss="modal">اغلاق</button>
+                  <button type="button" class="btn btn-primary" id="saveShippingBtn">حفظ</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Edit Product Modal -->
+          <!-- <div class="modal fade" id="editShippingModal" tabindex="-1" role="dialog"
+            aria-labelledby="editShippingModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="editShippingModalLabel">تعديل السعر شحن</h5>
+                  <button type="button" class="close"  data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form method="post" id="editShippingForm">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+
+                    <div id="edit-variant-formset-container">
+                      {{ variant_formset.management_form }}
+                      {% for form in variant_formset %}
+                      <div class="variant-form">
+                        {% csrf_token %}
+                        {{form.as_p}}
+                      </div>
+                      {% endfor %}
+                    </div>
+                    <button type="button" class="btn btn-outline-success" id="edit-variant">اضافة منتج</button>
+
+
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary"  data-bs-dismiss="modal">اغلاق</button>
+                  <button type="button" class="btn btn-primary" id="updateShippingBtn">حفظ التغييرات</button>
+                </div>
+              </div>
+            </div>
+          </div> -->
+
+          <!-- Delete Confirmation Modal -->
+          <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" role="dialog"
+            aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="deleteConfirmationModalLabel">تأكيد الحذف</h5>
+                  <button type="button" class="close"  data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <p>هل أنت متأكد أنك تريد حذف هذا السعر شحن؟</p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary"  data-bs-dismiss="modal">إلغاء</button>
+                  <button type="button" class="btn btn-danger" id="confirmDeleteBtn">تأكيد الحذف</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /.card-body -->
+      </div>
+    </div>
+    <!-- /.card -->
+    <!-- /.col -->
+    <!-- /.row -->
+    <!-- /.container-fluid -->
+  </section>
+
+  <!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
+
+
+
+
+
+<!-- Datatable -->
+<script>
+  var dataTable;
+  $(function () {
+
+    // Initialize Date Range Picker
+    var tomorrow = moment().add(1, 'days');
+    $('#date_range').daterangepicker({
+      locale: {
+        format: 'YYYY-MM-DD',
+        applyLabel: 'تطبيق',
+        cancelLabel: 'إلغاء',
+        customRangeLabel: 'نطاق مخصص',
+      },
+      startDate: '2023-01-01',
+      endDate: tomorrow,
+    });
+
+
+
+    // Initialize DataTables
+    dataTable = $('#example2').DataTable({
+      'processing': true,
+      'serverSide': true,
+      'ajax': {
+        'url': '/affiliate/api/order_api/Hisham/datatable_list/',
+        'type': 'GET',
+        'data': function (d) {
+          d.extra_search = {};  // Add an object to store individual column searches
+
+          // Add date filters from Date Range Picker
+          var dateRange = $('#date_range').val();
+          if (dateRange) {
+            var [startDate, endDate] = dateRange.split(' - ');
+            d.start_date = startDate;
+            d.end_date = endDate;
+          }
+
+          // Add individual column searches
+          $('input.column-search').each(function () {
+            var columnIdx = $(this).data('column-index');
+            var columnName = dataTable.column(columnIdx).dataSrc();
+            d.extra_search[columnName] = $(this).val();
+          });
+        },
+      },
+
+      'columns': [
+        { 'data': 'id' },
+        { 'data': 'barcode' },
+        { 'data': 'status' },
+        { 'data': 'client_name' },
+        { 'data': 'client_phone1' },
+        { 'data': 'client_phone2' },
+        { 'data': 'client_address' },
+        { 'data': 'shiping_price' },
+        { 'data': 'commission' },
+        { 'data': 'total' },
+        { 'data': 'total_items_price' },
+        { 'data': 'note' },
+        { 'data': 'whats1_clicked' },
+        { 'data': 'phone1_clicked' },
+        { 'data': 'sms1_clicked' },
+        { 'data': 'whats2_clicked' },
+        { 'data': 'phone2_clicked' },
+        { 'data': 'sms2_clicked' },
+        { 'data': 'created_at' },
+        { 'data': 'updated_at' },
+        { 'data': 'marketer_name' },
+        { 'data': 'governorate_name' },
+        { 'data': 'city_name' },
+        { 'data': 'shipping_company_name' },
+        {
+          'data': null,
+          'render': function (data, type, row) {
+            // Add Edit and Delete buttons for each row
+            return '<button class="btn btn-warning edit-btn" data-id="' + row.id + '">تعديل</button>' +
+              '<button class="btn btn-danger delete-btn" data-id="' + row.id + '">حذف</button>' +
+              '<button class="btn btn-primary btn-show-details" data-id="' + row.id + '">عرض</button>';
+          },
+          'orderable': false,
+          "searchable": false
+        },
+      ],
+      'order': [], // Disable default sorting
+      dom: 'frBtip',
+      scrollY: 500,
+      responsive: true,
+      lengthChange: true,
+      autoWidth: true,
+      select: true,
+      buttons: ['pageLength', 'copy', 'csv', 'excel', 'pdf', 'print', 'colvis', 'selectAll', 'selectNone'],
+      initComplete: function () {
+        // Add individual column search inputs with placeholders
+        this.api().columns().every(function () {
+          var column = this;
+          var input = document.createElement("input");
+          $(input)
+            .addClass('column-search')
+            .attr('placeholder', 'ابحث ' + column.header().innerHTML)
+            .data('column-index', column.index())
+            .appendTo($(column.footer()).empty())
+            .on('keyup change', function () {
+              dataTable.draw();
+            });
+        });
+      }
+    });
+  });
+
+</script>
+
+<!-- Redraw table -->
+<script>
+  // Handle click on the "Submit" button to redraw the table
+  $('#submitBtn').click(function () {
+    dataTable.draw();
+  });
+</script>
+
+
+<!-- Add row -->
+<script>
+  $(document).ready(function () {
+
+    // Initialize Select2 for product-select with your specific settings
+    function initializeSelect2(selectElement) {
+      selectElement.select2({
+        dropdownParent: $('#addShippingForm'),
+        placeholder: 'اختر منتج',
+        ajax: {
+          url: 'product/search/', // Adjust the URL to your Django view
+          dataType: 'json',
+          delay: 250,
+          data: function (params) {
+            return {
+              term: params.term,
+              page: params.page || 1
+            };
+          },
+          processResults: function (data, params) {
+            params.page = params.page || 1;
+            return {
+              results: data.results,
+              pagination: {
+                more: data.pagination.more
+              }
+            };
+          },
+          cache: true,
+        },
+        dir: 'rtl',
+        width: '100%',
+        selectOnClose: true,
+        // minimumInputLength: 1  // Uncomment if needed
+      });
+    }
+
+    // Initialize Select2 on existing .product-select elements
+    $('.product-select').each(function() {
+      initializeSelect2($(this));
+    });
+
+    // Handle click on "Add Row" button
+    $('#addRowBtn').on('click', function () {
+      $('#addShippingModal').modal('show');
+    });
+
+    // Handle click on "Add Variant" button
+    $('#add-variant').on('click', function () {
+      var newVariantForm = $('.variant-form:first').clone();
+
+      // Clear the values in the new form
+      newVariantForm.find(':input').val('');
+
+      // Update IDs, labels, containers, and names with a sequence
+      var formIndex = $('.variant-form').length;
+      newVariantForm.find(':input').each(function () {
+        var newName = this.name.replace(/-\d+-/, '-' + formIndex + '-');
+        var newId = this.id.replace(/-\d+-/, '-' + formIndex + '-');
+        $(this).attr({'name': newName, 'id': newId});
+
+        // Update label 'for' attribute
+        var labelFor = $(this).siblings('label').attr('for');
+        if (labelFor) {
+          var newLabelFor = labelFor.replace(/-\d+-/, '-' + formIndex + '-');
+          $(this).siblings('label').attr('for', newLabelFor);
+        }
+      });
+
+      // Append the new form and reinitialize Select2 on the select elements of the new form
+      $('#variant-formset-container').append(newVariantForm);
+      newVariantForm.find('.product-select').each(function() {
+        initializeSelect2($(this));
+      });
+    });
+
+    // Handle click on "Save Changes" button in the modal
+    $('#saveShippingBtn').on('click', function () {
+      console.log()
+      var formData = new FormData();
+      // var formData = $(this).serializeArray();
+      //   console.log(formData);
+      // Append data to the FormData object
+      formData.append('name', $('#addShippingModal #id_name').val());
+      formData.append('category', $('#addShippingModal #id_catzzegory').val());
+      formData.append('inventory', $('#addShippingModal #id_inventory').val());
+      formData.append('vendor', $('#addShippingModal #id_vendor').val());
+      formData.append('purchase_price', $('#addShippingModal #id_purchase_price').val());
+      formData.append('sale_price', $('#addShippingModal #id_sale_price').val());
+
+      // Append the image file if it exists
+
+      // formData.append('product_variant_set', $('#addShippingModal #id_product_variant_set').val() || []);
+      formData.append('description', $('#addShippingModal #id_description').val());
+      formData.append('note', $('#addShippingModal #id_note').val());
+      formData.append('access_type', $('#addShippingModal #id_access_type').val());
+      // Convert access_to to an array
+      var accessToValues = $('#addShippingModal #id_access_to').val() || [];
+      accessToValues.forEach(function (value) {
+        formData.append('access_to', value);
+      });
+      formData.append('is_active', $('#addShippingModal #id_is_active').val());
+
+
+      var productVariantSet = [];
+
+      $('#variant-formset-container .variant-form').each(function (index, variantForm) {
+        var size = $(variantForm).find('[id^="id_product_variant_set-"][id$="-size"]').val();
+        var color = $(variantForm).find('[id^="id_product_variant_set-"][id$="-color"]').val();
+        var quantity = $(variantForm).find('[id^="id_product_variant_set-"][id$="-quantity"]').val();
+
+        var variant = {
+          'product': null,
+          'size': size,
+          'color': color,
+          'quantity': quantity
+        };
+
+        productVariantSet.push(variant);
+      });
+
+      // Add the product variant set as a JSON string to the FormData
+      formData.append('product_variant_set', JSON.stringify(product_variant_set));
+      formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+
+      console.log(formData);
+      // Send the FormData object in the AJAX request
+      $.ajax({
+        url: '/affiliate/api/products_api/', // Replace with your actual API endpoint
+        method: 'POST',
+        contentType: false,
+        processData: false,
+        data: formData,
+      }).done(function (data, textStatus, jqXHR) {
+        console.log(data);
+        showSuccessMessage("تم أضافة منتج جديد: " + data.name);
+        dataTable.ajax.reload(); // Assuming dataTable is defined elsewhere
+      }).fail(function (jqXHR, textStatus, errorThrown) {
+        if (jqXHR.status === 400) {
+          var errors = JSON.parse(jqXHR.responseText);
+          // Handle validation errors'
+          if (errors && errors['error']) {
+            console.log(errors['error']);
+            showErrorMessage(errors['error']);
+          }
+
+
+        } else {
+          console.log("Unexpected error:", jqXHR.responseText);
+        }
+      });
+
+      // Close the modal
+      $('#addShippingModal').modal('hide');
+    });
+  });
+</script>
+
+
+<!-- Edit row -->
+<script>
+  var currentCategoryId;
+
+  // Handle click on "Edit" button
+  $('#example2').on('click', '.edit-btn', function () {
+    currentCategoryId = $(this).data('id');
+    // console.log(currentCategoryId);
+    // Make an AJAX request to retrieve product details
+    $.ajax({
+      url: '/affiliate/api/products_api/' + currentCategoryId + '/',  // Update the URL as needed
+      method: 'GET',
+      headers: {
+        'CSRFToken': '{{ csrf_token }}'
+      },
+      success: function (response) {
+        if (response) {
+          // Populate the edit modal with product details
+          $('#editShippingModal #id_name').val(response.name);
+          $('#editShippingModal #id_category').val(response.category);
+          $('#editShippingModal #id_inventory').val(response.inventory);
+          $('#editShippingModal #id_vendor').val(response.vendor);
+          $('#editShippingModal #id_purchase_price').val(response.purchase_price);
+          $('#editShippingModal #id_sale_price').val(response.sale_price);
+
+          // Populate the image field if there is an existing image
+          if (response.image_url) {
+            $('#editShippingModal #id_image').attr('src', response.image_url);
+          }
+
+          $('#editShippingModal #id_media_url').val(response.media_url);
+          $('#editShippingModal #id_product_variant_set').val(response.product_variant_set);
+          $('#editShippingModal #id_description').val(response.description);
+          $('#editShippingModal #id_note').val(response.note);
+          $('#editShippingModal #id_access_type').val(response.access_type);
+
+          // Populate the access_to field with existing values
+          var accessToValues = response.access_to || [];
+          $('#editShippingModal #id_access_to').val(accessToValues);
+
+          $('#editShippingModal #id_is_active').prop('checked', response.is_active);
+
+          // Show the edit modal
+          $('#editShippingModal').modal('show');
+
+
+
+          $('#edit-variant').on('click', function () {
+            // Clone the first variant form and append it to the variant-formset-container
+            var newVariantForm = $('.variant-form:first').clone();
+            newVariantForm.find(':input').val('');
+            $('#edit-variant-formset-container').append(newVariantForm);
+          });
+        } else {
+          console.error('Failed to retrieve product details.');
+        }
+      },
+      error: function (error) {
+        console.error('Error retrieving product details:', error);
+
+      }
+    });
+  });
+
+  // Handle click on "Save Changes" button in the edit modal
+  $('#updateShippingBtn').on('click', function () {
+    // Create a new FormData object
+    var editFormData = new FormData();
+
+    // Append updated data to the FormData object
+    editFormData.append('name', $('#editShippingModal #id_name').val());
+    editFormData.append('category', $('#editShippingModal #id_category').val());
+    editFormData.append('inventory', $('#editShippingModal #id_inventory').val());
+    editFormData.append('vendor', $('#editShippingModal #id_vendor').val());
+    editFormData.append('purchase_price', $('#editShippingModal #id_purchase_price').val());
+    editFormData.append('sale_price', $('#editShippingModal #id_sale_price').val());
+
+    // Append the updated image file if it exists
+    var updatedImageInput = $('#editShippingModal #id_image')[0];
+    if (updatedImageInput.files.length > 0) {
+      editFormData.append('image', updatedImageInput.files[0]);
+    }
+
+    editFormData.append('media_url', $('#editShippingModal #id_media_url').val());
+    editFormData.append('product_variant_set', $('#editShippingModal #id_product_variant_set').val());
+    editFormData.append('description', $('#editShippingModal #id_description').val());
+    editFormData.append('note', $('#editShippingModal #id_note').val());
+    editFormData.append('access_type', $('#editShippingModal #id_access_type').val());
+
+    // Append the updated access_to values
+    var updatedAccessToValues = $('#editShippingModal #id_access_to').val() || [];
+    updatedAccessToValues.forEach(function (value) {
+      editFormData.append('access_to', value);
+    });
+
+    editFormData.append('is_active', $('#editShippingModal #id_is_active').prop('checked'));
+
+
+
+    var product_variant_set = [];
+
+    $('#edit-variant-formset-container .variant-form').each(function (index, variantForm) {
+      var size = $(variantForm).find('[id^="id_product_variant_set-"][id$="-size"]').val();
+      var color = $(variantForm).find('[id^="id_product_variant_set-"][id$="-color"]').val();
+      var quantity = $(variantForm).find('[id^="id_product_variant_set-"][id$="-quantity"]').val();
+      console.log(size, color, quantity);
+      var variant = {
+        'product': null,
+        'size': size,
+        'color': color,
+        'quantity': quantity
+      };
+      product_variant_set.push(variant);
+    });
+
+
+    editFormData.append('product_variant_set', product_variant_set);
+    editFormData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+    console.log(editFormData);
+    // Make an AJAX request to update the product on the server
+    $.ajax({
+      url: '/affiliate/api/products_api/' + currentCategoryId + '/',  // Update the URL as needed
+      method: 'PUT',
+      contentType: false,
+      processData: false,
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      data: editFormData,
+    }).done(function (data, textStatus, jqXHR) {
+      console.log(data);
+      showSuccessMessage("تم تعديل المنتج: " + data.name)
+
+      dataTable.ajax.reload();
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+      if (jqXHR.status === 400) {
+        // Status code 400 indicates a bad request, you can customize this based on your server response
+        var errors = JSON.parse(jqXHR.responseText);
+        if (errors && errors.name) {
+          console.log(errors.name);
+          showErrorMessage(errors.name[0]);
+        }
+        if (errors && errors.image) {
+          console.log(errors.image);
+          showErrorMessage(errors.image[0]);
+        }
+      } else {
+        console.log("Unexpected error:", jqXHR.responseText);
+      }
+    });
+    // Close the modal
+    $('#editShippingModal').modal('hide');
+  });
+
+
+</script>
+
+<!-- Delete row -->
+<script>
+  $('#example2').on('click', '.delete-btn', function () {
+    var row = $(this).closest('tr');
+    var productId = row.find('.edit-btn').data('id');
+
+    // Assuming you have a confirmation modal with ID 'deleteConfirmationModal'
+    $('#deleteConfirmationModal').modal('show');
+
+    // Detach previous click event handlers to prevent multiple bindings
+    $('#confirmDeleteBtn').off('click');
+
+    // Handle confirmation
+    $('#confirmDeleteBtn').on('click', function () {
+      // Send an AJAX request to delete the product
+      $.ajax({
+        url: '/affiliate/api/products_api/' + productId + '/',
+        method: 'DELETE',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        data: {
+          'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function (response) {
+          dataTable.draw(); // Assuming dataTable is the DataTable instance, redraw it after deletion
+          showSuccessMessage('تم حذف منتج.');
+        },
+        error: function (error) {
+          console.error('Error deleting product:', error);
+          showErrorMessage('حدث خطأ أثناء حذف منتج. حاول مرة اخرى.');
+        }
+      });
+
+      // Close the confirmation modal
+      $('#deleteConfirmationModal').modal('hide');
+    });
+  });
+</script>
+
+<!-- Handle selection -->
+
+
+
+<!-- Show Message -->
+<script>
+  function showErrorMessage(message) {
+    var errorMessageContainer = $('#error-message-container');
+    errorMessageContainer.text(message);
+    errorMessageContainer.show();  // Display the error message
+
+    // Optionally, you can hide the error message after a certain duration
+    setTimeout(function () {
+      errorMessageContainer.hide();
+    }, 5000);  // Hide after 5 seconds (adjust the duration as needed)
+  }
+
+  function showSuccessMessage(message) {
+    var successMessageContainer = $('#success-message-container');
+    successMessageContainer.text(message);
+    successMessageContainer.show();  // Display the success message
+
+    // Optionally, you can hide the success message after a certain duration
+    setTimeout(function () {
+      successMessageContainer.hide();
+    }, 5000);  // Hide after 5 seconds (adjust the duration as needed)
+  }
+</script>
+
+
+
+
+<!-- Order details row -->
+<script>
+  $(document).ready(function () {
+    var currentOrder = null;
+    // Function to fetch and display order details
+    function fetchAndDisplayOrderDetails(orderId) {
+      // URL to fetch order details (replace with your actual URL)
+      var apiUrl = '/affiliate/api/order_api/' + orderId + '/';
+
+      // Make an AJAX request to fetch order details
+      $.ajax({
+        url: apiUrl,
+        type: 'GET',
+        dataType: 'json',
+        success: function (data) {
+          // Display order details in the modal body
+          console.log(data);
+          currentOrder = data;
+          displayOrderDetailsInModal(data);
+        },
+        error: function (error) {
+          console.error('Error fetching order details:', error);
+        }
+      });
+    }
+    // Function to display order details in the modal body
+    function displayOrderDetailsInModal(orderData) {
+      // Create HTML content based on order data
+      var orderId = orderData.id;
+
+      // First row: Order ID, Creation Date, and Last Update Date
+      modalContent = '<div class="row">';
+      modalContent += '  <div class="col-md-4">#: ' + orderData.id + '</div>';
+      modalContent += '  <div class="col-md-4">تاريخ الانشاء: ' + formatDate(orderData.created_at) + '</div>';
+      modalContent += '  <div class="col-md-4">اخر تحديث: ' + formatDate(orderData.updated_at) + '</div>';
+      modalContent += '</div>';
+
+      modalContent += '<br>'
+
+      // Second row: Barcode, Marketer, Shipping Company
+      modalContent += '<div class="row">';
+      modalContent += '  <div class="col-md-4">الكود: ' + orderData.barcode + '</div>';
+      modalContent += '  <div class="col-md-4">المسوق:  ' + orderData.marketer_name + '</div>';
+      modalContent += '  <div class="col-md-4">شركة الشحن:  ' + orderData.shipping_company_name + '</div>';
+      modalContent += '</div>';
+
+      modalContent += '<br>'
+
+      modalContent += '<p>الحالة: ' + orderData.status + '</p>';
+      modalContent += '<table class="table table-bordered table-striped table-hover">';
+      modalContent += '<thead class="bg-primary">';
+      // Order items table
+      modalContent += '<h5>تفاصيل العميل:</h5>';
+      modalContent += '<th>اسم العميل</th>';
+      modalContent += '<th>رقم العميل (1)</th>';
+      modalContent += '<th>رقم العميل (2)</th>';
+      modalContent += '<th>عنوان العميل</th>';
+      modalContent += '</thead>';
+      modalContent += '<tr>'
+      modalContent += '<td>اسم العميل: ' + orderData.client_name + '</td>';
+      modalContent += '<td>' + orderData.client_phone1;
+      modalContent += '<a href="#"><i class="fab fa-whatsapp" onclick="handleClick(\'' + orderId + '\', \'whats1\', \'' + orderData.barcode + '\',\'' + orderData.client_phone1 + '\')"></i></a>';
+      modalContent += '<span id="counter-whats1" class="badge">' + orderData.whats1_clicked + '</span>';
+      modalContent += '<a href="tel:+2' + orderData.client_phone1 + '"><i class="fas fa-phone-alt" onclick="handleClick(\'' + orderId + '\', \'phone1\', \'' + orderData.barcode + '\',\'' + orderData.client_phone1 + '\')"></i></a>';
+      modalContent += '<span id="counter-call1" class="badge">' + orderData.phone1_clicked + '</span>' + '</td>';
+
+      modalContent += '<td>' + orderData.client_phone2;
+      modalContent += '<a href="#"><i class="fab fa-whatsapp" onclick="handleClick(\'' + orderId + '\', \'whats2\', \'' + orderData.barcode + '\',\'' + orderData.client_phone2 + '\')"></i></a>';
+      modalContent += '<span id="counter-whats2" class="badge">' + orderData.whats2_clicked + '</span>';
+      modalContent += '<a href="tel:+2' + orderData.client_phone2 + '"><i class="fas fa-phone-alt" onclick="handleClick(\'' + orderId + '\', \'phone2\', \'' + orderData.barcode + '\',\'' + orderData.client_phone2 + '\')"></i></a>';
+      modalContent += '<span id="counter-call2" class="badge">' + orderData.phone2_clicked + '</span>' + '</td>';
+      modalContent += '<td>' + orderData.client_address + ", " + orderData.city_name + ", " + orderData.governorate_name + '</td>';
+      modalContent += '</tr>'
+      modalContent += '</table>'
+      modalContent += '<br>'
+      // Order items table
+      modalContent += '<h5>تفاصيل الطلب:</h5>';
+      modalContent += '<table class="table table-bordered table-striped table-hover">';
+      modalContent += '<thead class="bg-primary"><tr><th>المنتج</th><th>لخاصية</th><th>الكمية</th><th>السعر</th><th>السعر الإجمالي</th></tr></thead>';
+      modalContent += '<tbody>';
+      orderData.items.forEach(function (item) {
+        modalContent += '<tr>';
+        modalContent += '<td>' + item.product.name + '</td>';
+        item.product.product_variant_set.forEach(function (variant) {
+          modalContent += '<td>' + variant.size_name + ' x ' + variant.color_name + '</td>';
+          // Add more details from the variant if needed
+        });
+        modalContent += '<td>' + item.quantity + '</td>';
+        modalContent += '<td>' + item.product.sale_price + '</td>';
+        modalContent += '<td>' + item.total_item_price + '</td>';
+        modalContent += '</tr>';
+      });
+      modalContent += '</tbody>';
+      modalContent += '</table>';
+      modalContent += '<br>'
+      // Total table
+      modalContent += '<h5>مصاريف الطلب:</h5>';
+      modalContent += '<table class="table table-bordered table-striped table-hover">';
+      modalContent += '<thead class="bg-primary"><tr><th>الشحن</th><th>العمولة</th><th>اجمالي منتجات</th><th>اجمالي مصاريف</th></tr></thead>';
+      modalContent += '<tbody>';
+      modalContent += '<tr>';
+      modalContent += '<td>' + orderData.shiping_price + '</td>';
+      modalContent += '<td>' + orderData.commission + '</td>';
+      modalContent += '<td>' + orderData.total_items_price + '</td>';
+      modalContent += '<td>' + orderData.total + '</td>';
+      modalContent += '</tr>';
+      modalContent += '</tbody>';
+      modalContent += '</table>';
+      modalContent += '<br>'
+      modalContent += '  <label class="form-label" for="note">ملاحظة</label>'
+      modalContent += '<textarea class="form-control" id="note" readonly>' + orderData.note + '</textarea>';
+
+      // Add other order details as needed
+
+      // Display HTML content in the modal body
+      $('#orderDetailsBody').html(modalContent);
+
+      // Show the modal
+      $('#orderModal').modal('show');
+    }
+    var orderId = null;
+    // Handle click on .btn-show-details button within the table with id 'example2'
+    $('#example2').on('click', '.btn-show-details', function () {
+      // Find the closest table row
+      var row = $(this).closest('tr');
+
+      // Extract the order ID from the button's data-id attribute
+      orderId = row.find('.btn-show-details').data('id');
+
+      // Log the order ID for debugging
+      // console.log(orderId);
+
+      // Fetch and display order details in the modal
+      fetchAndDisplayOrderDetails(orderId);
+    });
+  });
+</script>
+
+
+<!-- Handle counter and Whatsapp message -->
+<script>
+  function handleClick(orderId, actionType, serial_number, client_phone1) {
+    event.preventDefault();  // Prevent the default behavior
+    console.log('Order ID:', orderId);
+    console.log('Access Type:', actionType);    // Construct the URL for the API endpoint
+    const url = `/affiliate/api/order_api/${orderId}/`;
+
+    // Construct the data to be sent in the request body
+    const data = { action_type: actionType };
+
+    // Use the fetch API to send a POST request to the server
+    fetch(url, {
+      method: 'POST',  // Specify the HTTP method
+      headers: {
+        'Content-Type': 'application/json',  // Specify that the data is in JSON format
+        'X-CSRFToken': '{{ csrf_token }}'
+
+      },
+      body: JSON.stringify(data),  // Convert the data to a JSON string and include it in the request body
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Handle the successful response data
+        console.log('Order updated successfully:', data);
+
+        // Generate and redirect to the WhatsApp message
+        if (actionType.startsWith('whats')) {
+          generateWhatsappMessage(serial_number, client_phone1, data);
+        }
+      })
+      .catch(error => {
+        // Handle errors here
+        console.error('Error updating order:', error);
+      });
+  }
+
+
+
+
+  const generateWhatsappMessage = (serialNumber, clientPhone, currentOrder) => {
+
+    const phone = "2" + clientPhone;
+    const step1 = `اهلا بحضرتك عميلنا العزيز بنكلمك بخصوص تاكيد اوردر كود ${serialNumber}`;
+    const step2 = currentOrder.items.map((item, idx) => {
+      const variant = item.product.product_variant_set[0]; // Assuming there's always one variant per product
+
+      const formattedItem = `(${variant?.quantity}) قطعة ${item.product.name} - ${variant?.size_name} ${variant?.color_name}`;
+      return idx === currentOrder.items.length - 1 ? formattedItem : `${formattedItem} // `;
+    }).join('');
+
+    console.log('Step2:', step2);
+    const addr = `علي عنوان: ${currentOrder.client_address}, ${currentOrder.city_name}, ${currentOrder.governorate_name},`;
+    console.log(addr);
+    const step3 = `الاجمالي المطلوب دفعه ${currentOrder.total} جنية.`;
+    const step4 = `لتاكيد الاوردر وخروجة للشحن ارسل رقم (1)`;
+    const step5 = `للتعديل على الطلب ارسل الرقم (2)`;
+    const message = `${step1}\n\n${step2}\n${addr}\n${step3}\n\n${step4}\n${step5}`;
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${encodeURIComponent(phone)}&text=${encodeURIComponent(message)}`;
+    console.log(whatsappUrl);
+    window.open(whatsappUrl);
+  };
+
+
+
+  function formatDate(isoDate) {
+    const date = new Date(isoDate);
+    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
+    return date.toLocaleDateString('ar-EG', options);
+  }
+
+</script>
+
+
+
+<!-- Update city options based on selected governorate -->
+<script>
+  $(document).ready(function () {
+    $("#id_governorate").change(function () {
+      var governorateId = $(this).val();
+      var citySelect = $("#id_city");
+
+      // Make an AJAX request to get cities based on the selected governorate
+      $.ajax({
+        url: `get-cities/${governorateId}/`,
+        success: function (data) {
+          // Clear existing options
+          citySelect.empty();
+
+          // Populate options based on the response
+          $.each(data.cities, function (index, city) {
+            citySelect.append($('<option>').text(city.name).attr('value', city.id));
+          });
+        }
+      });
+    });
+  });
+</script>
+
+<script>
+  $(document).ready(function () {
+    $('.product-select').select2({
+      dropdownParent: $('#addShippingForm'),
+      placeholder: 'اختر منتج',
+      ajax: {
+        url: 'product/search/',  // Adjust the URL to your Django view
+        dataType: 'json',
+        delay: 250,
+        data: function (params) {
+          return {
+            term: params.term,
+            page: params.page || 1
+          };
+        },
+        processResults: function (data, params) {
+          params.page = params.page || 1;
+
+          return {
+            results: data.results,
+            pagination: {
+              more: data.pagination.more
+            }
+          };
+        },
+        cache: true,
+      },
+      dir: 'rtl',
+      width: '100%',
+      selectOnClose: true,
+      // minimumInputLength: 1  // Set the minimum input length before triggering the AJAX request
+    });
+  });
+</script>
+
+
+
+<script>
+  // Update variant options based on selected product
+  $(document).ready(function () {
+    $("#id_items-0-product").change(function () {
+      var productId = $(this).val();
+      var variantSelect = $("#id_items-0-variant");
+
+      // Make an AJAX request to get variants based on the selected product
+      $.ajax({
+        url: `get-variants/${productId}/`,
+        success: function (data) {
+          // Clear existing options
+          variantSelect.empty();
+
+          // Populate options based on the response
+          $.each(data.variants, function (index, variant) {
+            variantSelect.append($('<option>').text(variant.name).attr('value', variant.id));
+          });
+        }
+      });
+    });
+  });
+</script>
+
+
+<script>
+  // Update total item price based on selected product and quantity
+  $(document).ready(function () {
+    $("#id_items-0-quantity").change(function () {
+      var productId = $(this).val();
+      var variantSelect = $("#id_items-0-variant");
+
+      // Make an AJAX request to get variants based on the selected product
+      $.ajax({
+        url: `get-variants/${productId}/`,
+        success: function (data) {
+          // Clear existing options
+          variantSelect.empty();
+
+          // Populate options based on the response
+          $.each(data.variants, function (index, variant) {
+            variantSelect.append($('<option>').text(variant.name).attr('value', variant.id));
+          });
+        }
+      });
+    });
+  });
+</script>
+
+
+<script>
+  function updateTotalItemPrice() {
+    // Get the quantity input value
+    var quantity = document.getElementById('id_items-0-quantity').value;
+
+    // Get the product ID (replace 'product_id' with the actual ID field name)
+    var productId = document.getElementById('id_items-0-product').value;
+
+    // Make an AJAX request to fetch the sale price for the product
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'get_sale_price/' + productId + '/');
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        // Parse the response JSON
+        var response = JSON.parse(xhr.responseText);
+
+        // Extract the sale price
+        var salePrice = response.sale_price;
+
+        // Calculate the total item price
+        var totalItemPrice = quantity * salePrice;
+        var totalItemPriceInput = document.getElementById('id_items-0-total_item_price');
+        totalItemPriceInput.readOnly = true;
+
+        // Update the total_item_price input value
+        totalItemPriceInput.value = totalItemPrice.toFixed(2); // Round to 2 decimal places
+      }
+    };
+    xhr.send();
+  }
+  document.getElementById('id_items-0-quantity').addEventListener('input', updateTotalItemPrice);
+</script>
+
+
+{% endblock %}

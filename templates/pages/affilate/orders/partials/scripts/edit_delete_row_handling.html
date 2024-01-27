@@ -1,0 +1,290 @@
+<script>
+
+  $(document).ready(function () {
+
+
+
+    var currentOrderId;
+
+    // Handle click on "Edit" button
+    $('#example2').on('click', '.edit-btn', function () {
+      currentOrderId = $(this).data('id');
+      $('#addShippingModal :input').val('');
+      $('#addShippingModal select').val('');
+
+      $(".product-select").each(function () {
+        const tempSelect2 = $(this).select2();
+        tempSelect2.select2('destroy');
+      });
+
+      const newVariantForm = $('.variant-form:first').clone();
+      $('#variant-formset-container').empty();
+
+
+      $.ajax({
+        url: '/affiliate/api/order_api/' + currentOrderId + '/',  // Update the URL as needed
+        method: 'GET',
+        headers: {
+          'CSRFToken': '{{ csrf_token }}'
+        },
+        success: function (response) {
+          if (response) {
+            console.log(response);
+            // Populate the edit modal with order details
+            $('#addShippingModal #id_marketer').val(response.marketer);
+            $('#addShippingModal #id_governorate').val(response.governorate);
+
+            var citySelect = $(".cities");
+            var governorateId = $('#addShippingModal #id_governorate').val();
+            if (governorateId) {
+              // Make an AJAX request to get cities based on the selected governorate
+              $.ajax({
+                url: `get-cities/${governorateId}/`,
+                method: 'GET',
+                headers: {
+                  'CSRFToken': '{{ csrf_token }}'
+                },
+                success: function (data) {
+                  citySelect.empty();
+
+                  $.each(data.cities, function (index, city) {
+                    citySelect.append($('<option>').text(city.name).attr('value', city.id));
+                  });
+
+                  // Assuming response.city_id represents the city ID you want to set
+                  $('#addShippingModal #id_city').val(response.city);
+
+                  // Optionally, you can trigger change event to handle any associated logic
+                  $('#addShippingModal #id_city').trigger('change');
+                },
+                error: function (error) {
+                  console.error('Error retrieving cities:', error);
+                }
+              });
+            } else {
+              // Handle the case when no governorate is selected (optional)
+              console.log('No governorate selected');
+              citySelect.empty();
+              // You can choose to clear or disable the cities dropdown, display a message, etc.
+            }
+
+
+            $('#addShippingModal #id_status').val(response.status);
+            $('#addShippingModal #id_barcode').val(response.barcode);
+            $('#addShippingModal #id_client_name').val(response.client_name);
+            $('#addShippingModal #id_client_phone1').val(response.client_phone1);
+            $('#addShippingModal #id_client_phone2').val(response.client_phone2);
+            $('#addShippingModal #id_client_address').val(response.client_address);
+            $('#addShippingModal #id_shiping_price').val(response.shiping_price);
+            $('#addShippingModal #id_difference').val(response.commission);
+            $('#addShippingModal #id_total').val(response.total);
+            $('#addShippingModal #id_note').val(response.note);
+
+
+
+            function populateOrderItemForm(orderItemData, orderItemIndex) {
+              // Set the values of the form fields based on the provided JSON data
+              var productSelect = $('#addShippingModal .variant-form #id_items-' + orderItemIndex + '-product');
+
+              // Set variant, quantity, and total item price
+              $('#addShippingModal .variant-form #id_items-' + orderItemIndex + '-variant').val(orderItemData.variant);
+              $('#addShippingModal .variant-form #id_items-' + orderItemIndex + '-quantity').val(orderItemData.quantity);
+              $('#addShippingModal .variant-form #id_items-' + orderItemIndex + '-total_item_price').val(orderItemData.total_item_price);
+
+              // Make an AJAX request to get product information based on the selected product ID
+              $.ajax({
+                url: `get-product/${orderItemData.product}/`,
+                method: 'GET',
+                headers: {
+                  'CSRFToken': '{{ csrf_token }}'
+                },
+                success: function (data) {
+                  // Assuming data.product represents the product information
+                  // You may need to adjust this based on your actual response structure
+
+
+
+                  productSelect.append($('<option>').text(data.product.name).attr('value', data.product.id));
+
+                  // Set the selected product in the dropdown
+                  productSelect.val(data.product.id);
+                  console.log(data.product.id);
+
+
+                  // Optionally, trigger change event to handle any associated logic
+                  productSelect.trigger('change');
+                },
+                error: function (error) {
+                  console.error('Error retrieving product:', error);
+                }
+              });
+              // Assuming you want to check the checkbox if the item is marked for deletion
+              $('#id_items-' + orderItemIndex + '-DELETE').prop('checked', orderItemData.DELETE);
+            }
+
+
+
+
+            // Assuming you have multiple order items and want to populate each one
+            for (var i = 0; i < response.items.length; i++) {
+              // Clone and append new variant form
+              var newVariantFormClone = newVariantForm.clone();
+              $('#variant-formset-container').append(newVariantFormClone);
+            }
+            updateFormsetIndices();
+
+
+
+            // Re-initialize all product-select
+            $(".product-select").each(function () {
+              const temp = $(this);
+              console.log(temp);
+              temp.removeAttr('data-select2-id');
+              initializeSelect2(temp);
+            });
+
+
+
+            for (let index = 0; index < response.items.length; index++) {
+              populateOrderItemForm(response.items[index], index);
+
+
+            }
+
+
+            // Show the edit modal
+            $('#addShippingModal').modal('show');
+
+
+
+          } else {
+            console.error('Failed to retrieve product details.');
+          }
+        },
+        error: function (error) {
+          console.error('Error retrieving product details:', error);
+
+        }
+      });
+    });
+
+    // Handle click on "Save Changes" button in the edit modal
+    // Handle click on "Save Changes" button in the modal
+    $('#updateShippingBtn').on('click', function () {
+      var formData = new FormData();
+      formData.append('marketer', $('#addShippingModal #id_marketer').val());
+      formData.append('client_name', $('#addShippingModal #id_client_name').val());
+      formData.append('client_phone1', $('#addShippingModal #id_client_phone1').val());
+      formData.append('client_phone2', $('#addShippingModal #id_client_phone2').val());
+      formData.append('client_address', $('#addShippingModal #id_client_address').val());
+      // formData.append('shiping_price', $('#addShippingModal #id_shiping_price').val());
+      // formData.append('commission', $('#addShippingModal #id_difference').val());
+      formData.append('total', $('#addShippingModal #id_total').val());
+      formData.append('governorate', $('#addShippingModal #id_governorate').val());
+      formData.append('note', $('#addShippingModal #id_note').val());
+      formData.append('city', $('#addShippingModal #id_city').val());
+
+
+
+      var product_variant_set = [];
+
+      $('#variant-formset-container .variant-form').each(function (index, variantForm) {
+        var product = $(variantForm).find('[id^="id_items-"][id$="-product"]').val();
+        var variant = $(variantForm).find('[id^="id_items-"][id$="-variant"]').val();
+        var quantity = $(variantForm).find('[id^="id_items-"][id$="-quantity"]').val();
+        var total_item_price = $(variantForm).find('[id^="id_items-"][id$="-total_item_price"]').val();
+        console.log(product, variant, quantity, total_item_price);
+        var variant = {
+          'product': product,
+          'variant': variant,
+          'quantity': quantity,
+          'total_item_price': total_item_price
+        };
+        product_variant_set.push(variant);
+      });
+
+      // Add the product variant set as a JSON string to the FormData
+      formData.append('product_variant_set', JSON.stringify(product_variant_set));
+      formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+      console.log(formData);
+      // Make an AJAX request to update the product on the server
+      $.ajax({
+        url: '/affiliate/api/order_api/' + currentOrderId + '/',  // Update the URL as needed
+        method: 'PUT',
+        contentType: false,
+        processData: false,
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        data: formData,
+      }).done(function (data, textStatus, jqXHR) {
+        console.log(data);
+        showSuccessMessage("تم تعديل الطلب: " + data.barcode)
+
+        dataTable.ajax.reload();
+      }).fail(function (jqXHR, textStatus, errorThrown) {
+        if (jqXHR.status === 400) {
+          // Status code 400 indicates a bad request, you can customize this based on your server response
+          var errors = JSON.parse(jqXHR.responseText);
+          if (errors && errors.name) {
+            console.log(errors.name);
+            showErrorMessage(errors.name[0]);
+          }
+          if (errors && errors.image) {
+            console.log(errors.image);
+            showErrorMessage(errors.image[0]);
+          }
+        } else {
+          console.log("Unexpected error:", jqXHR.responseText);
+        }
+      });
+      // Close the modal
+      $('#addShippingModal').modal('hide');
+    });
+
+  });
+
+</script>
+
+
+
+<!-- Delete row -->
+<script>
+  $('#example2').on('click', '.delete-btn', function () {
+    var row = $(this).closest('tr');
+    var productId = row.find('.edit-btn').data('id');
+
+    // Assuming you have a confirmation modal with ID 'deleteConfirmationModal'
+    $('#deleteConfirmationModal').modal('show');
+
+    // Detach previous click event handlers to prevent multiple bindings
+    $('#confirmDeleteBtn').off('click');
+
+    // Handle confirmation
+    $('#confirmDeleteBtn').on('click', function () {
+      // Send an AJAX request to delete the product
+      $.ajax({
+        url: '/affiliate/api/products_api/' + productId + '/',
+        method: 'DELETE',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        data: {
+          'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function (response) {
+          dataTable.draw(); // Assuming dataTable is the DataTable instance, redraw it after deletion
+          showSuccessMessage('تم حذف منتج.');
+        },
+        error: function (error) {
+          console.error('Error deleting product:', error);
+          showErrorMessage('حدث خطأ أثناء حذف منتج. حاول مرة اخرى.');
+        }
+      });
+
+      // Close the confirmation modal
+      $('#deleteConfirmationModal').modal('hide');
+    });
+  });
+</script>

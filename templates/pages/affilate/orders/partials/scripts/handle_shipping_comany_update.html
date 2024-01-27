@@ -1,0 +1,92 @@
+<script>
+    $(document).ready(function () {
+
+        // Initialize Select2 for product-select dropdowns
+        function initializeSelect2Company(selectElement) {
+            selectElement.select2({
+                dropdownParent: $('#shippingCompanyModal'),
+                placeholder: 'اختر شركة شحن',
+                ajax: {
+                    url: 'company/search/',
+                    dataType: 'json',
+                    delay: 250,
+                    data: (params) => {
+                        return {
+                            term: params.term,
+                            page: params.page || 1
+                        };
+                    },
+                    processResults: (data, params) => {
+                        params.page = params.page || 1;
+                        return {
+                            results: data.results,
+                            pagination: {
+                                more: data.pagination.more
+                            }
+                        };
+                    },
+                    cache: true,
+                },
+                dir: 'rtl',
+                width: '100%',
+                selectOnClose: true,
+            });
+        }
+
+        // Initialize Select2 on existing .product-select elements
+        $('#shippingCompany').each(function () {
+            initializeSelect2Company($(this));
+        });
+
+
+    });
+
+
+
+    function handleUpdateShippingCompany() {
+        // Show the shipping company modal
+        $('#shippingCompanyModal').modal('show');
+        $('#saveShippingCompanyBtn').off('click').on('click', function () {
+            // Get the selected shipping company value from the dropdown
+            var selectedShippingCompany = document.getElementById('shippingCompany').value;
+
+            // Perform update shipping company action on selected rows
+            var selectedRows = dataTable.rows({ selected: true }).data().toArray();
+            if (selectedRows.length > 0) {
+                // At least one row is selected
+
+                // Extract order IDs from selected rows
+                var selectedOrderIds = selectedRows.map(row => row.id);
+                console.log('Selected Rows:', selectedOrderIds);
+
+                // Send a POST request to update the shipping company on the backend
+                $.ajax({
+                    url: '/affiliate/api/order_api/update_shipping_company/',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ selected_order_ids: selectedOrderIds, shipping_company: selectedShippingCompany }),
+                    headers: { 'X-CSRFToken': csrf_token }
+                })
+                    .done(function (response) {
+                        console.log('Update Successful:', response);
+                        // Optionally, you can update the DataTable or perform other actions
+                        dataTable.draw(); // Refresh the DataTable
+                        showSuccessMessage(response.message)
+                    })
+                    .fail(function (jqXHR, textStatus, errorThrown) {
+                        console.error('Update Failed:', jqXHR);
+                        showErrorMessage(jqXHR.responseJSON.error)
+                    });
+
+            } else {
+                // No rows selected
+                console.log('No rows selected.');
+            }
+
+            // Optionally, close the modal
+            $('#shippingCompanyModal').modal('hide');
+        });
+
+    }
+
+</script>

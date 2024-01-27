@@ -1,0 +1,465 @@
+{% extends "base.html" %}
+{% block content %}
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1>الشحن</h1>
+        </div>
+        <div class="col-sm-6">
+          <ol class="breadcrumb float-sm-left">
+            <li class="breadcrumb-item"><a href="#">افيليت</a></li>
+            <li class="breadcrumb-item active">الشحن</li>
+          </ol>
+        </div>
+      </div>
+    </div><!-- /.container-fluid -->
+  </section>
+
+  <!-- Main content -->
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row"></div>
+      <!-- /.card -->
+      <div class="card">
+        <!--  <div class="card-header">
+                      <h3 class="card-title">اقسام</h3>
+                    </div>  -->
+        <!-- /.card-header -->
+        <div id="error-message-container" class="alert alert-danger" style="display: none;"></div>
+        <div id="success-message-container" class="alert alert-success" style="display: none;"></div>
+        <div class="card-body">
+
+          <button id="addRowBtn" class="btn btn-primary float-right"><i class="fas fa-plus"></i></button>
+
+
+          
+
+          <!-- Add these input fields above the DataTable -->
+          <form class="form-group row m-2">
+            <label class="form-label" for="date_range"> تاريخ: </label>
+            <div class="col-xs-3 ml-">
+              <input type="text" class="form-control" id="date_range">
+            </div>
+            <div class="col">
+              <button type="button" class="btn btn-primary" id="submitBtn">فلتر</button>
+            </div>
+          </form>
+          <table id="example2" class="table table-bordered table-striped table-hover">
+            <thead class="bg-primary">
+              <tr>
+                <th>#</th>
+                <th>الاسم</th>
+                <th>الموقع</th>
+                <th>أنشئت في</th>
+                <th>حدثت في</th>
+                <th>اختر عملية</th>
+              </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+            <tfoot>
+              <tr>
+                <th>#</th>
+                <th>الاسم</th>
+                <th>الموقع</th>
+                <th>أنشئت في</th>
+                <th>حدثت في</th>
+                <th>اختر عملية</th>
+              </tr>
+            </tfoot>
+          </table>
+
+
+          <!-- Add Shipping Modal -->
+
+          <div class="modal fade" id="addShippingModal" tabindex="-1" role="dialog"
+            aria-labelledby="addShippingModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="addShippingModalLabel">اضافة شركة شحن جديد</h5>
+                  <button type="button" class="close"  data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form method="post" id="addShippingForm">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary"  data-bs-dismiss="modal">اغلاق</button>
+                  <button type="button" class="btn btn-primary" id="saveShippingBtn">حفظ</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Edit Shipping Modal -->
+          <div class="modal fade" id="editShippingModal" tabindex="-1" role="dialog"
+            aria-labelledby="editShippingModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="editShippingModalLabel">تعديل الشركة شحن</h5>
+                  <button type="button" class="close"  data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form method="post" id="editShippingForm">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary"  data-bs-dismiss="modal">اغلاق</button>
+                  <button type="button" class="btn btn-primary" id="updateShippingBtn">حفظ التغييرات</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Delete Confirmation Modal -->
+          <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" role="dialog"
+            aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="deleteConfirmationModalLabel">تأكيد الحذف</h5>
+                  <button type="button" class="close"  data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <p>هل أنت متأكد أنك تريد حذف هذا الشركة شحن؟</p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary"  data-bs-dismiss="modal">إلغاء</button>
+                  <button type="button" class="btn btn-danger" id="confirmDeleteBtn">تأكيد الحذف</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <!-- /.card-body -->
+      </div>
+
+    </div>
+    <!-- /.card -->
+    <!-- /.col -->
+    <!-- /.row -->
+    <!-- /.container-fluid -->
+  </section>
+  <!-- /.card -->
+  <!-- /.col -->
+  <!-- /.row -->
+  <!-- /.container-fluid -->
+  <!-- /.content -->
+
+</div>
+<!-- /.content-wrapper -->
+
+
+
+
+
+
+<!-- Datatable -->
+<script>
+  var dataTable;
+  $(function () {
+
+    // Initialize Date Range Picker
+    var tomorrow = moment().add(1, 'days');
+    $('#date_range').daterangepicker({
+      locale: {
+        format: 'YYYY-MM-DD',
+        applyLabel: 'تطبيق',
+        cancelLabel: 'إلغاء',
+        customRangeLabel: 'نطاق مخصص',
+      },
+      startDate: '2023-01-01',
+      endDate: tomorrow,
+    });
+
+
+
+    // Initialize DataTables
+    dataTable = $('#example2').DataTable({
+      'processing': true,
+      'serverSide': true,
+      'ajax': {
+        'url': '/affiliate/api/ShippingCompany_api/Hisham/datatable_list/',
+        'type': 'GET',
+        'data': function (d) {
+          d.extra_search = {};  // Add an object to store individual column searches
+
+          // Add date filters from Date Range Picker
+          var dateRange = $('#date_range').val();
+          if (dateRange) {
+            var [startDate, endDate] = dateRange.split(' - ');
+            d.start_date = startDate;
+            d.end_date = endDate;
+          }
+
+          // Add individual column searches
+          $('input.column-search').each(function () {
+            var columnIdx = $(this).data('column-index');
+            var columnName = dataTable.column(columnIdx).dataSrc();
+            d.extra_search[columnName] = $(this).val();
+          });
+        },
+      },
+      'columns': [
+        { 'data': 'id' },
+        { 'data': 'name' },
+        { 'data': 'website' },
+        { 'data': 'created_at', 'visible': false },
+        { 'data': 'updated_at', 'visible': false },
+        {
+          'data': null,
+          'render': function (data, type, row) {
+            // Add Edit and Delete buttons for each row
+            return '<button class="btn btn-warning edit-btn" data-id="' + row.id + '">تعديل</button>' +
+              '<button class="btn btn-danger delete-btn" data-id="' + row.id + '">حذف</button>';
+          },
+          'orderable': false,
+          "searchable": false
+        },
+        // Add other columns as needed
+      ],
+      'order': [], // Disable default sorting
+      dom: 'frBtip',
+      scrollY: 500,
+      responsive: true,
+      lengthChange: true,
+      autoWidth: true,
+      select: true,
+      buttons: ['pageLength', 'copy', 'csv', 'excel', 'pdf', 'print', 'colvis'],
+      initComplete: function () {
+        // Add individual column search inputs with placeholders
+        this.api().columns().every(function () {
+          var column = this;
+          var input = document.createElement("input");
+          $(input)
+            .addClass('column-search')
+            .attr('placeholder', 'ابحث ' + column.header().innerHTML)
+            .data('column-index', column.index())
+            .appendTo($(column.footer()).empty())
+            .on('keyup change', function () {
+              dataTable.draw();
+            });
+        });
+      }
+    });
+  });
+
+</script>
+
+<!-- Redraw table -->
+<script>
+  // Handle click on the "Submit" button to redraw the table
+  $('#submitBtn').click(function () {
+    dataTable.draw();
+  });
+</script>
+
+<!-- Add row -->
+<script>
+  // Handle click on "Add Row" button
+  $('#addRowBtn').on('click', function () {
+    // Open the add shipping modal
+    $('#addShippingModal').modal('show');
+  });
+
+  // Handle click on "Save Changes" button in the modal
+  $('#saveShippingBtn').on('click', function () {
+    // Get the shipping name from the modal input
+    var newShippingName = $('#addShippingModal #id_name').val();
+    var newShippingWebsite = $('#addShippingModal #id_website').val();
+    // Send the data to the server for insertion
+    $.ajax({
+      url: '/affiliate/api/ShippingCompany_api/',
+      method: 'POST',
+      data: {
+        'name': newShippingName,
+        'website': newShippingWebsite,
+        'csrfmiddlewaretoken': '{{ csrf_token }}'
+      }
+    }).done(function (data, textStatus, jqXHR) {
+      console.log(data);
+      showSuccessMessage("تم أضافة شركة شحن: " + data.name)
+
+      dataTable.ajax.reload();
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+      if (jqXHR.status === 400) {
+        // Status code 400 indicates a bad request, you can customize this based on your server response
+        var errors = JSON.parse(jqXHR.responseText);
+        if (errors && errors.name) {
+          console.log(errors.name);
+          showErrorMessage("شركة شحن بهذا الاسم موجودة بالفعل. الرجاء اختيار اسم مختلف.");
+        }
+      } else {
+        console.log("Unexpected error:", jqXHR.responseText);
+      }
+    });
+    // Close the modal
+    $('#addShippingModal').modal('hide');
+  });
+</script>
+
+<!-- Edit row -->
+<script>
+  var currentCategoryId;
+
+  // Handle click on "Edit" button
+  $('#example2').on('click', '.edit-btn', function () {
+    currentCategoryId = $(this).data('id');
+    // Make an AJAX request to retrieve shipping details
+    $.ajax({
+      url: '/affiliate/api/ShippingCompany_api/' + currentCategoryId + '/',  // Update the URL as needed
+      method: 'GET',
+      headers: {
+        'CSRFToken': '{{ csrf_token }}'
+      },
+      success: function (response) {
+        if (response) {
+          // Populate the edit modal with shipping details
+          $('#editShippingModal #id_name').val(response.name);
+          $('#editShippingModal #id_website').val(response.website);
+          // Add other fields as needed
+
+          // Show the edit modal
+          $('#editShippingModal').modal('show');
+        } else {
+          console.error('Failed to retrieve shipping details.');
+        }
+      },
+      error: function (error) {
+        console.error('Error retrieving shipping details:', error);
+
+      }
+    });
+  });
+
+  // Handle click on "Save Changes" button in the edit modal
+  $('#updateShippingBtn').on('click', function () {
+    var updatedName = $('#editShippingModal #id_name').val();
+    var updatedWebsite = $('#editShippingModal #id_website').val();
+    // console.log(updatedName);
+
+
+    // Make an AJAX request to update the shipping on the server
+    $.ajax({
+      url: '/affiliate/api/ShippingCompany_api/' + currentCategoryId + '/',  // Update the URL as needed
+      method: 'PUT',
+      // contentType: 'application/json',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      data: {
+        'name': updatedName,
+        'website': updatedWebsite,
+        // 'csrfmiddlewaretoken': '{{ csrf_token }}'
+
+      }
+    }).done(function (data, textStatus, jqXHR) {
+      console.log(data);
+      showSuccessMessage("تم تعديل شركة الشحن: " + data.name)
+
+      dataTable.ajax.reload();
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+      if (jqXHR.status === 400) {
+        // Status code 400 indicates a bad request, you can customize this based on your server response
+        var errors = JSON.parse(jqXHR.responseText);
+        if (errors && errors.name) {
+          console.log(errors.name);
+          showErrorMessage("شركة الشحن بهذا الاسم موجودة بالفعل. الرجاء اختيار اسم مختلف.");
+        }
+      } else {
+        console.log("Unexpected error:", jqXHR.responseText);
+      }
+    });
+    // Close the modal
+    $('#editShippingModal').modal('hide');
+  });
+
+
+</script>
+
+<!-- Delete row -->
+<script>
+ $('#example2').on('click', '.delete-btn', function () {
+  var row = $(this).closest('tr');
+  var shippingId = row.find('.edit-btn').data('id');
+
+  // Assuming you have a confirmation modal with ID 'deleteConfirmationModal'
+  $('#deleteConfirmationModal').modal('show');
+
+  // Detach previous click event handlers to prevent multiple bindings
+  $('#confirmDeleteBtn').off('click');
+
+  // Handle confirmation
+  $('#confirmDeleteBtn').on('click', function () {
+    // Send an AJAX request to delete the shipping
+    $.ajax({
+      url: '/affiliate/api/ShippingCompany_api/' + shippingId + '/',
+      method: 'DELETE',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      data: {
+        'csrfmiddlewaretoken': '{{ csrf_token }}'
+      },
+      success: function (response) {
+        dataTable.draw(); // Assuming dataTable is the DataTable instance, redraw it after deletion
+        showSuccessMessage('تم حذف شركة الشحن.');
+      },
+      error: function (error) {
+        console.error('Error deleting shipping:', error);
+        showErrorMessage('حدث خطأ أثناء حذف شركة الشحن. حاول مرة اخرى.');
+      }
+    });
+
+    // Close the confirmation modal
+    $('#deleteConfirmationModal').modal('hide');
+  });
+});
+</script>
+
+<!-- Show Message -->
+<script>
+  function showErrorMessage(message) {
+    var errorMessageContainer = $('#error-message-container');
+    errorMessageContainer.text(message);
+    errorMessageContainer.show();  // Display the error message
+
+    // Optionally, you can hide the error message after a certain duration
+    setTimeout(function () {
+      errorMessageContainer.hide();
+    }, 5000);  // Hide after 5 seconds (adjust the duration as needed)
+  }
+
+  function showSuccessMessage(message) {
+    var successMessageContainer = $('#success-message-container');
+    successMessageContainer.text(message);
+    successMessageContainer.show();  // Display the success message
+
+    // Optionally, you can hide the success message after a certain duration
+    setTimeout(function () {
+      successMessageContainer.hide();
+    }, 5000);  // Hide after 5 seconds (adjust the duration as needed)
+  }
+</script>
+
+{% endblock content %}

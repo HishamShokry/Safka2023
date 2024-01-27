@@ -1,0 +1,60 @@
+@charset "UTF-8";
+body { direction: rtl ; }
+/*
+
+    Name:       Hopscotch
+    Author:     Jan T. Sott
+
+    CodeMirror template by Jan T. Sott (https://github.com/idleberg/base16-codemirror)
+    Original Base16 color scheme by Chris Kempson (https://github.com/chriskempson/base16)
+
+*/
+
+.cm-s-hopscotch.CodeMirror {background: #322931; color: #d5d3d5;}
+.cm-s-hopscotch div.CodeMirror-selected {background: #433b42 !important;}
+.cm-s-hopscotch .CodeMirror-gutters {background: #322931; border-left: 0px;}
+.cm-s-hopscotch .CodeMirror-linenumber {color: #797379;}
+.cm-s-hopscotch .CodeMirror-cursor {border-right: 1px solid #989498 !important;}
+
+.cm-s-hopscotch span.cm-comment {color: #b33508;}
+.cm-s-hopscotch span.cm-atom {color: #c85e7c;}
+.cm-s-hopscotch span.cm-number {color: #c85e7c;}
+
+.cm-s-hopscotch span.cm-property, .cm-s-hopscotch span.cm-attribute {color: #8fc13e;}
+.cm-s-hopscotch span.cm-keyword {color: #dd464c;}
+.cm-s-hopscotch span.cm-string {color: #fdcc59;}
+
+.cm-s-hopscotch span.cm-variable {color: #8fc13e;}
+.cm-s-hopscotch span.cm-variable-2 {color: #1290bf;}
+.cm-s-hopscotch span.cm-def {color: #fd8b19;}
+.cm-s-hopscotch span.cm-error {background: #dd464c; color: #989498;}
+.cm-s-hopscotch span.cm-bracket {color: #d5d3d5;}
+.cm-s-hopscotch span.cm-tag {color: #dd464c;}
+.cm-s-hopscotch span.cm-link {color: #c85e7c;}
+
+.cm-s-hopscotch .CodeMirror-matchingbracket { text-decoration: underline; color: white !important;}
+.cm-s-hopscotch .CodeMirror-activeline-background { background: #302020; }
+
+
+svg[class*=right], svg[class*=left], [class*=right].fas, [class*=left].fas {
+    transform: scaleX(-1) !important;
+}
+
+.product-item__badge {
+    transform: rotate(-45deg) translateZ(0) !important;
+}
+
+#st_gdpr_iframe {
+    left: 0 !important;
+    right: -5000px;
+}
+
+.product-form__item select.single-option-selector {
+    background-position: calc(23px) calc(1rem + 10px), calc(27px) calc(1rem + 10px);
+}
+
+.card__badge {
+    -ms-transform: rotate(-45deg) translateZ(0);
+    -webkit-transform: rotate(-45deg) translateZ(0);
+    transform: rotate(-45deg) translateZ(0);
+}

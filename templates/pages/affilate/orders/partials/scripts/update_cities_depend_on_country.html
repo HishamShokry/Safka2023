@@ -1,0 +1,25 @@
+<!-- Update city options based on selected governorate -->
+<script>
+    $(document).ready(function () {
+      $(".governorates").change(function () {
+        var governorateId = $(this).val();
+        var citySelect = $(".cities");
+        console.log('tetee');
+  
+        // Make an AJAX request to get cities based on the selected governorate
+        $.ajax({
+          url: `get-cities/${governorateId}/`,
+          success: function (data) {
+            // Clear existing options
+            citySelect.empty();
+            console.log(data);
+  
+            // Populate options based on the response
+            $.each(data.cities, function (index, city) {
+              citySelect.append($('<option>').text(city.name).attr('value', city.id));
+            });
+          }
+        });
+      });
+    });
+  </script>

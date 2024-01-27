@@ -1,0 +1,78 @@
+<!-- Handle counter and Whatsapp message -->
+<script>
+    function handleClick(orderId, actionType, serial_number, client_phone1) {
+      event.preventDefault();  // Prevent the default behavior
+      console.log('Order ID:', orderId);
+      console.log('Access Type:', actionType);    // Construct the URL for the API endpoint
+      const url = `/affiliate/api/order_api/${orderId}/`;
+  
+      // Construct the data to be sent in the request body
+      const data = { action_type: actionType };
+  
+      // Use the fetch API to send a POST request to the server
+      fetch(url, {
+        method: 'PUT',  // Specify the HTTP method
+        headers: {
+          'Content-Type': 'application/json',  // Specify that the data is in JSON format
+          'X-CSRFToken': '{{ csrf_token }}'
+  
+        },
+        body: JSON.stringify(data),  // Convert the data to a JSON string and include it in the request body
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          // Handle the successful response data
+          console.log('Order updated successfully:', data.order);
+  
+          // Generate and redirect to the WhatsApp message
+          if (actionType.startsWith('whats')) {
+            generateWhatsappMessage(serial_number, client_phone1, data.order);
+          }
+        })
+        .catch(error => {
+          // Handle errors here
+          console.error('Error updating order:', error);
+        });
+    }
+  
+  
+  
+  
+    const generateWhatsappMessage = (serialNumber, clientPhone, currentOrder) => {
+  
+      const phone = "2" + clientPhone;
+      const step1 = `اهلا بحضرتك عميلنا العزيز بنكلمك بخصوص تاكيد اوردر كود ${serialNumber}`;
+      const step2 = currentOrder.items.map((item, idx) => {
+        const variant = item.product.product_variant_set[0]; // Assuming there's always one variant per product
+  
+        const formattedItem = `(${variant?.quantity}) قطعة ${item.product.name} - ${variant?.size_name} ${variant?.color_name}`;
+        return idx === currentOrder.items.length - 1 ? formattedItem : `${formattedItem} // `;
+      }).join('');
+  
+      console.log('Step2:', step2);
+      const addr = `علي عنوان: ${currentOrder.client_address}, ${currentOrder.city_name}, ${currentOrder.governorate_name},`;
+      console.log(addr);
+      const step3 = `الاجمالي المطلوب دفعه ${currentOrder.total} جنية.`;
+      const step4 = `لتاكيد الاوردر وخروجة للشحن ارسل رقم (1)`;
+      const step5 = `للتعديل على الطلب ارسل الرقم (2)`;
+      const message = `${step1}\n\n${step2}\n${addr}\n${step3}\n\n${step4}\n${step5}`;
+      const whatsappUrl = `https://api.whatsapp.com/send?phone=${encodeURIComponent(phone)}&text=${encodeURIComponent(message)}`;
+      console.log(whatsappUrl);
+      window.open(whatsappUrl);
+    };
+  
+  
+  
+    function formatDate(isoDate) {
+      const date = new Date(isoDate);
+      const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
+      return date.toLocaleDateString('ar-EG', options);
+    }
+  
+  </script>
+  

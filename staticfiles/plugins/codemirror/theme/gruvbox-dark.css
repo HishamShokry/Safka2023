@@ -1,0 +1,65 @@
+@charset "UTF-8";
+body { direction: rtl ; }
+/*
+
+    Name:       gruvbox-dark
+    Author:     kRkk (https://github.com/krkk)
+
+    Original gruvbox color scheme by Pavel Pertsev (https://github.com/morhetz/gruvbox)
+
+*/
+
+.cm-s-gruvbox-dark.CodeMirror, .cm-s-gruvbox-dark .CodeMirror-gutters { background-color: #282828; color: #bdae93; }
+.cm-s-gruvbox-dark .CodeMirror-gutters {background: #282828; border-left: 0px;}
+.cm-s-gruvbox-dark .CodeMirror-linenumber {color: #7c6f64;}
+.cm-s-gruvbox-dark .CodeMirror-cursor { border-right: 1px solid #ebdbb2; }
+.cm-s-gruvbox-dark.cm-fat-cursor .CodeMirror-cursor { background-color: #8e8d8875 !important; }
+.cm-s-gruvbox-dark .cm-animate-fat-cursor { background-color: #8e8d8875 !important; }
+.cm-s-gruvbox-dark div.CodeMirror-selected { background: #928374; }
+.cm-s-gruvbox-dark span.cm-meta { color: #83a598; }
+
+.cm-s-gruvbox-dark span.cm-comment { color: #928374; }
+.cm-s-gruvbox-dark span.cm-number, span.cm-atom { color: #d3869b; }
+.cm-s-gruvbox-dark span.cm-keyword { color: #f84934; }
+
+.cm-s-gruvbox-dark span.cm-variable { color: #ebdbb2; }
+.cm-s-gruvbox-dark span.cm-variable-2 { color: #ebdbb2; }
+.cm-s-gruvbox-dark span.cm-variable-3, .cm-s-gruvbox-dark span.cm-type { color: #fabd2f; }
+.cm-s-gruvbox-dark span.cm-operator { color: #ebdbb2; }
+.cm-s-gruvbox-dark span.cm-callee { color: #ebdbb2; }
+.cm-s-gruvbox-dark span.cm-def { color: #ebdbb2; }
+.cm-s-gruvbox-dark span.cm-property { color: #ebdbb2; }
+.cm-s-gruvbox-dark span.cm-string { color: #b8bb26; }
+.cm-s-gruvbox-dark span.cm-string-2 { color: #8ec07c; }
+.cm-s-gruvbox-dark span.cm-qualifier { color: #8ec07c; }
+.cm-s-gruvbox-dark span.cm-attribute { color: #8ec07c; }
+
+.cm-s-gruvbox-dark .CodeMirror-activeline-background { background: #3c3836; }
+.cm-s-gruvbox-dark .CodeMirror-matchingbracket { background: #928374; color:#282828 !important; }
+
+.cm-s-gruvbox-dark span.cm-builtin { color: #fe8019; }
+.cm-s-gruvbox-dark span.cm-tag { color: #fe8019; }
+
+
+svg[class*=right], svg[class*=left], [class*=right].fas, [class*=left].fas {
+    transform: scaleX(-1) !important;
+}
+
+.product-item__badge {
+    transform: rotate(-45deg) translateZ(0) !important;
+}
+
+#st_gdpr_iframe {
+    left: 0 !important;
+    right: -5000px;
+}
+
+.product-form__item select.single-option-selector {
+    background-position: calc(23px) calc(1rem + 10px), calc(27px) calc(1rem + 10px);
+}
+
+.card__badge {
+    -ms-transform: rotate(-45deg) translateZ(0);
+    -webkit-transform: rotate(-45deg) translateZ(0);
+    transform: rotate(-45deg) translateZ(0);
+}

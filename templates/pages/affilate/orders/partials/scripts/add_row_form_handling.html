@@ -1,0 +1,83 @@
+
+
+<!-- Add row -->
+<script>
+  $(document).ready(function () {
+
+
+    // Handle click on "Save Changes" button in the modal
+    $('#saveShippingBtn').on('click', function () {
+      var formData = new FormData();
+      formData.append('marketer', $('#addShippingModal #id_marketer').val());
+      formData.append('client_name', $('#addShippingModal #id_client_name').val());
+      formData.append('client_phone1', $('#addShippingModal #id_client_phone1').val());
+      formData.append('client_phone2', $('#addShippingModal #id_client_phone2').val());
+      formData.append('client_address', $('#addShippingModal #id_client_address').val());
+      // formData.append('shiping_price', $('#addShippingModal #id_shiping_price').val());
+      formData.append('commission', $('#addShippingModal #id_difference').val());
+      formData.append('total', $('#addShippingModal #id_total').val());
+      formData.append('governorate', $('#addShippingModal #id_governorate').val());
+      formData.append('note', $('#addShippingModal #id_note').val());
+      formData.append('city', $('#addShippingModal #id_city').val());
+
+
+
+      var product_variant_set = [];
+
+      $('#variant-formset-container .variant-form').each(function (index, variantForm) {
+        var product = $(variantForm).find('[id^="id_items-"][id$="-product"]').val();
+        var variant = $(variantForm).find('[id^="id_items-"][id$="-variant"]').val();
+        var quantity = $(variantForm).find('[id^="id_items-"][id$="-quantity"]').val();
+        var total_item_price = $(variantForm).find('[id^="id_items-"][id$="-total_item_price"]').val();
+        console.log(product, variant, quantity, total_item_price);
+        var variant = {
+          'product': product,
+          'variant': variant,
+          'quantity': quantity,
+          'total_item_price': total_item_price
+        };
+        product_variant_set.push(variant);
+      });
+
+      // Add the product variant set as a JSON string to the FormData
+      formData.append('product_variant_set', JSON.stringify(product_variant_set));
+      formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+
+      console.log(formData);
+      // Send the FormData object in the AJAX request
+      $.ajax({
+        url: '/affiliate/api/order_api/', // Replace with your actual API endpoint
+        method: 'POST',
+        contentType: false,
+        processData: false,
+        data: formData,
+      }).done(function (data, textStatus, jqXHR) {
+        console.log(data);
+        showSuccessMessage("تم أضافة طلب جديد: " + data.order.barcode);
+        dataTable.ajax.reload(); // Assuming dataTable is defined elsewhere
+      }).fail(function (jqXHR, textStatus, errorThrown) {
+        if (jqXHR.status === 400) {
+          var errors = JSON.parse(jqXHR.responseText);
+          // Handle validation errors'
+          handleValidationErrors(errors);
+          // if (errors && errors['error']) {
+          //   console.log(errors['error']);
+          //   showErrorMessage(errors['error']);
+          // }
+
+
+        } else {
+          console.log("Unexpected error:", jqXHR.responseText);
+        }
+      });
+
+      // Close the modal
+
+      $('#addShippingModal').modal('hide');
+
+    });
+  
+  });
+
+</script>

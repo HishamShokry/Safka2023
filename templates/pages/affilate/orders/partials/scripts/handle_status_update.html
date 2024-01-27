@@ -1,0 +1,219 @@
+<script>
+    function valid_status(selectedStatus) {
+        let validStatuses = [];
+        switch (selectedStatus) {
+            case 'طلبات معلقة':
+                validStatuses = ['طلبات ملغيه', 'طلبات مؤجلة', 'طلبات جاري التحضير'];
+                break;
+            case 'طلبات جاري التحضير':
+                validStatuses = ['طلبات ملغية اثناء التحضير', 'طلبات تم الشحن'];
+                break;
+            case 'طلبات مؤجلة':
+                validStatuses = ['طلبات ملغيه', 'طلبات جاري التحضير '];
+                break;
+            case 'طلبات تم الشحن':
+                validStatuses = ['طلبات تم التوصيل', 'جار الاسترجاع'];
+                break;
+            case 'جار الاسترجاع':
+                validStatuses = ['مرتجع'];
+                break;
+            case 'طلبات تم التوصيل':
+                validStatuses = ['طلبات استرجاع من العميل'];
+                break;
+            case 'طلبات استرجاع من العميل':
+                validStatuses = ['طلبات مرتجعة بعد التوصيل'];
+                break;
+            default:
+                validStatuses = [];
+                break;
+        }
+        return validStatuses
+    }
+
+
+
+    function getnerate_dynamic_status(params) {
+        // Dynamically update dropdown options based on valid statuses
+        const validStatuses = valid_status(params);
+
+        const $orderStatusDropdown = $('#orderStatus');
+
+        $orderStatusDropdown.empty(); // Clear existing options
+
+        validStatuses.forEach(status => {
+            $orderStatusDropdown.append(`<option value="${status}">${status}</option>`);
+        });
+    }
+
+
+    function handleUpdateOrderStatus() {
+
+        // Perform update status action on selected rows
+        const selectedRows = dataTable.rows({ selected: true }).data().toArray();
+        if (selectedRows.length > 0) {
+            // At least one row is selected
+
+            // Extract order IDs and statuses from selected rows
+            const selectedOrderIds = selectedRows.map(row => row.id);
+            const selectedStatuses = selectedRows.map(row => row.status);
+
+            // Check if all selected rows have the same status
+            const isSameStatus = selectedStatuses.every(status => status === selectedStatuses[0]);
+            if (isSameStatus) {
+                // All selected rows have the same status
+
+                // Generate status value to the dropdown
+                getnerate_dynamic_status(selectedStatuses[0])
+
+                            // Show the order status modal
+                            $('#orderStatusModal').modal('show');
+
+                // Get the save button element
+                const $saveOrderStatusBtn = $('#saveorderStatusBtn');
+
+                // Send a POST request to update the order status on the backend
+                $saveOrderStatusBtn.off('click').on('click', function () {
+                    // Get the selected status value from the dropdown
+                    const selectedStatus = $('#orderStatus').val();
+                    console.log('Selected Status:', selectedStatus);
+
+                    // Perform update status action on selected rows
+                    const selectedRows = dataTable.rows({ selected: true }).data().toArray();
+                    if (selectedRows.length > 0) {
+                        // At least one row is selected
+                        
+                        // Extract order IDs and statuses from selected rows
+                        const selectedOrderIds = selectedRows.map(row => row.id);
+                        const selectedStatuses = selectedRows.map(row => row.status);
+                        console.log(selectedStatuses);
+
+                        // Check if all selected rows have the same status
+                        const isSameStatus = selectedStatuses.every(status => status === selectedStatuses[0]);
+                        
+                        if (isSameStatus) {
+                            // All selected rows have the same status
+
+                            // Show the order status modal
+                            $('#orderStatusModal').modal('show');
+
+
+                            // Send a POST request to update the order status on the backend
+                            $.ajax({
+                                url: '/affiliate/api/order_api/update_status/',
+                                type: 'POST',
+                                contentType: 'application/json',
+                                data: JSON.stringify({ selected_order_ids: selectedOrderIds, new_status: selectedStatus }),
+                                headers: { 'X-CSRFToken': csrf_token },
+                                success: function (response) {
+                                    console.log('Update Successful:', response);
+                                    // Optionally, you can update the DataTable or perform other actions
+                                    dataTable.draw(); // Refresh the DataTable
+                                    showSuccessMessage(response.message);
+                                },
+                                error: function (jqXHR, textStatus, errorThrown) {
+                                    console.error('Update Failed:', jqXHR);
+                                    showErrorMessage(jqXHR.responseJSON.error);
+                                }
+                            });
+                        }
+                    } else {
+                        // No rows selected
+                        console.log('No rows selected.');
+                    }
+
+                    // Optionally, close the modal
+                    $('#orderStatusModal').modal('hide');
+                });
+            } else {
+                // Not all selected rows have the same status
+                console.log('Not all selected rows have the same status.');
+                alert('الرجاء تحديد صفوف لها نفس الحالة لتحديث الحالة.');
+            }
+        } else {
+            // No rows selected
+            console.log('No rows selected.');
+            alert('لم يتم تحديد اي طلب')
+        }
+
+        // Optionally, close the modal
+        $('#orderStatusModal').modal('hide');
+        // });
+    }
+
+
+
+
+</script>
+
+
+<!-- 
+
+<script>
+
+
+
+    function handleUpdateOrderStatus() {
+        // Show the order status modal
+        $('#orderStatusModal').modal('show');
+
+        // Get the save button element
+        const $saveOrderStatusBtn = $('#saveorderStatusBtn');
+
+        // Event handler for save button click
+        $saveOrderStatusBtn.off('click').on('click', function () {
+            // Get the selected status value from the dropdown
+            const selectedStatus = $('#orderStatus').val();
+            console.log('Selected Status:', selectedStatus);
+
+            // Perform update status action on selected rows
+            const selectedRows = dataTable.rows({ selected: true }).data().toArray();
+            if (selectedRows.length > 0) {
+                // At least one row is selected
+
+                // Extract order IDs and statuses from selected rows
+                const selectedOrderIds = selectedRows.map(row => row.id);
+                const selectedStatuses = selectedRows.map(row => row.status);
+                console.log(selectedStatuses);
+
+                // Check if all selected rows have the same status
+                const isSameStatus = selectedStatuses.every(status => status === selectedStatuses[0]);
+                if (isSameStatus) {
+                    // All selected rows have the same status
+
+                    // Send a POST request to update the order status on the backend
+                    $.ajax({
+                        url: '/affiliate/api/order_api/update_status/',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ selected_order_ids: selectedOrderIds, new_status: selectedStatus }),
+                        headers: { 'X-CSRFToken': csrf_token },
+                        success: function (response) {
+                            console.log('Update Successful:', response);
+                            // Optionally, you can update the DataTable or perform other actions
+                            dataTable.draw(); // Refresh the DataTable
+                            showSuccessMessage(response.message);
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            console.error('Update Failed:', jqXHR);
+                            showErrorMessage(jqXHR.responseJSON.error);
+                        }
+                    });
+                } else {
+                    // Not all selected rows have the same status
+                    console.log('Not all selected rows have the same status.');
+                    alert('Please select rows with the same status for status update.');
+                }
+            } else {
+                // No rows selected
+                console.log('No rows selected.');
+            }
+
+            // Optionally, close the modal
+            $('#orderStatusModal').modal('hide');
+        });
+    }
+
+
+
+
+</script> -->
