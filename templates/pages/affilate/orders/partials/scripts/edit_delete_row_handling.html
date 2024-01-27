@@ -178,7 +178,7 @@
       formData.append('client_phone2', $('#addShippingModal #id_client_phone2').val());
       formData.append('client_address', $('#addShippingModal #id_client_address').val());
       // formData.append('shiping_price', $('#addShippingModal #id_shiping_price').val());
-      // formData.append('commission', $('#addShippingModal #id_difference').val());
+      formData.append('commission', $('#addShippingModal #id_difference').val());
       formData.append('total', $('#addShippingModal #id_total').val());
       formData.append('governorate', $('#addShippingModal #id_governorate').val());
       formData.append('note', $('#addShippingModal #id_note').val());
@@ -220,7 +220,7 @@
         data: formData,
       }).done(function (data, textStatus, jqXHR) {
         console.log(data);
-        showSuccessMessage("تم تعديل الطلب: " + data.barcode)
+        showSuccessMessage("تم تعديل الطلب: " + data.order.barcode)
 
         dataTable.ajax.reload();
       }).fail(function (jqXHR, textStatus, errorThrown) {
@@ -248,43 +248,3 @@
 </script>
 
 
-
-<!-- Delete row -->
-<script>
-  $('#example2').on('click', '.delete-btn', function () {
-    var row = $(this).closest('tr');
-    var productId = row.find('.edit-btn').data('id');
-
-    // Assuming you have a confirmation modal with ID 'deleteConfirmationModal'
-    $('#deleteConfirmationModal').modal('show');
-
-    // Detach previous click event handlers to prevent multiple bindings
-    $('#confirmDeleteBtn').off('click');
-
-    // Handle confirmation
-    $('#confirmDeleteBtn').on('click', function () {
-      // Send an AJAX request to delete the product
-      $.ajax({
-        url: '/affiliate/api/products_api/' + productId + '/',
-        method: 'DELETE',
-        headers: {
-          'X-CSRFToken': '{{ csrf_token }}'
-        },
-        data: {
-          'csrfmiddlewaretoken': '{{ csrf_token }}'
-        },
-        success: function (response) {
-          dataTable.draw(); // Assuming dataTable is the DataTable instance, redraw it after deletion
-          showSuccessMessage('تم حذف منتج.');
-        },
-        error: function (error) {
-          console.error('Error deleting product:', error);
-          showErrorMessage('حدث خطأ أثناء حذف منتج. حاول مرة اخرى.');
-        }
-      });
-
-      // Close the confirmation modal
-      $('#deleteConfirmationModal').modal('hide');
-    });
-  });
-</script>

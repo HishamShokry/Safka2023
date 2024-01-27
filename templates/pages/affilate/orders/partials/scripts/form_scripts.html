@@ -158,7 +158,7 @@
             }, 0);
   
             // Update the difference field
-            const difference = parseFloat(idTotalInput.val()) - totalItemPricesSum;
+            const difference = parseFloat(idTotalInput.val()) - (totalItemPricesSum + parseFloat($("#id_shiping_price").val()));
             $('#id_difference').val(difference.toFixed(2));
           }
         });

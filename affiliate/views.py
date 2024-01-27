@@ -1328,7 +1328,6 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
                 order.marketer.PENDING -= order.commission
                 order.marketer.save()
 
-                order.items.all().delete()
 
                 # Now, you can create the updated order using a similar approach as create
 
@@ -1351,6 +1350,7 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
                         {"error": order_serializer.errors},
                         status=status.HTTP_400_BAD_REQUEST,
                     )
+                order.items.all().delete()
 
                 updated_order = order_serializer.save()
 
