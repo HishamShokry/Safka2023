@@ -227,9 +227,10 @@
         if (jqXHR.status === 400) {
           // Status code 400 indicates a bad request, you can customize this based on your server response
           var errors = JSON.parse(jqXHR.responseText);
-          if (errors && errors.name) {
-            console.log(errors.name);
-            showErrorMessage(errors.name[0]);
+          if (errors) {
+            console.log(errors);
+            console.log('test');
+            handleValidationErrors(errors);
           }
           if (errors && errors.image) {
             console.log(errors.image);

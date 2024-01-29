@@ -18,7 +18,13 @@ class CustomUserAdminForm(forms.ModelForm):
 
 class UserAdmin(BaseUserAdmin):
     model = models.User
-    list_display = BaseUserAdmin.list_display + ("profit", "show_impersonate_link")
+    list_display = BaseUserAdmin.list_display + (
+        "PENDING",
+        "PREPARATION",
+        "SHIPPED",
+        "DELIVERED",
+        "show_impersonate_link",
+    )
     search_fields = ["email", "store_name"]  # Add the fields you want to search for
     fieldsets = BaseUserAdmin.fieldsets + (
         (

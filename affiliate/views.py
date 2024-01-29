@@ -1230,7 +1230,7 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
                 for item in order.items.all():
                     product = item.product
                     vendor = product.vendor
-                    superuser = User.objects.filter(is_superuser=True).first()
+                    superuser = User.objects.filter(username="admin", is_superuser=True).first()
 
                     superuser.PENDING += (
                         product.sale_price - product.purchase_price
@@ -1267,170 +1267,151 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
         except Exception as e:
             # Log the detailed error message for debugging
             print(f"Error creating order: {str(e)}")
+            # transaction.set_rollback(True)  # Rollback the transaction
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+    
     def update(self, request, *args, **kwargs):
         try:
             with transaction.atomic():
-                
-                # Get the order instance
                 order_id = kwargs.get("pk")
                 order = get_object_or_404(Order, id=order_id)
-                
 
-                # Call update_click_counters method
-                action_type = request.data.get("action_type")  # Assuming action_type is provided in the request data
+                action_type = request.data.get("action_type")
                 if action_type:
-                    order.update_click_counters(action_type)
-                    order_serializer = OrderSerializer(order)
-                    serialized_order = order_serializer.data
+                    self.handle_action_type(order, action_type)
+                    return Response({"order": OrderSerializer(order).data}, status=status.HTTP_200_OK)
 
-                    # Construct the response data
+                order_data, variants_data = self.extract_data_from_request(request.data)
+
+                order_serializer = OrderSerializer(order, data=order_data)
+                if not order_serializer.is_valid():
+                    return Response({"error": order_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+                order_serializer = OrderSerializer(order, data=order_data)
+
+                self.rollback_logic(order)
+                order_serializer = OrderSerializer(order, data=order_data)
+
+                print('=>' + str(order.marketer.PENDING))
+                
+                if order_serializer.is_valid():
+
+                    updated_order = order_serializer.save()
+                    self.create_or_update_variants(updated_order, variants_data)
+                    updated_order.shipping_price = self.get_shipping_price(updated_order)
+                    updated_order.commission = self.calculate_commission(updated_order, variants_data)
+                    updated_order.save()
+                    self.update_vendor_and_admin_pending_ADD(updated_order)
+                    self.update_marketer_pending_ADD(updated_order)
+                    self.update_product_variants_quantity_SUB(updated_order)
+
+
                     response_data = {
-                        "order": serialized_order,
+                        "order": order_serializer.data,
+                        "variants": OrderItemSerializer(updated_order.items.all(), many=True).data,
                     }
 
                     return Response(response_data, status=status.HTTP_200_OK)
-                # Rollback the changes made by create function
-                # (This depends on your specific rollback logic)
-                # For example, you might delete the order items associated with the order
-
-                # Your rollback logic here
-
-                # Update the vendor's and admin's pending field with their profit
-                for item in order.items.all():
-                    product = item.product
-                    vendor = product.vendor
-                    superuser = User.objects.filter(is_superuser=True).first()
-
-                    superuser.PENDING -= (
-                        product.sale_price - product.purchase_price
-                    ) * item.quantity
-                    vendor.PENDING -= product.purchase_price * item.quantity
-                    vendor.save()
-                    superuser.save()
-
-                    # Update quantity for the corresponding ProductVariant(s)
-                    try:
-                        variant = item.variant.id
-                        ProductVariant.objects.filter(id=variant).update(
-                            quantity=F("quantity") + item.quantity
-                        )
-                    except ProductVariant.DoesNotExist:
-                        return Response(
-                            {
-                                "error": f"ProductVariant not found for product {product}"
-                            },
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
-
-                # Update the marketer's pending field with the commission
-                order.marketer.PENDING -= order.commission
-                order.marketer.save()
-
-
-                # Now, you can create the updated order using a similar approach as create
-
-                # Extract order and variants data from the request
-                order_data = request.data.copy()
-                variants_data_list = order_data.pop("product_variant_set", [])
-
-                if not variants_data_list:
-                    return Response(
-                        {"error": "No variant data provided"},
-                        status=status.HTTP_400_BAD_REQUEST,
-                    )
-
-                variants_data = json.loads(variants_data_list[0])
-
-                # Validate and update order
-                order_serializer = OrderSerializer(order, data=order_data)
-                if not order_serializer.is_valid():
-                    return Response(
-                        {"error": order_serializer.errors},
-                        status=status.HTTP_400_BAD_REQUEST,
-                    )
-                order.items.all().delete()
-
-                updated_order = order_serializer.save()
-
-                # Create or update variants associated with the order
-                if variants_data:
-                    for variant_data in variants_data:
-                        variant_data["order"] = updated_order.id
-                        variant_serializer = OrderItemSerializer(data=variant_data)
-                        if not variant_serializer.is_valid():
-                            return Response(
-                                {"error": variant_serializer.errors},
-                                status=status.HTTP_400_BAD_REQUEST,
-                            )
-                        variant_serializer.save()
-
-                # Your additional update logic here
-                # Get shipping price
-                try:
-                    shiping_price = ShippingPrice.objects.get(id=order.governorate.id)
-                    order.shiping_price = shiping_price.price
-                except ShippingPrice.DoesNotExist:
-                    return Response(
-                        {"error": "Shipping price not found"},
-                        status=status.HTTP_400_BAD_REQUEST,
-                    )
-
-                # Calculate commission based on the formula
-                item_total_price = sum(
-                    int(item["total_item_price"]) for item in variants_data
-                )
-                commission = order.total - (order.shiping_price + item_total_price)
-
-                # Update the commission field in the order instance
-                order.commission = commission
-                order.save()
-
-                # Update the vendor's and admin's pending field with their profit
-                for item in order.items.all():
-                    product = item.product
-                    vendor = product.vendor
-                    superuser = User.objects.filter(is_superuser=True).first()
-
-                    superuser.PENDING += (
-                        product.sale_price - product.purchase_price
-                    ) * item.quantity
-                    vendor.PENDING += product.purchase_price * item.quantity
-                    vendor.save()
-                    superuser.save()
-
-                    # Update quantity for the corresponding ProductVariant(s)
-                    try:
-                        variant = item.variant.id
-                        ProductVariant.objects.filter(id=variant).update(
-                            quantity=F("quantity") - item.quantity
-                        )
-                    except ProductVariant.DoesNotExist:
-                        return Response(
-                            {
-                                "error": f"ProductVariant not found for product {product}"
-                            },
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
-
-                # Update the marketer's pending field with the commission
-                order.marketer.PENDING += order.commission
-                order.marketer.save()
-
-                response_data = {
-                    "order": order_serializer.data,
-                    "variants": OrderItemSerializer(
-                        updated_order.items.all(), many=True
-                    ).data,
-                }
-
-                return Response(response_data, status=status.HTTP_200_OK)
 
         except Exception as e:
-            # Log the detailed error message for debugging
-            print(f"Error updating order: {str(e)}")
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def handle_action_type(self, order, action_type):
+        # Handle action_type logic here
+        order.update_click_counters(action_type)
+
+    def extract_data_from_request(self, request_data):
+        order_data = request_data.copy()
+        variants_data_list = order_data.pop("product_variant_set", [])
+
+        variants_data = json.loads(variants_data_list[0]) if variants_data_list else []
+
+        return order_data, variants_data
+
+    def rollback_logic(self, order):
+        # Implement your rollback logic here if needed
+        self.update_vendor_and_admin_pending_SUB(order)
+        self.update_product_variants_quantity_ADD(order)
+        order.items.all().delete()
+        self.update_marketer_pending_SUB(order)
+
+    def update_vendor_and_admin_pending_SUB(self, order):
+        admin_user = User.objects.filter(username="admin", is_superuser=True).first()
+
+        for order_item in order.items.all():
+            product = order_item.product
+            vendor = product.vendor
+
+            admin_user.PENDING -= (product.sale_price - product.purchase_price) * order_item.quantity
+            vendor.PENDING -= product.purchase_price * order_item.quantity
+            vendor.save()
+        admin_user.save()
+
+    def update_vendor_and_admin_pending_ADD(self, order):
+        admin_user = User.objects.filter(username="admin", is_superuser=True).first()
+
+        for order_item in order.items.all():
+            product = order_item.product
+            vendor = product.vendor
+
+            admin_user.PENDING += (product.sale_price - product.purchase_price) * order_item.quantity
+            vendor.PENDING += product.purchase_price * order_item.quantity
+            vendor.save()
+        admin_user.save()
+
+    def update_marketer_pending_SUB(self, order):
+        order.marketer.PENDING -= order.commission
+        order.marketer.save()
+
+
+    def update_marketer_pending_ADD(self, order):
+        order.marketer.PENDING += order.commission
+        order.marketer.save()
+
+
+    def update_product_variants_quantity_ADD(self, order):
+        for order_item in order.items.all():
+            try:
+                variant_id = order_item.variant.id
+                ProductVariant.objects.filter(id=variant_id).update(
+                    quantity=F("quantity") + order_item.quantity
+                )
+            except ProductVariant.DoesNotExist:
+                pass
+
+    def update_product_variants_quantity_SUB(self, order):
+        for order_item in order.items.all():
+            try:
+                variant_id = order_item.variant.id
+                ProductVariant.objects.filter(id=variant_id).update(
+                    quantity=F("quantity") - order_item.quantity
+                )
+            except ProductVariant.DoesNotExist:
+                pass
+
+    def create_or_update_variants(self, order, variants_data):
+        if variants_data:
+            for variant_data in variants_data:
+                variant_data["order"] = order.id
+                variant_serializer = OrderItemSerializer(data=variant_data)
+                if variant_serializer.is_valid():
+                    variant_serializer.save()
+
+
+
+    def get_shipping_price(self, order):
+        try:
+            shipping_price = ShippingPrice.objects.get(id=order.governorate.id)
+            return shipping_price.price
+        except ShippingPrice.DoesNotExist:
+            return None
+
+    def calculate_commission(self, order, variants_data):
+        item_total_price = sum(int(item["total_item_price"]) for item in variants_data)
+        return order.total - (order.shipping_price + item_total_price)
+
+
+
 
     def handle_order_status(request, order):
         order_items = order.items.all()
