@@ -1700,7 +1700,7 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
                         pass
 
                 return JsonResponse(
-                    {"success": True, "message": "Order status updated successfully."},
+                    {"success": True, "message": f"تم تحديث حالة الطلب بنجاح إلى '{new_status}'."},
                     status=status.HTTP_200_OK,
                 )
 
@@ -1736,17 +1736,17 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
                         {"error": "لم يتم تحديد شركة شحن للطلبات المحددة."},
                         status=status.HTTP_400_BAD_REQUEST,
                     )
-
+                print(shipping_company)
                 # Retrieve and update shipping company for each selected order
                 for order_id in selected_order_ids:
                     try:
                         order = Order.objects.get(pk=order_id)
-
                         # Update the shipping company (replace 'new_shipping_company' with your actual update logic)
-                        shipping_company = ShippingCompany.objects.get(
+                        updated_shipping_company = ShippingCompany.objects.get(
                             id=shipping_company
                         )
-                        order.shipping_company = shipping_company
+
+                        order.shipping_company = updated_shipping_company
                         order.save()
                     except Order.DoesNotExist:
                         # Log or handle the case where the order doesn't exist
