@@ -1173,16 +1173,7 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         try:
             with transaction.atomic():
-                order_data = request.data.copy()
-                variants_data_list = order_data.pop("product_variant_set", [])
-
-                if not variants_data_list:
-                    return Response(
-                        {"error": "No variant data provided"},
-                        status=status.HTTP_400_BAD_REQUEST,
-                    )
-
-                variants_data = json.loads(variants_data_list[0])
+                order_data, variants_data = self.extract_data_from_request(request.data)
 
                 # Validate and create order
                 order_serializer = OrderSerializer(data=order_data)
@@ -1195,73 +1186,31 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
                 order = order_serializer.save()
 
                 # Create variants associated with the order
-                if variants_data:
-                    for variant_data in variants_data:
-                        variant_data["order"] = order.id
-                        variant_serializer = OrderItemSerializer(data=variant_data)
-                        if not variant_serializer.is_valid():
-                            return Response(
-                                {"error": variant_serializer.errors},
-                                status=status.HTTP_400_BAD_REQUEST,
-                            )
-                        variant_serializer.save()
+                self.create_or_update_variants(order, variants_data)
 
                 # Get shipping price
-                try:
-                    shiping_price = ShippingPrice.objects.get(id=order.governorate.id)
-                    order.shiping_price = shiping_price.price
-                except ShippingPrice.DoesNotExist:
-                    return Response(
-                        {"error": "Shipping price not found"},
-                        status=status.HTTP_400_BAD_REQUEST,
-                    )
-
+                order.shiping_price = self.get_shipping_price(order)
                 # Calculate commission based on the formula
-                item_total_price = sum(
-                    int(item["total_item_price"]) for item in variants_data
-                )
-                commission = order.total - (order.shiping_price + item_total_price)
+                order.commission = self.calculate_commission(order, variants_data)
 
-                # Update the commission field in the order instance
-                order.commission = commission
                 order.save()
 
                 # Update the vendor's and admin's pending field with their profit
-                for item in order.items.all():
-                    product = item.product
-                    vendor = product.vendor
-                    superuser = User.objects.filter(username="admin", is_superuser=True).first()
+                self.update_vendor_and_admin_pending_ADD(order)
 
-                    superuser.PENDING += (
-                        product.sale_price - product.purchase_price
-                    ) * item.quantity
-                    vendor.PENDING += product.purchase_price * item.quantity
-                    vendor.save()
-                    superuser.save()
-
-                    # Update quantity for the corresponding ProductVariant(s)
-                    try:
-                        variant = item.variant.id
-                        ProductVariant.objects.filter(id=variant).update(
-                            quantity=F("quantity") - item.quantity
-                        )
-                    except ProductVariant.DoesNotExist:
-                        return Response(
-                            {
-                                "error": f"ProductVariant not found for product {product}"
-                            },
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
+                
 
                 # Update the marketer's pending field with the commission
-                order.marketer.PENDING += order.commission
-                order.marketer.save()
+                self.update_marketer_pending_ADD(order)
+
+                # Update quantity for the corresponding ProductVariant(s)   
+                self.update_product_variants_quantity_SUB(order)
 
                 response_data = {
                     "order": order_serializer.data,
                     "variants": OrderItemSerializer(order.items.all(), many=True).data,
                 }
-
+                print(order_serializer.data)
                 return Response(response_data, status=status.HTTP_201_CREATED)
 
         except Exception as e:
@@ -1270,7 +1219,6 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
             # transaction.set_rollback(True)  # Rollback the transaction
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    
     def update(self, request, *args, **kwargs):
         try:
             with transaction.atomic():
@@ -1280,35 +1228,45 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
                 action_type = request.data.get("action_type")
                 if action_type:
                     self.handle_action_type(order, action_type)
-                    return Response({"order": OrderSerializer(order).data}, status=status.HTTP_200_OK)
+                    return Response(
+                        {"order": OrderSerializer(order).data},
+                        status=status.HTTP_200_OK,
+                    )
 
                 order_data, variants_data = self.extract_data_from_request(request.data)
 
                 order_serializer = OrderSerializer(order, data=order_data)
                 if not order_serializer.is_valid():
-                    return Response({"error": order_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response(
+                        {"error": order_serializer.errors},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
                 order_serializer = OrderSerializer(order, data=order_data)
 
                 self.rollback_logic(order)
                 order_serializer = OrderSerializer(order, data=order_data)
 
-                print('=>' + str(order.marketer.PENDING))
-                
-                if order_serializer.is_valid():
+                print("=>" + str(order.marketer.PENDING))
 
+                if order_serializer.is_valid():
                     updated_order = order_serializer.save()
                     self.create_or_update_variants(updated_order, variants_data)
-                    updated_order.shipping_price = self.get_shipping_price(updated_order)
-                    updated_order.commission = self.calculate_commission(updated_order, variants_data)
+                    updated_order.shiping_price = self.get_shipping_price(
+                        updated_order
+                    )
+                    updated_order.commission = self.calculate_commission(
+                        updated_order, variants_data
+                    )
                     updated_order.save()
                     self.update_vendor_and_admin_pending_ADD(updated_order)
                     self.update_marketer_pending_ADD(updated_order)
                     self.update_product_variants_quantity_SUB(updated_order)
 
-
                     response_data = {
                         "order": order_serializer.data,
-                        "variants": OrderItemSerializer(updated_order.items.all(), many=True).data,
+                        "variants": OrderItemSerializer(
+                            updated_order.items.all(), many=True
+                        ).data,
                     }
 
                     return Response(response_data, status=status.HTTP_200_OK)
@@ -1324,7 +1282,13 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
         order_data = request_data.copy()
         variants_data_list = order_data.pop("product_variant_set", [])
 
-        variants_data = json.loads(variants_data_list[0]) if variants_data_list else []
+        if not variants_data_list:
+            return Response(
+                {"error": "No variant data provided"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        variants_data = json.loads(variants_data_list[0])
 
         return order_data, variants_data
 
@@ -1342,7 +1306,9 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
             product = order_item.product
             vendor = product.vendor
 
-            admin_user.PENDING -= (product.sale_price - product.purchase_price) * order_item.quantity
+            admin_user.PENDING -= (
+                product.sale_price - product.purchase_price
+            ) * order_item.quantity
             vendor.PENDING -= product.purchase_price * order_item.quantity
             vendor.save()
         admin_user.save()
@@ -1354,7 +1320,9 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
             product = order_item.product
             vendor = product.vendor
 
-            admin_user.PENDING += (product.sale_price - product.purchase_price) * order_item.quantity
+            admin_user.PENDING += (
+                product.sale_price - product.purchase_price
+            ) * order_item.quantity
             vendor.PENDING += product.purchase_price * order_item.quantity
             vendor.save()
         admin_user.save()
@@ -1363,11 +1331,9 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
         order.marketer.PENDING -= order.commission
         order.marketer.save()
 
-
     def update_marketer_pending_ADD(self, order):
         order.marketer.PENDING += order.commission
         order.marketer.save()
-
 
     def update_product_variants_quantity_ADD(self, order):
         for order_item in order.items.all():
@@ -1394,24 +1360,26 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
             for variant_data in variants_data:
                 variant_data["order"] = order.id
                 variant_serializer = OrderItemSerializer(data=variant_data)
-                if variant_serializer.is_valid():
-                    variant_serializer.save()
-
-
+                if not variant_serializer.is_valid():
+                    return Response(
+                        {"error": variant_serializer.errors},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                variant_serializer.save()
 
     def get_shipping_price(self, order):
         try:
             shipping_price = ShippingPrice.objects.get(id=order.governorate.id)
             return shipping_price.price
         except ShippingPrice.DoesNotExist:
-            return None
+            return Response(
+                {"error": "Shipping price not found"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
     def calculate_commission(self, order, variants_data):
         item_total_price = sum(int(item["total_item_price"]) for item in variants_data)
-        return order.total - (order.shipping_price + item_total_price)
-
-
-
+        return order.total - (order.shiping_price + item_total_price)
 
     def handle_order_status(request, order):
         order_items = order.items.all()
@@ -1443,7 +1411,8 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
                 # Update vendor's account
                 vendor_update = {
                     "PENDING": F("PENDING") - product.purchase_price * item.quantity,
-                    "PREPARATION": F("PREPARATION") + product.purchase_price * item.quantity,
+                    "PREPARATION": F("PREPARATION")
+                    + product.purchase_price * item.quantity,
                 }
                 update_vendor_account(vendor, vendor_update)
 
@@ -1471,7 +1440,8 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
 
                 # Update vendor's account
                 vendor_update = {
-                    "PREPARATION": F("PREPARATION") - product.purchase_price * item.quantity,
+                    "PREPARATION": F("PREPARATION")
+                    - product.purchase_price * item.quantity,
                     "SHIPPED": F("SHIPPED") + product.purchase_price * item.quantity,
                 }
                 update_vendor_account(vendor, vendor_update)
@@ -1492,7 +1462,7 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
                 "SHIPPED": F("SHIPPED") + order.commission,
             }
             update_marketer_account(order.marketer, marketer_update)
-            
+
         elif order.status == order.DELIVERED:
             for item in order_items:
                 product = item.product
@@ -1501,7 +1471,8 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
                 # Update vendor's account
                 vendor_update = {
                     "SHIPPED": F("SHIPPED") - product.purchase_price * item.quantity,
-                    "DELIVERED": F("DELIVERED") + product.purchase_price * item.quantity,
+                    "DELIVERED": F("DELIVERED")
+                    + product.purchase_price * item.quantity,
                 }
                 update_vendor_account(vendor, vendor_update)
 
@@ -1521,7 +1492,7 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
                 "DELIVERED": F("DELIVERED") + order.commission,
             }
             update_marketer_account(order.marketer, marketer_update)
-            
+
         elif order.status == order.CANCELED:
             for item in order_items:
                 product = item.product
@@ -1545,11 +1516,8 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
                 # Update product variant quantity
                 variant_id = item.variant.id
                 print(variant_id)
-                product_update = {
-                    "quantity" : F("quantity") + item.quantity
-                }
+                product_update = {"quantity": F("quantity") + item.quantity}
                 update_product_quantity(product_update, variant_id)
-
 
             # Update marketer's account
             marketer_update = {
@@ -1564,7 +1532,8 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
 
                 # Update vendor's account
                 vendor_update = {
-                    "PREPARATION": F("PREPARATION") - product.purchase_price * item.quantity,
+                    "PREPARATION": F("PREPARATION")
+                    - product.purchase_price * item.quantity,
                 }
                 update_vendor_account(vendor, vendor_update)
 
@@ -1580,11 +1549,8 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
                 # Update product variant quantity
                 variant_id = item.variant.id
                 print(variant_id)
-                product_update = {
-                    "quantity" : F("quantity") + item.quantity
-                }
+                product_update = {"quantity": F("quantity") + item.quantity}
                 update_product_quantity(product_update, variant_id)
-
 
             # Update marketer's account
             marketer_update = {
@@ -1615,11 +1581,8 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
                 # Update product variant quantity
                 variant_id = item.variant.id
                 print(variant_id)
-                product_update = {
-                    "quantity" : F("quantity") + item.quantity
-                }
+                product_update = {"quantity": F("quantity") + item.quantity}
                 update_product_quantity(product_update, variant_id)
-
 
             # Update marketer's account
             marketer_update = {
@@ -1634,7 +1597,8 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
 
                 # Update vendor's account
                 vendor_update = {
-                    "DELIVERED": F("DELIVERED") - product.purchase_price * item.quantity,
+                    "DELIVERED": F("DELIVERED")
+                    - product.purchase_price * item.quantity,
                 }
                 update_vendor_account(vendor, vendor_update)
 
@@ -1650,11 +1614,8 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
                 # Update product variant quantity
                 variant_id = item.variant.id
                 print(variant_id)
-                product_update = {
-                    "quantity" : F("quantity") + item.quantity
-                }
+                product_update = {"quantity": F("quantity") + item.quantity}
                 update_product_quantity(product_update, variant_id)
-
 
             # Update marketer's account
             marketer_update = {
@@ -1662,13 +1623,8 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
             }
             update_marketer_account(order.marketer, marketer_update)
 
-            order.barcode_returned = order.barcode + 'R'
+            order.barcode_returned = order.barcode + "R"
             order.save()
-
-
-
-            
-            
 
         # elif order.status == 'shipped':
         #     for item in items:
