@@ -61,10 +61,16 @@ class OrderItemInline(admin.TabularInline):
 
 
 
+class OrderHistoryInline(admin.TabularInline):
+    model = OrderHistory
+    extra = 0  # This will prevent empty, extra forms from being displayed
+    readonly_fields = ['status', 'updated_by', 'updated_at']
+    can_delete = False  # Make sure users can't delete history entries
+
 
 
 class OrderAdmin(admin.ModelAdmin):
-    inlines = [OrderItemInline]
+    inlines = [OrderItemInline, OrderHistoryInline]
     list_display = ['id', 'barcode', 'marketer', 'client_name', 'client_phone1', 'commission' ,'shiping_price','total', 'status', 'created_at', 'updated_at',]
     list_filter = ['status', 'marketer', 'created_at', 'shipping_company',]
     search_fields = ['client_name', 'client_phone1', 'client_phone2', 'barcode']
@@ -95,3 +101,4 @@ admin.site.register(Order, OrderAdmin)
 admin.site.register(Size)
 admin.site.register(Color, ColorAdmin)
 admin.site.register(OrderItem)
+admin.site.register(OrderHistory)

@@ -278,7 +278,7 @@ class Order(models.Model):
         price = self.total - (self.total_items_price + self.shiping_price)
         return price
 
-    def update_click_counters(self, action_type):
+    def update_click_counters(self, action_type, user):
         if action_type == "whats1":
             self.whats1_clicked += 1
             print(self.whats1_clicked)
@@ -292,8 +292,9 @@ class Order(models.Model):
             self.phone2_clicked += 1
         elif action_type == "sms2":
             self.sms2_clicked += 1
+        action = f"تم النقر علي زر {action_type}"
 
-        self.save()
+        self.save(action_type=action, updated_by=user)
 
     def validate_status_transition(self, new_status):
         # Validate status transitions
@@ -319,6 +320,36 @@ class Order(models.Model):
             raise ValueError(
                 f"Invalid status transition from {self.status} to {new_status}."
             )
+        
+
+    def save_history_entry(self, status, note="", updated_by=None, action_type=""):
+        OrderHistory.objects.create(
+            order=self,
+            status=status,
+            note=note,
+            updated_by=updated_by,
+            action_type=action_type,
+        )
+            
+    def save(self, *args, **kwargs):
+        # Save history entry before saving the order
+        if self.pk is not None:  # Check if the order is being updated
+            updated_by = kwargs.pop('updated_by', None)  # Get the updated_by from kwargs
+        
+            # If updated_by is not provided in kwargs, try to get it from the request
+            if updated_by is None and 'request' in kwargs:
+                updated_by = kwargs['request'].user if kwargs['request'].user.is_authenticated else None
+
+            action_type = kwargs.pop('action_type', "")
+            note = kwargs.pop('note', "")
+            self.save_history_entry(
+                status=self.status,
+                note=note,
+                updated_by=updated_by,
+                action_type=action_type,
+            )
+        
+        super(Order, self).save(*args, **kwargs)
 
     # def save(self, *args, **kwargs):
     #     # Update the total_items_price before saving
@@ -370,3 +401,16 @@ class OrderItem(models.Model):
     #     # Update the total_item_price before saving
     #     self.total_item_price = self.get_total_item_price()
     #     super().save(*args, **kwargs)
+
+
+
+class OrderHistory(models.Model):
+    order = models.ForeignKey('Order', on_delete=models.CASCADE, related_name='history_entries')
+    status = models.CharField(max_length=255)
+    action_type = models.CharField(max_length=255, blank=True)
+    note = models.TextField(blank=True)
+    updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.order.barcode} - {self.status} - {self.updated_at}"

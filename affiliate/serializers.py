@@ -271,13 +271,28 @@ class OrderItemSerializer(serializers.ModelSerializer):
         return value
     
 
+
+class OrderHistorySerializer(serializers.ModelSerializer):
+    history_entries = serializers.SerializerMethodField()
+
+    class Meta:
+        model = OrderHistory
+        fields = '__all__'
+
+    def get_history_entries(self, obj):
+        # Retrieve the related history entries for the current OrderHistory instance
+        entries = OrderSerializer(obj.history_entries.all(), many=True).data
+        return entries
+    
+
+
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
     marketer_name = serializers.StringRelatedField(source="marketer")
     governorate_name = serializers.StringRelatedField(source="governorate")
     city_name = serializers.StringRelatedField(source="city")
     shipping_company_name = serializers.StringRelatedField(source="shipping_company")
-
+    # history_entries = OrderHistorySerializer(many=True, read_only=True)  # Include history entries
     class Meta:
         model = Order
         fields = '__all__'
@@ -357,3 +372,6 @@ class OrderSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("يجب ادخال اسم العميل.")
 
         return data
+    
+
+

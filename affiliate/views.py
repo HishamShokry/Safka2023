@@ -1193,7 +1193,7 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
                 # Calculate commission based on the formula
                 order.commission = self.calculate_commission(order, variants_data)
 
-                order.save()
+                order.save(updated_by=request.user, action_type='تم اضافة طلب جديد')
 
                 # Update the vendor's and admin's pending field with their profit
                 self.update_vendor_and_admin_pending_ADD(order)
@@ -1227,7 +1227,7 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
 
                 action_type = request.data.get("action_type")
                 if action_type:
-                    self.handle_action_type(order, action_type)
+                    self.handle_action_type(order, action_type, request.user)
                     return Response(
                         {"order": OrderSerializer(order).data},
                         status=status.HTTP_200_OK,
@@ -1257,7 +1257,27 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
                     updated_order.commission = self.calculate_commission(
                         updated_order, variants_data
                     )
-                    updated_order.save()
+                    
+
+                    # Create note for order history
+                    note = ""
+                    for item in variants_data:
+                        # Fetching product details
+                        product_id = item['product']
+                        product = Product.objects.get(id=product_id)
+                        product_barcode = product.barcode
+
+                        # Quantity and variant details
+                        quantity = item['quantity']
+                        variant_id = item['variant']
+                        variant = ProductVariant.objects.get(id=variant_id)
+
+                        # Building the note with information about the ordered product
+                        note += f"تم طلب منتج: {product_barcode}\n"
+                        note += f"الكمية: {quantity}\n"
+                        note += f"الخاصية: {variant}\n\n"
+
+                    updated_order.save(updated_by=request.user, note=note)
                     self.update_vendor_and_admin_pending_ADD(updated_order)
                     self.update_marketer_pending_ADD(updated_order)
                     self.update_product_variants_quantity_SUB(updated_order)
@@ -1274,9 +1294,9 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    def handle_action_type(self, order, action_type):
+    def handle_action_type(self, order, action_type, user):
         # Handle action_type logic here
-        order.update_click_counters(action_type)
+        order.update_click_counters(action_type, user)
 
     def extract_data_from_request(self, request_data):
         order_data = request_data.copy()
@@ -1624,7 +1644,7 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
             update_marketer_account(order.marketer, marketer_update)
 
             order.barcode_returned = order.barcode + "R"
-            order.save()
+            order.save(updated_by=request.user)
 
         # elif order.status == 'shipped':
         #     for item in items:
@@ -1691,7 +1711,7 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
 
                         # Update the order status
                         order.status = new_status
-                        order.save()
+                        order.save(updated_by=request.user)
                         # Call the handle_order_status function to update vendor and marketer accounts
                         self.handle_order_status(order)
 
@@ -1747,7 +1767,7 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
                         )
 
                         order.shipping_company = updated_shipping_company
-                        order.save()
+                        order.save(updated_by=request.user)
                     except Order.DoesNotExist:
                         # Log or handle the case where the order doesn't exist
                         pass
