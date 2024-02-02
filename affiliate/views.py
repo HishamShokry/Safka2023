@@ -1644,7 +1644,7 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
             update_marketer_account(order.marketer, marketer_update)
 
             order.barcode_returned = order.barcode + "R"
-            order.save(updated_by=request.user)
+            order.save()
 
         # elif order.status == 'shipped':
         #     for item in items:
@@ -1784,6 +1784,43 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
             # Log the detailed error message for debugging
             print(f"Error updating shipping company: {str(e)}")
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        
+    def retrieve(self, request, *args, **kwargs):
+        # Assuming you have an 'Order' model
+        orders = Order.objects.all()
+
+        # Paginate the orders
+        page = request.GET.get('page', 1)
+        paginator = Paginator(orders, len(orders))  # Show 10 orders per page
+        try:
+            orders_page = paginator.page(page)
+        except PageNotAnInteger:
+            # If the page is not an integer, deliver the first page.
+            orders_page = paginator.page(1)
+        except EmptyPage:
+            # If the page is out of range (e.g., 9999), deliver the last page of results.
+            orders_page = paginator.page(paginator.num_pages)
+
+        # Call the default retrieve method to get the instance
+        instance = self.get_object()
+
+        # Convert the instance to a serialized format using Django REST framework serializers
+        serializer = self.get_serializer(instance)
+        serialized_order = serializer.data
+
+        # Get the next order's primary key
+        next_order_pk = None
+        prev_order_pk = None
+        current_index = orders_page.index(instance)
+        print(current_index)
+        if current_index < orders_page.end_index() -1:
+            next_order_pk = orders_page[current_index + 1].id
+
+        if current_index > 0:
+            prev_order_pk = orders_page[current_index - 1].id
+
+        return Response({'order': serialized_order, 'next_order_pk': next_order_pk, 'prev_order_pk': prev_order_pk}, status=status.HTTP_200_OK)
 
 
 class OrderItemViewSetAdmin(viewsets.ModelViewSet):

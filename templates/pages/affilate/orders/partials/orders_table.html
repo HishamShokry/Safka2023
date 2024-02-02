@@ -105,6 +105,8 @@
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title" id="orderModalLabel">تفاصيل الطلب</h5>
+                
+
                 <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                 </button>
@@ -113,6 +115,10 @@
 
               </div>
               <div class="modal-footer">
+                <!-- Add these buttons in your HTML where you want them to appear -->
+                <button id="prevPageBtn" class="btn btn-primary">الطلب السابق</button>
+                <button id="nextPageBtn" class="btn btn-primary">الطلب التالي</button>
+
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">اغلاق</button>
               </div>
             </div>
@@ -221,7 +227,7 @@
                 <!-- Your form with a select dropdown for shipping companies -->
                 <form id="shippingCompanyForm">
                   <div class="form-group">
-                    <label for="shippingCompany">شركة الشحن:</label>
+                    <label for="shippingCompany">طلبات</label>
                     <select class="form-control" id="shippingCompany" name="shippingCompany">
                       <!-- Populate this dropdown with your shipping company options -->
 

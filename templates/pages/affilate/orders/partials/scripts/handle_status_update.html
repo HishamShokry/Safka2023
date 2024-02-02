@@ -65,8 +65,8 @@
                 // Generate status value to the dropdown
                 getnerate_dynamic_status(selectedStatuses[0])
 
-                            // Show the order status modal
-                            $('#orderStatusModal').modal('show');
+                // Show the order status modal
+                $('#orderStatusModal').modal('show');
 
                 // Get the save button element
                 const $saveOrderStatusBtn = $('#saveorderStatusBtn');
@@ -81,7 +81,7 @@
                     const selectedRows = dataTable.rows({ selected: true }).data().toArray();
                     if (selectedRows.length > 0) {
                         // At least one row is selected
-                        
+
                         // Extract order IDs and statuses from selected rows
                         const selectedOrderIds = selectedRows.map(row => row.id);
                         const selectedStatuses = selectedRows.map(row => row.status);
@@ -89,7 +89,7 @@
 
                         // Check if all selected rows have the same status
                         const isSameStatus = selectedStatuses.every(status => status === selectedStatuses[0]);
-                        
+
                         if (isSameStatus) {
                             // All selected rows have the same status
 
