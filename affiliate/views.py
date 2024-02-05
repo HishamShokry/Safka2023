@@ -1598,12 +1598,7 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
                 }
                 update_admin_account(admin_update)
 
-                # Update product variant quantity
-                variant_id = item.variant.id
-                print(variant_id)
-                product_update = {"quantity": F("quantity") + item.quantity}
-                update_product_quantity(product_update, variant_id)
-
+                
             # Update marketer's account
             marketer_update = {
                 "SHIPPED": F("SHIPPED") - order.commission,
@@ -1631,12 +1626,6 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
                 }
                 update_admin_account(admin_update)
 
-                # Update product variant quantity
-                variant_id = item.variant.id
-                print(variant_id)
-                product_update = {"quantity": F("quantity") + item.quantity}
-                update_product_quantity(product_update, variant_id)
-
             # Update marketer's account
             marketer_update = {
                 "DELIVERED": F("DELIVERED") - order.commission,
@@ -1645,6 +1634,24 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
 
             order.barcode_returned = order.barcode + "R"
             order.save()
+
+        elif order.status == order.RETURNED:
+            for item in order_items:
+                # Update product variant quantity
+                variant_id = item.variant.id
+                print(variant_id)
+                product_update = {"quantity": F("quantity") + item.quantity}
+                update_product_quantity(product_update, variant_id)
+           
+        elif order.status == order.RETURNED_AFTER_DELIVERY:
+            for item in order_items:
+                # Update product variant quantity
+                variant_id = item.variant.id
+                print(variant_id)
+                product_update = {"quantity": F("quantity") + item.quantity}
+                update_product_quantity(product_update, variant_id)
+
+           
 
         # elif order.status == 'shipped':
         #     for item in items:
