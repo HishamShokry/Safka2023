@@ -1140,8 +1140,10 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
                 "governorate",
                 "city",
                 "shipping_company",
+                "created_at",
+                "updated_at",
             ]  # Adjust as needed
-
+        
             # Apply sorting
             order_column_name = order_columns[order_column_index]
             if order_direction == "desc":
@@ -1154,6 +1156,7 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
 
             # Apply pagination
             products = products[start : start + length]
+
 
             serializer = OrderSerializer(products, many=True)
 

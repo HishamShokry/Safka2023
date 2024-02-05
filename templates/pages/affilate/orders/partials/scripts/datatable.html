@@ -23,6 +23,7 @@
     dataTable = $('#example2').DataTable({
       'processing': true,
       'serverSide': true,
+      'order': [[10, 'desc']],
       'ajax': {
         'url': '/affiliate/api/order_api/Hisham/datatable_list/',
         'type': 'GET',
@@ -78,10 +79,10 @@
             if (row.status === 'طلبات معلقة') {
               return '<button class="btn btn-primary btn-show-details" data-id="' + row.id + '"><i class="far fa-eye"></i></button>' +
                 '<button class="btn btn-warning edit-btn" data-id="' + row.id + '">تعديل</button>';
-            }else{
+            } else {
               return '<button class="btn btn-primary btn-show-details" data-id="' + row.id + '"><i class="far fa-eye"></i></button>';
             }
-            
+
 
             // return '<button class="btn btn-primary btn-show-details" data-id="' + row.id + '"><i class="far fa-eye"></i></button>'+
             //  '<button class="btn btn-warning edit-btn" data-id="' + row.id + '">تعديل</button>';

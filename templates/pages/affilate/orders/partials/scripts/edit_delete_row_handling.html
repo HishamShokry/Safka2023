@@ -31,8 +31,8 @@
           if (response) {
             console.log(response);
             // Populate the edit modal with order details
-            $('#addShippingModal #id_marketer').val(response.marketer);
-            $('#addShippingModal #id_governorate').val(response.governorate);
+            $('#addShippingModal #id_marketer').val(response.order.marketer);
+            $('#addShippingModal #id_governorate').val(response.order.governorate);
 
             var citySelect = $(".cities");
             var governorateId = $('#addShippingModal #id_governorate').val();
@@ -51,8 +51,8 @@
                     citySelect.append($('<option>').text(city.name).attr('value', city.id));
                   });
 
-                  // Assuming response.city_id represents the city ID you want to set
-                  $('#addShippingModal #id_city').val(response.city);
+                  // Assuming response.order.city_id represents the city ID you want to set
+                  $('#addShippingModal #id_city').val(response.order.city);
 
                   // Optionally, you can trigger change event to handle any associated logic
                   $('#addShippingModal #id_city').trigger('change');
@@ -69,16 +69,16 @@
             }
 
 
-            $('#addShippingModal #id_status').val(response.status);
-            $('#addShippingModal #id_barcode').val(response.barcode);
-            $('#addShippingModal #id_client_name').val(response.client_name);
-            $('#addShippingModal #id_client_phone1').val(response.client_phone1);
-            $('#addShippingModal #id_client_phone2').val(response.client_phone2);
-            $('#addShippingModal #id_client_address').val(response.client_address);
-            $('#addShippingModal #id_shiping_price').val(response.shiping_price);
-            $('#addShippingModal #id_difference').val(response.commission);
-            $('#addShippingModal #id_total').val(response.total);
-            $('#addShippingModal #id_note').val(response.note);
+            $('#addShippingModal #id_status').val(response.order.status);
+            $('#addShippingModal #id_barcode').val(response.order.barcode);
+            $('#addShippingModal #id_client_name').val(response.order.client_name);
+            $('#addShippingModal #id_client_phone1').val(response.order.client_phone1);
+            $('#addShippingModal #id_client_phone2').val(response.order.client_phone2);
+            $('#addShippingModal #id_client_address').val(response.order.client_address);
+            $('#addShippingModal #id_shiping_price').val(response.order.shiping_price);
+            $('#addShippingModal #id_difference').val(response.order.commission);
+            $('#addShippingModal #id_total').val(response.order.total);
+            $('#addShippingModal #id_note').val(response.order.note);
 
 
 
@@ -100,7 +100,7 @@
                 },
                 success: function (data) {
                   // Assuming data.product represents the product information
-                  // You may need to adjust this based on your actual response structure
+                  // You may need to adjust this based on your actual response.order structure
 
 
 
@@ -126,7 +126,7 @@
 
 
             // Assuming you have multiple order items and want to populate each one
-            for (var i = 0; i < response.items.length; i++) {
+            for (var i = 0; i < response.order.items.length; i++) {
               // Clone and append new variant form
               var newVariantFormClone = newVariantForm.clone();
               $('#variant-formset-container').append(newVariantFormClone);
@@ -145,8 +145,8 @@
 
 
 
-            for (let index = 0; index < response.items.length; index++) {
-              populateOrderItemForm(response.items[index], index);
+            for (let index = 0; index < response.order.items.length; index++) {
+              populateOrderItemForm(response.order.items[index], index);
 
 
             }
