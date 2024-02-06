@@ -1,224 +1,235 @@
 <script>
-  
-      // Function to reset the modal content
-      function resetModalContent() {
-        // Reset form fields or perform any other necessary actions
-        $('#addShippingModal :input').val('');
-        // $('#addShippingModal select').val('');
-  
-        // ... Reset other fields as needed ...
-  
-        $(".product-select").each(function () {
-          const tempSelect2 = $(this).select2();
-          tempSelect2.select2('destroy');
-        });
-  
-        // Add an initial formset row
-        const newVariantForm = $('.variant-form:first').clone();
-  
-  
-        // Clear any existing formset rows
-        $('#variant-formset-container').empty();
-  
-        $('#variant-formset-container').append(newVariantForm);
-  
-        // Re-initialize all product-select
-        $(".product-select").each(function () {
-          const temp = $(this);
-          temp.removeAttr('data-select2-id');
-          initializeSelect2(temp);
-        });
-      }
 
-     
-  
-  
-    //   // Event handler for modal show event
-    //   $('#addShippingModal').on('show.bs.modal', function () {
-    //   });
-  
-      // Initialize Select2 for product-select dropdowns
-      function initializeSelect2(selectElement) {
-        selectElement.select2({
-          dropdownParent: $('#addShippingForm'),
-          placeholder: 'اختر منتج',
-          ajax: {
-            url: 'product/search/',
-            dataType: 'json',
-            delay: 250,
-            data: (params) => {
-              return {
-                term: params.term,
-                page: params.page || 1
-              };
-            },
-            processResults: (data, params) => {
-              params.page = params.page || 1;
-              return {
-                results: data.results,
-                pagination: {
-                  more: data.pagination.more
-                }
-              };
-            },
-            cache: true,
-          },
-          dir: 'rtl',
-          width: '100%',
-          selectOnClose: true,
-        });
-      }
-  
-      // Initialize Select2 on existing .product-select elements
-      $('#id_items-0-product').each(function () {
-        initializeSelect2($(this));
-      });
-  
-      // Show shipping modal on "Add Row" button click
-      $('#addRowBtn').on('click', function () {
-        $('#addShippingModal').modal('show');
-        resetModalContent();
+  // Function to reset the modal content
+  function resetModalContent() {
+    // Reset form fields or perform any other necessary actions
+    $('#addShippingModal :input').val('');
+    // $('#addShippingModal select').val('');
 
-  
+    // ... Reset other fields as needed ...
+
+    $(".product-select").each(function () {
+      const tempSelect2 = $(this).select2();
+      tempSelect2.select2('destroy');
+    });
+
+    // Add an initial formset row
+    const newVariantForm = $('.variant-form:first').clone();
+
+
+    // Clear any existing formset rows
+    $('#variant-formset-container').empty();
+
+    $('#variant-formset-container').append(newVariantForm);
+
+    // Re-initialize all product-select
+    $(".product-select").each(function () {
+      const temp = $(this);
+      temp.removeAttr('data-select2-id');
+      initializeSelect2(temp);
+    });
+
+    $('.variant-form').find('p:eq(4)').remove();
+
+  }
+
+
+
+
+  //   // Event handler for modal show event
+  //   $('#addShippingModal').on('show.bs.modal', function () {
+  //   });
+
+  // Initialize Select2 for product-select dropdowns
+  function initializeSelect2(selectElement) {
+    selectElement.select2({
+      dropdownParent: $('#addShippingForm'),
+      placeholder: 'اختر منتج',
+      ajax: {
+        url: 'product/search/',
+        dataType: 'json',
+        delay: 250,
+        data: (params) => {
+          return {
+            term: params.term,
+            page: params.page || 1
+          };
+        },
+        processResults: (data, params) => {
+          params.page = params.page || 1;
+          return {
+            results: data.results,
+            pagination: {
+              more: data.pagination.more
+            }
+          };
+        },
+        cache: true,
+      },
+      dir: 'rtl',
+      width: '100%',
+      selectOnClose: true,
+    });
+  }
+
+  // Initialize Select2 on existing .product-select elements
+  $('#id_items-0-product').each(function () {
+    initializeSelect2($(this));
+  });
+
+  // Show shipping modal on "Add Row" button click
+  $('#addRowBtn').on('click', function () {
+    $('#addShippingModal').modal('show');
+    resetModalContent();
+
+
+  });
+
+  // Delete formset
+  $('#variant-formset-container').on('click', '.delete-variant', function () {
+    $(this).closest('.variant-form').remove();
+  });
+
+  // Update indices for new formset entries
+  function updateFormsetIndices() {
+    $('#variant-formset-container .variant-form').each(function (index, element) {
+      $(element).find(':input').each(function () {
+        const name = $(this).attr('name').replace(/\d/, index);
+        const id = 'id_' + name;
+        $(this).attr({ 'name': name, 'id': id });
+        $(this).siblings('label').attr('for', id);
       });
-  
-      // Update indices for new formset entries
-      function updateFormsetIndices() {
-        $('#variant-formset-container .variant-form').each(function (index, element) {
-          $(element).find(':input').each(function () {
-            const name = $(this).attr('name').replace(/\d/, index);
-            const id = 'id_' + name;
-            $(this).attr({ 'name': name, 'id': id });
-            $(this).siblings('label').attr('for', id);
-          });
+    });
+  }
+
+  // Add new variant form on "Add Variant" button click
+  $('#add-variant').on('click', function () {
+    // Destroy all active Select2 instances
+    $(".product-select").each(function () {
+      const tempSelect2 = $(this).select2();
+      tempSelect2.select2('destroy');
+    });
+
+    // Clone and append new variant form
+    const newVariantForm = $('.variant-form:first').clone();
+    newVariantForm.find(':input').val('');
+
+    // Add the "Delete" button to the cloned variant form
+    const deleteButton = $('<button type="button" name="delete-1" class="delete-variant mb-2 btn btn-danger"><i class="fas fa-trash-alt"></i></button>');
+    newVariantForm.append(deleteButton);
+
+    $('#variant-formset-container').append(newVariantForm);
+    updateFormsetIndices();
+
+    // Re-initialize all product-select
+    $(".product-select").each(function () {
+      const temp = $(this);
+      temp.removeAttr('data-select2-id');
+      initializeSelect2(temp);
+    });
+  });
+
+  // Handle change event on product-select dropdowns
+  $(document).on("change", ".product-select", function () {
+    const productId = $(this).val();
+    const container = $(this).closest('.variant-form');
+    const variantSelect = container.find(".variant-select");
+
+    // Make an AJAX request to get variants based on the selected product
+    $.ajax({
+      url: `get-variants/${productId}/`,
+      success: function (data) {
+        variantSelect.empty();
+        $.each(data.variants, function (index, variant) {
+          variantSelect.append($('<option>').text(variant.name).attr('value', variant.id));
         });
       }
-  
-      // Add new variant form on "Add Variant" button click
-      $('#add-variant').on('click', function () {
-        // Destroy all active Select2 instances
-        $(".product-select").each(function () {
-          const tempSelect2 = $(this).select2();
-          tempSelect2.select2('destroy');
-        });
-  
-        // Clone and append new variant form
-        const newVariantForm = $('.variant-form:first').clone();
-        newVariantForm.find(':input').val('');
-        $('#variant-formset-container').append(newVariantForm);
-        updateFormsetIndices();
-  
-        // Re-initialize all product-select
-        $(".product-select").each(function () {
-          const temp = $(this);
-          temp.removeAttr('data-select2-id');
-          initializeSelect2(temp);
-        });
-      });
-  
-      // Handle change event on product-select dropdowns
-      $(document).on("change", ".product-select", function () {
-        const productId = $(this).val();
-        const container = $(this).closest('.variant-form');
-        const variantSelect = container.find(".variant-select");
-  
-        // Make an AJAX request to get variants based on the selected product
-        $.ajax({
-          url: `get-variants/${productId}/`,
-          success: function (data) {
-            variantSelect.empty();
-            $.each(data.variants, function (index, variant) {
-              variantSelect.append($('<option>').text(variant.name).attr('value', variant.id));
-            });
-          }
-        });
-      });
-  
-      // Handle change event on quantity inputs
-      $(document).on("change", ".quantity-input", function () {
-        const idTotalInput = $('#id_total');
-        const container = $(this).closest('.variant-form');
-        const productId = container.find('select.product-select').val();
-        const variantSelect = container.find(".variant-select");
-        const quantity = $(this).val();
-        const totalItemPriceInput = container.find(".total-item-price");
-  
-        // Make an AJAX request to get sale price based on the selected product
-        $.ajax({
-          url: `/affiliate/get_sale_price/${productId}/`,
-          success: function (data) {
-            const salePrice = parseFloat(data.sale_price);
-            const totalItemPrice = salePrice * quantity;
-  
-            totalItemPriceInput.val(totalItemPrice.toFixed(2)).prop('readonly', true);
-  
-            // Update the sum of all total item prices
-            const totalItemPricesSum = Array.from($('.total-item-price')).reduce((sum, elem) => {
-              return sum + (parseFloat($(elem).val()) || 0);
-            }, 0);
-  
-            // Update the difference field
-            const difference = parseFloat(idTotalInput.val()) - (totalItemPricesSum + parseFloat($("#id_shiping_price").val()));
-            $('#id_difference').val(difference.toFixed(2));
-          }
-        });
-      });
-  
-  
-      // // Handle change event on product-select dropdowns
-      // $(document).on("change", "#id_governorate", function () {
-      //   const id_governorate = $(this).val();
-  
-      //   // Make an AJAX request to get variants based on the selected product
-      //   $.ajax({
-      //     url: `/affiliate/get_shipping_price/${id_governorate}/`,
-      //     success: function (data) {
-  
-      //     }
-      //   });
-      // });
-  
-      // Function to get the shipping price asynchronously
-      function getShippingPrice(callback) {
-        const selectedGovernorate = $('#id_governorate').val();
-  
-        // Make an AJAX request to get shipping price based on the selected governorate
-        $.ajax({
-          url: `/affiliate/get_shipping_price/${selectedGovernorate}/`,
-          success: function (data) {
-            // Handle the data received from the server
-            // You can perform actions or update UI elements based on the data
-            const shippingPrice = data.shipping_price;
-            $("#id_shiping_price").val(shippingPrice);
-            // Call the callback function with the shipping price
-            callback(shippingPrice);
-          },
-          error: function (xhr, status, error) {
-            // Handle any errors that occur during the AJAX request
-            console.error("Error fetching shipping price:", error);
-          }
-        });
-      }
-  
-      // Handle change event on the total input field
-      $(document).on("change", "#id_total, #id_governorate", function () {
-        const idTotalInput = $('#id_total');
-  
-        // Calculate the sum of all total item prices
+    });
+  });
+
+  // Handle change event on quantity inputs
+  $(document).on("change", ".quantity-input", function () {
+    const idTotalInput = $('#id_total');
+    const container = $(this).closest('.variant-form');
+    const productId = container.find('select.product-select').val();
+    const variantSelect = container.find(".variant-select");
+    const quantity = $(this).val();
+    const totalItemPriceInput = container.find(".total-item-price");
+
+    // Make an AJAX request to get sale price based on the selected product
+    $.ajax({
+      url: `/affiliate/get_sale_price/${productId}/`,
+      success: function (data) {
+        const salePrice = parseFloat(data.sale_price);
+        const totalItemPrice = salePrice * quantity;
+
+        totalItemPriceInput.val(totalItemPrice.toFixed(2)).prop('readonly', true);
+
+        // Update the sum of all total item prices
         const totalItemPricesSum = Array.from($('.total-item-price')).reduce((sum, elem) => {
           return sum + (parseFloat($(elem).val()) || 0);
         }, 0);
-  
-        // Get the shipping price asynchronously
-        getShippingPrice(function (shippingPrice) {
-          // Update the difference field
-          const difference = parseFloat(idTotalInput.val()) - (totalItemPricesSum + shippingPrice);
-          $('#id_difference').val(difference.toFixed(2));
-        });
-      });
-  
-  
-  
-  </script>
-  
-  
+
+        // Update the difference field
+        const difference = parseFloat(idTotalInput.val()) - (totalItemPricesSum + parseFloat($("#id_shiping_price").val()));
+        $('#id_difference').val(difference.toFixed(2));
+      }
+    });
+  });
+
+
+  // // Handle change event on product-select dropdowns
+  // $(document).on("change", "#id_governorate", function () {
+  //   const id_governorate = $(this).val();
+
+  //   // Make an AJAX request to get variants based on the selected product
+  //   $.ajax({
+  //     url: `/affiliate/get_shipping_price/${id_governorate}/`,
+  //     success: function (data) {
+
+  //     }
+  //   });
+  // });
+
+  // Function to get the shipping price asynchronously
+  function getShippingPrice(callback) {
+    const selectedGovernorate = $('#id_governorate').val();
+
+    // Make an AJAX request to get shipping price based on the selected governorate
+    $.ajax({
+      url: `/affiliate/get_shipping_price/${selectedGovernorate}/`,
+      success: function (data) {
+        // Handle the data received from the server
+        // You can perform actions or update UI elements based on the data
+        const shippingPrice = data.shipping_price;
+        $("#id_shiping_price").val(shippingPrice);
+        // Call the callback function with the shipping price
+        callback(shippingPrice);
+      },
+      error: function (xhr, status, error) {
+        // Handle any errors that occur during the AJAX request
+        console.error("Error fetching shipping price:", error);
+      }
+    });
+  }
+
+  // Handle change event on the total input field
+  $(document).on("change", "#id_total, #id_governorate", function () {
+    const idTotalInput = $('#id_total');
+
+    // Calculate the sum of all total item prices
+    const totalItemPricesSum = Array.from($('.total-item-price')).reduce((sum, elem) => {
+      return sum + (parseFloat($(elem).val()) || 0);
+    }, 0);
+
+    // Get the shipping price asynchronously
+    getShippingPrice(function (shippingPrice) {
+      // Update the difference field
+      const difference = parseFloat(idTotalInput.val()) - (totalItemPricesSum + shippingPrice);
+      $('#id_difference').val(difference.toFixed(2));
+    });
+  });
+
+
+
+</script>
