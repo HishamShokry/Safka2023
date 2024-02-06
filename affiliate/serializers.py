@@ -273,7 +273,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 
 class OrderHistorySerializer(serializers.ModelSerializer):
-    history_entries = serializers.SerializerMethodField()
+    user_name = serializers.StringRelatedField(source="updated_by")
 
     class Meta:
         model = OrderHistory
@@ -292,7 +292,8 @@ class OrderSerializer(serializers.ModelSerializer):
     governorate_name = serializers.StringRelatedField(source="governorate")
     city_name = serializers.StringRelatedField(source="city")
     shipping_company_name = serializers.StringRelatedField(source="shipping_company")
-    # history_entries = OrderHistorySerializer(many=True, read_only=True)  # Include history entries
+    history_entries = OrderHistorySerializer(many=True, read_only=True)  # Include history entries
+    # history_entries = OrderHistorySerializer(many=True, read_only=True, source="history_entries")  # Include history entries
     class Meta:
         model = Order
         fields = '__all__'

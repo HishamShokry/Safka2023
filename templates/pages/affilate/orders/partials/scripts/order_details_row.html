@@ -62,7 +62,7 @@
 
       // Show Update Status Button
       modalContent += '<div class="col text-center">';
-      modalContent += '<button type="button" id="updateStatusButton" class="btn btn-primary">تحديث حالة الطلب</button>';
+      modalContent += '<button type="button" id="updateStatusButton" class="btn btn-primary mb-4">تحديث حالة الطلب</button>';
       modalContent += '</div>';
 
       // Build the first row: Order ID, Creation Date, and Last Update Date
@@ -134,9 +134,28 @@
       modalContent += '</tr>';
       modalContent += '</tbody></table><br>';
 
+
+
       // Display order note
       modalContent += '  <label class="form-label" for="note">ملاحظة</label>';
       modalContent += '<textarea class="form-control" id="note" readonly>' + orderData.note + '</textarea>';
+
+
+      // modalContent += '<button class=" btn btn-warning" id="OrderHistoryBtn"><i class="fas fa-history"></i></button>';
+
+      // Order History Entires
+      modalContent += '<table id="orderHistoryTable" style=" display: none;" class="table table-bordered table-striped table-hover mt-5"><thead  class="bg-primary"><tr><th>الحالة</th><th>نوع العملية</th><th>ملاحظة</th><th>حدثت بمن؟</th></tr></thead>';
+      modalContent += '<tbody>';
+      orderData.history_entries.forEach(function (entry) {
+        modalContent += '<tr>';
+        modalContent += '<td>' + entry.status + '</td>';
+        modalContent += '<td>' + entry.action_type + '</td>';
+        modalContent += '<td>' + entry.note + '</td>';
+        modalContent += '<td>' + entry.user_name + '</td>';
+        modalContent += '</tr>';
+      });
+
+      modalContent += '</tbody></table><br>';
 
       // Display HTML content in the modal body
       $('#orderDetailsBody').html(modalContent);

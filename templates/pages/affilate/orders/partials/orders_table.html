@@ -105,7 +105,7 @@
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title" id="orderModalLabel">تفاصيل الطلب</h5>
-                
+
 
                 <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
@@ -116,8 +116,10 @@
               </div>
               <div class="modal-footer">
                 <!-- Add these buttons in your HTML where you want them to appear -->
-                <button id="prevPageBtn" class="btn btn-primary">الطلب السابق</button>
-                <button id="nextPageBtn" class="btn btn-primary">الطلب التالي</button>
+                <button id="prevPageBtn" class="btn btn-primary"><i class="fas fa-arrow-right"></i></button>
+                <button id="nextPageBtn" class="btn btn-primary"><i class="fas fa-arrow-left"></i></button>
+                <button class="btn btn-warning mr-auto" id="OrderHistoryBtn"><i class="fas fa-history"></i></button>
+
 
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">اغلاق</button>
               </div>
@@ -171,55 +173,13 @@
         </div>
 
 
-        <!-- Edit Product Modal -->
-        <!-- <div class="modal fade" id="editShippingModal" tabindex="-1" role="dialog"
-          aria-labelledby="editShippingModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-xl" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="editShippingModalLabel">Edit Shipping Details</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                <form method="post" id="editShippingForm" enctype="multipart/form-data">
-                  {% csrf_token %}
-                  {{ form.as_p }}
-
-                  <div id="variant-formset-container">
-                    {{ variant_formset.management_form }}
-                    {% for form in variant_formset %}
-                    <div class="variant-form">
-                      {{ form.as_p }}
-                    </div>
-                    {% endfor %}
-                  </div>
-
-                  <button type="button" class="btn btn-outline-success" id="add-variant">Add Variant</button>
-                  <br>
-                  <div>
-                    <label for="id_difference">Commission:</label>
-                    <input type="number" name="difference" class="form-control" required="" id="id_difference" readonly>
-                  </div>
-                </form>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveEditShippingBtn">Save Changes</button>
-              </div>
-            </div>
-          </div>
-        </div> -->
-
-
         <div class="modal fade" id="shippingCompanyModal" tabindex="-1" role="dialog"
           aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">اختر شركة شحن</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
@@ -238,7 +198,7 @@
                 </form>
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">اغلاق</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">اغلاق</button>
                 <button type="button" class="btn btn-primary" id="saveShippingCompanyBtn">حفظ</button>
               </div>
             </div>
@@ -251,7 +211,7 @@
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">اختر حالة الطلب</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
@@ -268,7 +228,7 @@
                 </form>
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">اغلاق</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">اغلاق</button>
                 <button type="button" class="btn btn-primary" id="saveorderStatusBtn">حفظ</button>
               </div>
             </div>
@@ -276,28 +236,6 @@
         </div>
 
 
-
-        <!-- Delete Confirmation Modal -->
-        <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" role="dialog"
-          aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="deleteConfirmationModalLabel">تأكيد الحذف</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                <p>هل أنت متأكد أنك تريد حذف هذا السعر شحن؟</p>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">تأكيد الحذف</button>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
       <!-- /.card-body -->
     </div>
