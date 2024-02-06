@@ -21,6 +21,9 @@
 
     // Initialize DataTables
     dataTable = $('#example2').DataTable({
+      "language": {
+        "url": "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json"
+      },
       'processing': true,
       'serverSide': true,
       'order': [[10, 'desc']],
@@ -100,7 +103,15 @@
       lengthChange: true,
       autoWidth: false,
       select: 'multi',
-      buttons: ['pageLength', 'copy', 'csv', 'excel', 'pdf', 'print', 'colvis', 'selectAll', 'selectNone',
+      buttons: ['pageLength', 'copy', 'csv', 'excel', 'pdf', 'print', 'colvis',
+        {
+          "extend": 'selectAll',
+          "text": 'تحديد الكل'
+        },
+        {
+          "extend": 'selectNone',
+          "text": 'الغاء التحديد'
+        },
         {
           text: 'تحديث شركة الشحن',
           action: function () {
