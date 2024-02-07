@@ -33,6 +33,8 @@ router = DefaultRouter()
 router.register(r"vendors_api", VendorViewSet, basename="vendor")
 router.register(r"marketers_api", MarketerViewSet, basename="marketer")
 
+router.register(r"requests_api", views.RequestViewSetAdmin, basename="requests")
+
 
 router.register(r"categories_api", views.CategoryViewSet, basename="category")
 router.register(r"inventory_api", views.InventoryViewSet, basename="inventory")

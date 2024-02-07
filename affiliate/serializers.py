@@ -376,3 +376,10 @@ class OrderSerializer(serializers.ModelSerializer):
     
 
 
+
+class RequestSerializer(serializers.ModelSerializer):
+    username = serializers.StringRelatedField(source="user")
+
+    class Meta:
+            model = Request
+            fields = '__all__'
