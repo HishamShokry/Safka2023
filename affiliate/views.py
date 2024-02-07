@@ -173,13 +173,13 @@ def requests(request):
 @login_required
 @admin_required
 def vendors_accounts(request):
-    return render(request, "pages/affilate/vendors_accounts.html")
+    return render(request, "pages/affilate/vendors.html")
 
 
 @login_required
 @admin_required
 def marketers_accounts(request):
-    return render(request, "pages/affilate/marketers_accounts.html")
+    return render(request, "pages/affilate/marketers.html")
 
 
 @login_required

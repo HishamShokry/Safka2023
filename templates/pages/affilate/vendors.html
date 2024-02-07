@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1>حسابات تجار</h1>
+        </div>
+        <div class="col-sm-6">
+          <ol class="breadcrumb float-sm-left">
+            <li class="breadcrumb-item">
+              <a href="#">افيليت</a>
+            </li>
+            <li class="breadcrumb-item active">حسابات تجار</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+    <!-- /.container-fluid -->
+  </section>
+
+  <!-- Main content -->
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row"></div>
+      <!-- /.card -->
+      <div class="card">
+        <!--  <div class="card-header">
+                <h3 class="card-title">حسابات تجار</h3>
+              </div>  -->
+        <!-- /.card-header -->
+        <div id="error-message-container" class="alert alert-danger" style="display: none;"></div>
+        <div id="success-message-container" class="alert alert-success" style="display: none;"></div>
+        <div class="card-body">
+
+
+
+          <!-- Add these input fields above the DataTable -->
+          <form class="form-group row m-2">
+            <label class="form-label" for="date_range"> تاريخ: </label>
+            <div class="col-xs-3 ml-">
+              <input type="text" class="form-control" id="date_range">
+            </div>
+            <div class="col">
+              <button type="button" class="btn btn-primary" id="submitBtn">فلتر</button>
+            </div>
+          </form>
+          <table id="example2" class="table table-bordered table-striped table-hover">
+            <thead class="bg-primary">
+              <tr>
+                <th>#</th>
+                <th>اسم المستخدم</th>
+                <th>نشط</th>
+                <th>رقم الموبايل</th>
+                <th>رصيد معلق</th>
+                <th>رصيد محضر</th>
+                <th>رصيد في الشحن</th>
+                <th>رصيد متاح</th>
+              </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+            <tfoot>
+              <tr>
+                <th>#</th>
+                <th>اسم المستخدم</th>
+                <th>نشط</th>
+                <th>رقم الموبايل</th>
+                <th>رصيد معلق</th>
+                <th>رصيد محضر</th>
+                <th>رصيد في الشحن</th>
+                <th>رصيد متاح</th>
+              </tr>
+            </tfoot>
+          </table>
+
+        </div>
+        <!-- /.card-body -->
+      </div>
+
+    </div>
+    <!-- /.card -->
+    <!-- /.col -->
+    <!-- /.row -->
+    <!-- /.container-fluid -->
+  </section>
+  <!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
+
+
+<!-- Datatable -->
+<script>
+  var dataTable;
+  $(function () {
+
+    // Initialize Date Range Picker
+    var tomorrow = moment().add(1, 'days');
+    $('#date_range').daterangepicker({
+      locale: {
+        format: 'YYYY-MM-DD',
+        applyLabel: 'تطبيق',
+        cancelLabel: 'إلغاء',
+        customRangeLabel: 'نطاق مخصص',
+      },
+      startDate: '2023-01-01',
+      endDate: tomorrow,
+    });
+
+    // Get the API URL using Django template syntax
+    var apiUrl = "affiliate/api/vendor_api/";
+    console.log("API URL:", apiUrl);
+
+    // Initialize DataTables
+    dataTable = $('#example2').DataTable({
+      "language": {
+        "url": "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json"
+      },
+      'processing': true,
+      'serverSide': true,
+      "lengthMenu": [10, 100, 500, 1000],
+      'ajax': {
+        'url': '/affiliate/api/vendors_api/Hisham/datatable_list/',
+        'type': 'GET',
+        'data': function (d) {
+          d.extra_search = {};  // Add an object to store individual column searches
+          
+          // Add date filters from Date Range Picker
+          var dateRange = $('#date_range').val();
+          if (dateRange) {
+            var [startDate, endDate] = dateRange.split(' - ');
+            d.start_date = startDate;
+            d.end_date = endDate;
+          }
+
+          // Add individual column searches
+          $('input.column-search').each(function () {
+            var columnIdx = $(this).data('column-index');
+            var columnName = dataTable.column(columnIdx).dataSrc();
+            d.extra_search[columnName] = $(this).val();
+          });
+        },
+      },
+      'columns': [
+        { 'data': 'id' },
+        { 'data': 'username' },
+        { 'data': 'is_active'},
+        { 'data': 'mobile_number'},
+        { 'data': 'PENDING'},
+        { 'data': 'PREPARATION'},
+        { 'data': 'SHIPPED'},
+        { 'data': 'DELIVERED'},
+        // {
+        //   'data': null,
+        //   'render': function (data, type, row) {
+        //     // Add Edit and Delete buttons for each row
+        //     return '<button class="btn btn-warning edit-btn" data-id="' + row.id + '">تعديل</button>' +
+        //       '<button class="btn btn-danger delete-btn" data-id="' + row.id + '">حذف</button>';
+        //   },
+        //   'orderable': false,
+        //   "searchable": false
+        // },
+        // Add other columns as needed
+      ],
+      'order': [], // Disable default sorting
+      dom: 'frBtip',
+      scrollY: 500,
+      scrollX: true,
+      responsive: false,
+      lengthChange: true,
+      autoWidth: false,
+      select: true,
+      buttons: ['pageLength', 'copy', 'csv', 'excel', 'pdf', 'print', 'colvis'],
+      initComplete: function () {
+        // Add individual column search inputs with placeholders
+        this.api().columns().every(function () {
+          var column = this;
+          var input = document.createElement("input");
+          $(input)
+            .addClass('column-search')
+            .attr('placeholder', 'ابحث ' + column.header().innerHTML)
+            .data('column-index', column.index())
+            .appendTo($(column.footer()).empty())
+            .on('keyup change', function () {
+              dataTable.draw();
+            });
+        });
+      }
+    });
+  });
+
+</script>
+
+<!-- Redraw table -->
+<script>
+  // Handle click on the "Submit" button to redraw the table
+  $('#submitBtn').click(function () {
+    dataTable.draw();
+  });
+</script>
+
+
+<!-- Show Message -->
+<script>
+  function showErrorMessage(message) {
+    var errorMessageContainer = $('#error-message-container');
+    errorMessageContainer.text(message);
+    errorMessageContainer.show();  // Display the error message
+
+    // Optionally, you can hide the error message after a certain duration
+    setTimeout(function () {
+      errorMessageContainer.hide();
+    }, 5000);  // Hide after 5 seconds (adjust the duration as needed)
+  }
+
+  function showSuccessMessage(message) {
+    var successMessageContainer = $('#success-message-container');
+    successMessageContainer.text(message);
+    successMessageContainer.show();  // Display the success message
+
+    // Optionally, you can hide the success message after a certain duration
+    setTimeout(function () {
+      successMessageContainer.hide();
+    }, 5000);  // Hide after 5 seconds (adjust the duration as needed)
+  }
+</script>
+
+
+
+
+
+
+{% endblock %}
