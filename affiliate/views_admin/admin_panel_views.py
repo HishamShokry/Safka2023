@@ -61,10 +61,11 @@ def list_of_product(request):
 
     else:
         form = ProductForm()
+        variant_formset = ProductForm.product_variant_set(instance=Product())
     return render(
         request,
         "pages/affilate/products_list.html",
-        {"form": form},
+        {"form": form, "variant_formset": variant_formset},
     )
 
 
@@ -150,7 +151,7 @@ def orders(request):
     return render(
         request,
         "pages/affilate/new_orders.html",
-        { "form": form},
+        { "form": form, "variant_formset": order_items},
     )
 
 

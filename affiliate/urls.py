@@ -24,7 +24,7 @@ from .datatable import (
     products_list_ajax_datatable_views,
 )
 from . import views
-from .views_admin import admin_panel_views
+from .views_admin import admin_panel_views, admin_api_views
 from .views_marketers import marketer_panel_views
 from .views_vendors import vendor_panel_views
 
@@ -37,28 +37,28 @@ router = DefaultRouter()
 router.register(r"vendors_api", VendorViewSet, basename="vendor")
 router.register(r"marketers_api", MarketerViewSet, basename="marketer")
 
-router.register(r"requests_api", views.RequestViewSetAdmin, basename="requests")
+router.register(r"requests_api", admin_api_views.RequestViewSetAdmin, basename="requests")
 
 
-router.register(r"categories_api", views.CategoryViewSet, basename="category")
-router.register(r"inventory_api", views.InventoryViewSet, basename="inventory")
+router.register(r"categories_api", admin_api_views.CategoryViewSet, basename="category")
+router.register(r"inventory_api", admin_api_views.InventoryViewSet, basename="inventory")
 router.register(
     r"ShippingCompany_api",
-    views.ShippingCompanyViewSetAdmin,
+    admin_api_views.ShippingCompanyViewSetAdmin,
     basename="shippingcompany",
 )
 router.register(
-    r"ShippingPrice_api", views.ShippingPriceViewSetAdmin, basename="shippingprice"
+    r"ShippingPrice_api", admin_api_views.ShippingPriceViewSetAdmin, basename="shippingprice"
 )
 router.register(
-    r"GovernoratePrice_api", views.GovernorateViewSetAdmin, basename="Governorate"
+    r"GovernoratePrice_api", admin_api_views.GovernorateViewSetAdmin, basename="Governorate"
 )
-router.register(r"products_api", views.ProductViewSetAdmin, basename="products")
+router.register(r"products_api", admin_api_views.ProductViewSetAdmin, basename="products")
 router.register(
-    r"product_variant_api", views.ProductVariantViewSetAdmin, basename="product_variant"
+    r"product_variant_api", admin_api_views.ProductVariantViewSetAdmin, basename="product_variant"
 )
-router.register(r"order_api", views.OrderViewSetAdmin, basename="order")
-router.register(r"order_item_api", views.OrderItemViewSetAdmin, basename="order_item")
+router.register(r"order_api", admin_api_views.OrderViewSetAdmin, basename="order")
+router.register(r"order_item_api", admin_api_views.OrderItemViewSetAdmin, basename="order_item")
 
 urlpatterns = [
     path("", admin_panel_views.dashboard, name="dashboard"),
@@ -116,12 +116,12 @@ urlpatterns = [
 
 
     path("api/", include(router.urls)),
-    path("get-cities/<int:governorate_id>/", views.get_cities, name="get_cities"),
-    path("get-product/<int:product_id>/", views.get_product, name="get_product"),
-    path("get-variants/<int:product_id>/", views.get_variants, name="get_variants"),
-    path("product/search/", views.product_search, name="product_search"),
-    path("marketer/search/", views.marketer_search, name="marketer_search"),
-    path("company/search/", views.get_shipping_company, name="get_shipping_company"),
-    path("get_sale_price/<int:product_id>/", views.get_sale_price, name="get_sale_price"),
-    path("get_shipping_price/<int:governorate_id>/", views.get_shipping_price, name="get_shipping_price"),
+    path("get-cities/<int:governorate_id>/", admin_api_views.get_cities, name="get_cities"),
+    path("get-product/<int:product_id>/", admin_api_views.get_product, name="get_product"),
+    path("get-variants/<int:product_id>/", admin_api_views.get_variants, name="get_variants"),
+    path("product/search/", admin_api_views.product_search, name="product_search"),
+    path("marketer/search/", admin_api_views.marketer_search, name="marketer_search"),
+    path("company/search/", admin_api_views.get_shipping_company, name="get_shipping_company"),
+    path("get_sale_price/<int:product_id>/", admin_api_views.get_sale_price, name="get_sale_price"),
+    path("get_shipping_price/<int:governorate_id>/", admin_api_views.get_shipping_price, name="get_shipping_price"),
 ]
