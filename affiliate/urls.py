@@ -24,6 +24,10 @@ from .datatable import (
     products_list_ajax_datatable_views,
 )
 from . import views
+from .views_admin import admin_panel_views
+from .views_marketers import marketer_panel_views
+from .views_vendors import vendor_panel_views
+
 from rest_framework.routers import DefaultRouter
 from accounts.views import VendorViewSet, MarketerViewSet
 
@@ -57,47 +61,60 @@ router.register(r"order_api", views.OrderViewSetAdmin, basename="order")
 router.register(r"order_item_api", views.OrderItemViewSetAdmin, basename="order_item")
 
 urlpatterns = [
-    path("", views.dashboard, name="dashboard"),
-    path("dashboard", views.dashboard, name="dashboard"),
-    path("category", views.category, name="category"),
-    path("products", views.products, name="products"),
-    path("list_of_product", views.list_of_product, name="list_of_product"),
-    path("products/<int:id>", views.product_detail, name="product_detail"),
-    path("shipping", views.shipping, name="shipping"),
-    path("price_shipping", views.shipping_price, name="price_shipping"),
-    path("inventory", views.inventory, name="inventory"),
-    path("orders", views.orders, name="orders"),
-    path("requests", views.requests, name="requests"),
-    path("vendors_accounts", views.vendors_accounts, name="vendors_accounts"),
-    path("marketers_accounts", views.marketers_accounts, name="marketers_accounts"),
-    path("support", views.support, name="support"),
-    path("profile", views.profile, name="profile"),
+    path("", admin_panel_views.dashboard, name="dashboard"),
+    path("dashboard", admin_panel_views.dashboard, name="dashboard"),
+    path("category", admin_panel_views.category, name="category"),
+    path("products", admin_panel_views.products, name="products"),
+    path("list_of_product", admin_panel_views.list_of_product, name="list_of_product"),
+    path("products/<int:id>", admin_panel_views.product_detail, name="product_detail"),
+    path("shipping", admin_panel_views.shipping, name="shipping"),
+    path("price_shipping", admin_panel_views.shipping_price, name="price_shipping"),
+    path("inventory", admin_panel_views.inventory, name="inventory"),
+    path("orders", admin_panel_views.orders, name="orders"),
+    path("requests", admin_panel_views.requests, name="requests"),
+    path("vendors_accounts", admin_panel_views.vendors_accounts, name="vendors_accounts"),
+    path("marketers_accounts", admin_panel_views.marketers_accounts, name="marketers_accounts"),
+    path("support", admin_panel_views.support, name="support"),
+    path("profile", admin_panel_views.profile, name="profile"),
+    
+    
+    
     # marketer
-    path("marketer/", views.marketer_dashboard, name="marketer_dashboard"),
-    path("marketer/dashboard", views.marketer_dashboard, name="marketer_dashboard"),
-    path("marketer/products", views.marketer_products, name="marketer_products"),
+    path("marketer/", marketer_panel_views.marketer_dashboard, name="marketer_dashboard"),
+    path("marketer/dashboard", marketer_panel_views.marketer_dashboard, name="marketer_dashboard"),
+    path("marketer/products", marketer_panel_views.marketer_products, name="marketer_products"),
     path(
         "marketer/products/<int:id>",
-        views.marketer_product_detail,
+        marketer_panel_views.marketer_product_detail,
         name="marketer_product_detail",
     ),
-    path("marketer/orders", views.marketer_orders, name="marketer_orders"),
-    path("marketer/requests", views.marketer_requests, name="marketer_requests"),
-    path("marketer/support", views.marketer_support, name="marketer_support"),
-    path("marketer/profile", views.marketer_profile, name="marketer_profile"),
+    path("marketer/orders", marketer_panel_views.marketer_orders, name="marketer_orders"),
+    path("marketer/requests", marketer_panel_views.marketer_requests, name="marketer_requests"),
+    path("marketer/support", marketer_panel_views.marketer_support, name="marketer_support"),
+    path("marketer/profile", marketer_panel_views.marketer_profile, name="marketer_profile"),
+    
+    
+    
     # vendor
-    path("vendor/", views.vendor_dashboard, name="vendor_dashboard"),
-    path("vendor/dashboard", views.vendor_dashboard, name="vendor_dashboard"),
-    path("vendor/products", views.vendor_products, name="vendor_products"),
+    path("vendor/", vendor_panel_views.vendor_dashboard, name="vendor_dashboard"),
+    path("vendor/dashboard", vendor_panel_views.vendor_dashboard, name="vendor_dashboard"),
+    path("vendor/products", vendor_panel_views.vendor_products, name="vendor_products"),
     path(
         "vendor/products/<int:id>",
-        views.vendor_product_detail,
+        vendor_panel_views.vendor_product_detail,
         name="vendor_product_detail",
     ),
-    path("vendor/orders", views.vendor_orders, name="vendor_orders"),
-    path("vendor/requests", views.vendor_requests, name="vendor_requests"),
-    path("vendor/support", views.vendor_support, name="vendor_support"),
-    path("vendor/profile", views.vendor_profile, name="vendor_profile"),
+    path("vendor/orders", vendor_panel_views.vendor_orders, name="vendor_orders"),
+    path("vendor/requests", vendor_panel_views.vendor_requests, name="vendor_requests"),
+    path("vendor/support", vendor_panel_views.vendor_support, name="vendor_support"),
+    path("vendor/profile", vendor_panel_views.vendor_profile, name="vendor_profile"),
+
+
+
+
+
+
+
     path("api/", include(router.urls)),
     path("get-cities/<int:governorate_id>/", views.get_cities, name="get_cities"),
     path("get-product/<int:product_id>/", views.get_product, name="get_product"),
