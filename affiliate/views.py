@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST, require_GET
 from accounts.decorators import *
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Q, F  # Import Q for complex queries
+from django.db.models import Q, F, Count  # Import Q for complex queries
 from .permissions import *
 
 # Create your views here.
@@ -1122,7 +1122,7 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
 
             # Apply individual column filters
             if extra_search:
-                products = products.filter(**extra_search)
+                products = products.filter(Q(**extra_search))
 
             # Apply sorting
             order_column_index = int(request.GET.get("order[0][column]", 0))
@@ -1323,7 +1323,7 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
         self.update_marketer_pending_SUB(order)
 
     def update_vendor_and_admin_pending_SUB(self, order):
-        admin_user = User.objects.filter(username="admin", is_superuser=True).first()
+        admin_user = User.objects.filter(username="system", is_superuser=True).first()
 
         for order_item in order.items.all():
             product = order_item.product
@@ -1337,7 +1337,7 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
         admin_user.save()
 
     def update_vendor_and_admin_pending_ADD(self, order):
-        admin_user = User.objects.filter(username="admin", is_superuser=True).first()
+        admin_user = User.objects.filter(username="system", is_superuser=True).first()
 
         for order_item in order.items.all():
             product = order_item.product
@@ -1414,7 +1414,7 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
             User.objects.filter(id=marketer.id).update(**update)
 
         def update_admin_account(update):
-            User.objects.filter(username="admin", is_superuser=True).update(**update)
+            User.objects.filter(username="system", is_superuser=True).update(**update)
 
         def update_product_quantity(update, variant):
             variant_id = variant
@@ -1798,39 +1798,21 @@ class OrderViewSetAdmin(viewsets.ModelViewSet):
         
     def retrieve(self, request, *args, **kwargs):
         # Assuming you have an 'Order' model
-        orders = Order.objects.all()
-
-        # Paginate the orders
-        page = request.GET.get('page', 1)
-        paginator = Paginator(orders, len(orders))  # Show 10 orders per page
         try:
-            orders_page = paginator.page(page)
-        except PageNotAnInteger:
-            # If the page is not an integer, deliver the first page.
-            orders_page = paginator.page(1)
-        except EmptyPage:
-            # If the page is out of range (e.g., 9999), deliver the last page of results.
-            orders_page = paginator.page(paginator.num_pages)
-
-        # Call the default retrieve method to get the instance
-        instance = self.get_object()
+            # Call the default retrieve method to get the instance
+            instance = self.get_object()
+        except Http404:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
 
         # Convert the instance to a serialized format using Django REST framework serializers
         serializer = self.get_serializer(instance)
         serialized_order = serializer.data
 
-        # Get the next order's primary key
-        next_order_pk = None
-        prev_order_pk = None
-        current_index = orders_page.index(instance)
-        print(current_index)
-        if current_index < orders_page.end_index() -1:
-            next_order_pk = orders_page[current_index + 1].id
+        # Get the IDs of the next and previous orders
+        next_order_id = Order.objects.filter(id__gt=instance.id).order_by('id').values_list('id', flat=True).first()
+        prev_order_id = Order.objects.filter(id__lt=instance.id).order_by('-id').values_list('id', flat=True).first()
 
-        if current_index > 0:
-            prev_order_pk = orders_page[current_index - 1].id
-
-        return Response({'order': serialized_order, 'next_order_pk': next_order_pk, 'prev_order_pk': prev_order_pk}, status=status.HTTP_200_OK)
+        return Response({'order': serialized_order, 'next_order_pk': next_order_id, 'prev_order_pk': prev_order_id}, status=status.HTTP_200_OK)
 
 
 class OrderItemViewSetAdmin(viewsets.ModelViewSet):

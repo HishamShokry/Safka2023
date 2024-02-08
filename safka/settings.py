@@ -34,9 +34,9 @@ ALLOWED_HOSTS = ["*"]
 INSTALLED_APPS = [
     "rest_framework",
     "affiliate",
-    'colorfield',
+    "colorfield",
     "jazzmin",
-    'smart_selects',
+    "smart_selects",
     "django.contrib.admin",
     "django.contrib.auth",
     "impersonate",
@@ -46,13 +46,16 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "active_link",
     "accounts.apps.AccountsConfig",
-    
+    "debug_toolbar",
+    "silk",
 ]
 
 MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "silk.middleware.SilkyMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -84,10 +87,21 @@ WSGI_APPLICATION = "safka.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'safka',
+        'USER': 'admin',
+        'PASSWORD': 'admin',
+        'HOST': 'localhost',  # Set to your PostgreSQL server's host
+        'PORT': '5432',      # Set to your PostgreSQL server's port
     }
 }
 
@@ -155,19 +169,15 @@ AUTHENTICATION_BACKENDS = ["accounts.backends.EmailBackend"]
 IMPERSONATE = {"PAGINATE_COUNT": 10, "ALLOW_SUPERUSER": True}
 
 
-
-
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
     ]
 }
 
 
-
 JQUERY_URL = False
 USE_DJANGO_JQUERY = True
-
 
 
 JAZZMIN_SETTINGS = {
@@ -179,7 +189,7 @@ JAZZMIN_SETTINGS = {
     "login_logo_dark": None,
     "welcome_sign": "Welcome to the Safka",
     "copyright": "TechCamp",
-    'custom_js': 'assets/js/custom_admin.js',
+    "custom_js": "assets/js/custom_admin.js",
     # Other Jazzmin settings...
 }
 
@@ -189,3 +199,6 @@ JAZZMIN_SETTINGS = {
 #         'rest_framework.renderers.JSONRenderer',
 #     )
 # }
+
+
+SILKY_PYTHON_PROFILER = True

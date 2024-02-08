@@ -134,6 +134,7 @@ class Product(models.Model):
         User,
         related_name="access_to_this_product",
         limit_choices_to={"is_marketer": True},
+        null=True, blank=True
     )
     name = models.CharField(max_length=255)
     purchase_price = models.DecimalField(max_digits=10, decimal_places=2)
