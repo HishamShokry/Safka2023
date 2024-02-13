@@ -5,8 +5,8 @@ from django.contrib.auth.models import AbstractUser
 # Create your models here.
 
 class User(AbstractUser):
-    email = models.EmailField(unique=True)
-    mobile_number = models.CharField(max_length=11, null=True, blank=True, unique=True)
+    email = models.EmailField(unique=True, db_index=True)
+    mobile_number = models.CharField(max_length=11, null=True, blank=True, unique=True, db_index=True)
     facebook_page_url = models.URLField(max_length=200, blank=True)
     store_name = models.CharField(max_length=200, blank=True)
     profile_photo = models.ImageField(upload_to='profile_photos/', default='default_profile.jpg', blank=True, null=True)

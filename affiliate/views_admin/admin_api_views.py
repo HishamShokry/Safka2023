@@ -167,7 +167,7 @@ class GovernorateViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
     
 
 class ProductViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Product.objects.select_related('inventory', 'vendor', 'category').prefetch_related('product_variant_set__color', 'product_variant_set__size', 'access_to')
     serializer_class = ProductSerializer
     permission_classes = [permissions.IsAdminUser]
     http_method_names = ["get", "post", "retrieve", "put", "patch"]
@@ -253,13 +253,13 @@ class ProductViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
 
 
 class ProductVariantViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
-    queryset = ProductVariant.objects.all()
+    queryset = ProductVariant.objects.select_related('product',)
     serializer_class = ProductVariantSerializer
     permission_classes = [permissions.IsAdminUser]
 
 
 class OrderViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
-    queryset = Order.objects.all()
+    queryset = Order.objects.select_related('marketer', 'city', 'governorate__governorate', 'shipping_company').prefetch_related('items', 'history_entries__updated_by')
     serializer_class = OrderSerializer
     permission_classes = [permissions.IsAdminUser]
     order_columns = [
@@ -924,7 +924,7 @@ class OrderViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
 
 
 class OrderItemViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
-    queryset = OrderItem.objects.all()
+    queryset = OrderItem.objects.select_related('order', 'product').all()
     serializer_class = OrderItemSerializer
     permission_classes = [permissions.IsAdminUser]
 

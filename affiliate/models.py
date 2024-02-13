@@ -78,7 +78,7 @@ class Governorate(models.Model):
 
 
 class City(models.Model):
-    governorate = models.ForeignKey(Governorate, on_delete=models.CASCADE)
+    governorate = models.ForeignKey(Governorate, on_delete=models.CASCADE, db_index=True)
     city_name_ar = models.CharField(max_length=200)
     city_name_en = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -89,7 +89,7 @@ class City(models.Model):
 
 
 class ShippingPrice(models.Model):
-    governorate = models.ForeignKey(Governorate, on_delete=models.CASCADE)
+    governorate = models.ForeignKey(Governorate, on_delete=models.CASCADE, db_index=True)
     price = models.IntegerField()
     is_active = models.BooleanField(default=True)
 
@@ -117,7 +117,7 @@ class Color(models.Model):
 
 class Product(models.Model):
     inventory = models.ForeignKey(
-        Inventory, on_delete=models.CASCADE, null=True, blank=True
+        Inventory, on_delete=models.CASCADE, null=True, blank=True, db_index=True
     )
     vendor = models.ForeignKey(
         User,
@@ -126,15 +126,16 @@ class Product(models.Model):
         null=True,
         blank=True,
         limit_choices_to={"is_vendor": True},
+        db_index=True
     )
     category = models.ForeignKey(
-        Category, on_delete=models.SET_NULL, null=True, blank=True
+        Category, on_delete=models.SET_NULL, null=True, blank=True, db_index=True
     )
     access_to = models.ManyToManyField(
         User,
         related_name="access_to_this_product",
         limit_choices_to={"is_marketer": True},
-        null=True, blank=True
+        null=True, blank=True, db_index=True
     )
     name = models.CharField(max_length=255)
     purchase_price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -152,7 +153,7 @@ class Product(models.Model):
     )
     # Generate a random code using uuid for the combination of size and color
     barcode = models.CharField(
-        max_length=10, unique=True, default=generate_unique_barcode
+        max_length=10, unique=True, default=generate_unique_barcode, db_index=True
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -167,10 +168,10 @@ class Product(models.Model):
 
 class ProductVariant(models.Model):
     product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, related_name="product_variant_set"
+        Product, on_delete=models.CASCADE, related_name="product_variant_set", db_index=True
     )
-    size = models.ForeignKey(Size, on_delete=models.SET_NULL, blank=True, null=True)
-    color = models.ForeignKey(Color, on_delete=models.SET_NULL, blank=True, null=True)
+    size = models.ForeignKey(Size, on_delete=models.SET_NULL, blank=True, null=True, db_index=True)
+    color = models.ForeignKey(Color, on_delete=models.SET_NULL, blank=True, null=True, db_index=True)
     quantity = models.IntegerField(default=1)
 
     def __str__(self):
@@ -206,9 +207,9 @@ class Order(models.Model):
         (RETURNED, "مرتجع"),
         # Add more choices as needed
     ]
-    status = models.CharField(max_length=255, choices=STATUS_CHOICES, default=PENDING)
+    status = models.CharField(max_length=255, choices=STATUS_CHOICES, default=PENDING, db_index=True)
     barcode = models.CharField(
-        max_length=10, unique=True, default=generate_unique_barcode
+        max_length=10, unique=True, default=generate_unique_barcode, db_index=True
     )
     barcode_returned = models.CharField(
         max_length=11,
@@ -222,12 +223,13 @@ class Order(models.Model):
         blank=True,
         related_name="marketer_orders",
         limit_choices_to={"is_marketer": True},
+        db_index=True,
     )
     client_name = models.CharField(max_length=255)
     client_phone1 = models.CharField(max_length=255)
     client_phone2 = models.CharField(max_length=255)
     client_address = models.TextField()
-    governorate = models.ForeignKey(ShippingPrice, on_delete=models.CASCADE)
+    governorate = models.ForeignKey(ShippingPrice, on_delete=models.CASCADE, db_index=True)
     # city = models.ForeignKey(City, on_delete=models.CASCADE)
     city = ChainedForeignKey(
         City,
@@ -236,10 +238,11 @@ class Order(models.Model):
         show_all=False,
         auto_choose=True,
         sort=True,
+        db_index=True
     )
     shiping_price = models.IntegerField(default=0)
     shipping_company = models.ForeignKey(
-        ShippingCompany, on_delete=models.SET_NULL, null=True, blank=True
+        ShippingCompany, on_delete=models.SET_NULL, null=True, blank=True, db_index=True
     )
     commission = models.IntegerField(default=0, null=True, blank=True)
     # products = models.ManyToManyField(Product, through='OrderItem', related_name='order_items')
@@ -367,11 +370,12 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items", db_index=True)
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
         related_name="product",
+        db_index=True
     )
     variant = models.ForeignKey(
         ProductVariant,
@@ -379,6 +383,7 @@ class OrderItem(models.Model):
         null=True,
         blank=True,
         related_name="product_variants",
+        db_index=True
     )
     quantity = models.PositiveIntegerField()
     total_item_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -406,7 +411,7 @@ class OrderItem(models.Model):
 
 
 class OrderHistory(models.Model):
-    order = models.ForeignKey('Order', on_delete=models.CASCADE, related_name='history_entries')
+    order = models.ForeignKey('Order', on_delete=models.CASCADE, related_name='history_entries', db_index=True)
     status = models.CharField(max_length=255)
     action_type = models.CharField(max_length=255, blank=True)
     note = models.TextField(blank=True)

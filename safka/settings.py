@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "active_link",
     "accounts.apps.AccountsConfig",
-    "debug_toolbar",
     "silk",
 ]
 
@@ -54,7 +53,6 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "silk.middleware.SilkyMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
