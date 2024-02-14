@@ -25,8 +25,8 @@ from .datatable import (
 )
 from . import views
 from .views_admin import admin_panel_views, admin_api_views
-from .views_marketers import marketer_panel_views
-from .views_vendors import vendor_panel_views
+from .views_marketers import marketer_panel_views, marketer_api_views
+from .views_vendors import vendor_panel_views, vendor_api_views
 
 from rest_framework.routers import DefaultRouter
 from accounts.views import VendorViewSet, MarketerViewSet
@@ -37,9 +37,10 @@ router = DefaultRouter()
 router.register(r"vendors_api", VendorViewSet, basename="vendor")
 router.register(r"marketers_api", MarketerViewSet, basename="marketer")
 
-router.register(r"requests_api", admin_api_views.RequestViewSetAdmin, basename="requests")
 
 
+
+# Admin API
 router.register(r"categories_api", admin_api_views.CategoryViewSet, basename="category")
 router.register(r"inventory_api", admin_api_views.InventoryViewSet, basename="inventory")
 router.register(
@@ -59,6 +60,26 @@ router.register(
 )
 router.register(r"order_api", admin_api_views.OrderViewSetAdmin, basename="order")
 router.register(r"order_item_api", admin_api_views.OrderItemViewSetAdmin, basename="order_item")
+router.register(r"requests_api", admin_api_views.RequestViewSetAdmin, basename="requests")
+
+
+
+
+
+
+
+# Marketer API
+router.register(r"order_api_marketer", marketer_api_views.OrderViewSetMarketer, basename="order_marketer")
+router.register(r"order_item_api_marketer", marketer_api_views.OrderItemViewSetMarketer, basename="order_item_marketer")
+router.register(r"requests_api_marketer", marketer_api_views.RequestViewSetMarketer, basename="requests_marketer")
+
+
+
+
+
+
+
+
 
 urlpatterns = [
     path("", admin_panel_views.dashboard, name="dashboard"),
@@ -125,3 +146,15 @@ urlpatterns = [
     path("get_sale_price/<int:product_id>/", admin_api_views.get_sale_price, name="get_sale_price"),
     path("get_shipping_price/<int:governorate_id>/", admin_api_views.get_shipping_price, name="get_shipping_price"),
 ]
+
+
+
+#     path("get-cities/<int:governorate_id>/", marketer_api_views.get_cities, name="get_cities"),
+#     path("get-product/<int:product_id>/", marketer_api_views.get_product, name="get_product"),
+#     path("get-variants/<int:product_id>/", marketer_api_views.get_variants, name="get_variants"),
+#     path("product/search/", marketer_api_views.product_search, name="product_search"),
+#     path("marketer/search/", marketer_api_views.marketer_search, name="marketer_search"),
+#     path("company/search/", marketer_api_views.get_shipping_company, name="get_shipping_company"),
+#     path("get_sale_price/<int:product_id>/", marketer_api_views.get_sale_price, name="get_sale_price"),
+#     path("get_shipping_price/<int:governorate_id>/", marketer_api_views.get_shipping_price, name="get_shipping_price"),
+# ]

@@ -453,3 +453,110 @@ class OrderForm(forms.ModelForm):
             raise ValidationError(_('Shipping price cannot exceed the total.'))
 
         return cleaned_data
+    
+
+
+
+
+
+class OrderFormMarketer(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["client_name"].label = False
+        self.fields["client_name"].widget.attrs.update(
+            {"class": "form-control", "placeholder": "اسم العميل"}
+        )
+
+        self.fields["client_phone1"].label = False
+        self.fields["client_phone1"].widget.attrs.update(
+            {"class": "form-control", "placeholder": "1 رقم العميل"}
+        )
+        self.fields["client_phone2"].label = False
+        self.fields["client_phone2"].widget.attrs.update(
+            {"class": "form-control", "placeholder": "2 رقم العميل"}
+        )
+        self.fields["client_address"].label = False
+        self.fields["client_address"].widget.attrs.update(
+            {"class": "form-control", "placeholder": "عنوان العميل"}
+        )
+
+        self.fields["city"].label = "المدينة"
+        self.fields["city"].widget.attrs.update({"class": "form-control select2 cities"})
+        self.fields["governorate"].label = "المحافظة"
+        self.fields["governorate"].widget.attrs.update(
+            {"class": "form-control governorates select2"}
+        )
+        self.fields["shiping_price"].label = "سعر الشحن"
+        self.fields["shiping_price"].widget.attrs.update(
+            {"class": "form-control select2",
+             "disabled": "disabled"}
+        )
+
+        self.fields["total"].label = "الاجمالي"
+        self.fields["total"].widget.attrs.update({"class": "form-control"})
+        self.fields["note"].label = "ملاحظة"
+        self.fields["note"].widget.attrs.update({"class": "form-control"})
+
+    items = forms.inlineformset_factory(
+        Order,
+        OrderItem,
+        form=OrderItemForm,
+        extra=1,
+        can_delete=True,
+    )
+
+    def get_valid_status_choices(self):
+        instance = self.instance
+        if instance.status == Order.PENDING:
+            return [Order.CANCELED, Order.POSTPONED]
+        elif instance.status == Order.PREPARATION:
+            return [Order.CANCELED_DURING_PREPARATION, Order.SHIPPED]
+        elif instance.status == Order.SHIPPED:
+            return [Order.DELIVERED, Order.RETURN_IN_PROGRESS]
+        elif instance.status == Order.RETURN_IN_PROGRESS:
+            return [Order.RETURNED]
+        elif instance.status == Order.DELIVERED:
+            return [Order.RETURNE_REQUESTS]
+        elif instance.status == Order.RETURNE_REQUESTS:
+            return [Order.RETURNED]
+        else:
+            return []
+
+    class Meta:
+        model = Order
+        fields = [
+            # "status",
+            "client_name",
+            "client_phone1",
+            "client_phone2",
+            "client_address",
+            "governorate",
+            "city",
+            "shiping_price",
+            "total",
+            "note",
+        ]  # Use all fields from the Order model
+
+    # You can add additional customization for form fields or validation here if needed
+    def clean_total(self):
+        total = self.cleaned_data.get('total')
+
+        # Add your custom validation logic for the 'total' field
+        if total < 0:
+            raise ValidationError(_('Total must be a non-negative value.'))
+
+        return total   
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        shiping_price = cleaned_data.get('shiping_price')
+        total = cleaned_data.get('total')
+
+        # Add cross-field validation logic
+        if shiping_price and total and shiping_price > total:
+            raise ValidationError(_('Shipping price cannot exceed the total.'))
+
+        return cleaned_data
+    
+

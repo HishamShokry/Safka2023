@@ -1,0 +1,127 @@
+<!-- Show Message -->
+<script>
+  // function showErrorMessage(message) {
+  //   var errorMessageContainer = $('#error-message-container');
+  //   errorMessageContainer.text(message);
+  //   errorMessageContainer.show();  // Display the error message
+
+  //   // Optionally, you can hide the error message after a certain duration
+  //   setTimeout(function () {
+  //     errorMessageContainer.hide();
+  //   }, 5000);  // Hide after 5 seconds (adjust the duration as needed)
+  // }
+
+  // function showSuccessMessage(message) {
+  //   var successMessageContainer = $('#success-message-container');
+  //   successMessageContainer.text(message);
+  //   successMessageContainer.show();  // Display the success message
+
+  //   // Optionally, you can hide the success message after a certain duration
+  //   setTimeout(function () {
+  //     successMessageContainer.hide();
+  //   }, 5000);  // Hide after 5 seconds (adjust the duration as needed)
+  // }
+
+
+  function notierror(field ,errors, seconds) {
+    $.notify({
+
+      title: field,
+      message: errors,
+      icon: 'fa fa-bell',
+    }, {
+      element: 'body',
+      position: null,
+      type: "danger",
+      allow_dismiss: true,
+      showProgressbar: true,
+      placement: {
+        from: "top",
+        align: "left"
+      },
+      offset: 10,
+      spacing: 10,
+      z_index: 1500,
+      delay: seconds,
+      timer: 1000,
+      animate: {
+        enter: 'animate__animated animate__bounceInDown',
+        exit: 'animate__animated animate__bounceOutUp'
+      },
+      template: `<div  data-notify="container" class="shadow-sm col-3 alert alert-{0} alert-dismissible fade show" role="alert">
+	    <h5 data-notify="title" class="alert-heading">{1}</h5>
+	    <div class="d-flex align-items-center">
+
+	      <div class="me-2" data-notify="icon"></div>
+
+	      <span data-notify="message" class="animate__animated animate__fadeIn animate__faster animate__delay-1s">{2}</span>
+
+	    </div>
+
+	    <div class="progress mt-1" style="height: 2px;" data-notify="progressbar">
+
+	      <div class="progress-bar bg-{0}" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;"></div>
+
+	    </div>
+
+
+	    <button type="button" class="btn-close"  data-notify="dismiss" aria-label="Close"></button>
+
+	    </div>`,
+    });
+
+  }
+
+  function handleValidationErrors(errors) {
+
+
+
+    if (errors) {
+      var seconds = 3000;
+      for (const field in errors.error) {
+        if (errors.error.hasOwnProperty(field)) {
+          const errorMessages = errors.error[field];
+
+          // Display all error messages for the field with a fixed delay
+          errorMessages.forEach(errorMessage => {
+            notierror(`${field}`,`${errorMessage}`, seconds);
+            seconds += 750; // Increment the delay for the next error message
+          });
+        } else {
+          console.log(errors);
+        }
+      }
+    } else {
+      console.log("No validation errors received.");
+    }
+  }
+</script>
+
+
+
+
+
+<script>
+
+  function showErrorMessage(message, duration = 5000) {
+    var errorMessageContainer = $('#error-message-container');
+    errorMessageContainer.text(message);
+    errorMessageContainer.show();  // Display the error message
+
+    // Hide the error message after the specified duration
+    setTimeout(function () {
+      errorMessageContainer.hide();
+    }, duration);
+  }
+
+  function showSuccessMessage(message, duration = 5000) {
+    var successMessageContainer = $('#success-message-container');
+    successMessageContainer.text(message);
+    successMessageContainer.show();  // Display the success message
+
+    // Hide the success message after the specified duration
+    setTimeout(function () {
+      successMessageContainer.hide();
+    }, duration);
+  }
+</script>

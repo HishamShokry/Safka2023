@@ -4,18 +4,17 @@ from affiliate.serializers import *
 from rest_framework.decorators import action, api_view
 from rest_framework import status
 from rest_framework import generics, permissions
-from django.views.decorators.http import  require_GET
+from django.views.decorators.http import require_GET
 
 from django.http import JsonResponse
 from django.db import transaction
 from affiliate.models import *
 from django.shortcuts import get_object_or_404
-from django.views.decorators.http import  require_GET
+from django.views.decorators.http import require_GET
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Q, F # Import Q for complex queries
-
-
-
+from django.db.models import Q, Case, When, F, Value
+from django.db.models import Case, When, F, Value
+from django.utils.translation import gettext as _
 
 
 class DataTableMixin:
@@ -99,48 +98,54 @@ class CategoryViewSet(DataTableMixin, viewsets.ModelViewSet):
     serializer_class = CategorySerializer
     permission_classes = [permissions.IsAdminUser]
     order_columns = [
-                "id",
-                "name",
-                "created_at",
-                "updated_at",
-            ]  
-    
+        "id",
+        "name",
+        "created_at",
+        "updated_at",
+    ]
+
     @action(detail=True, methods=["get"])
     def datatable_list(self, request, *args, **kwargs):
-        return self.handle_datatables_request(self.queryset, self.serializer_class, self.order_columns, request)
-  
+        return self.handle_datatables_request(
+            self.queryset, self.serializer_class, self.order_columns, request
+        )
+
 
 class InventoryViewSet(DataTableMixin, viewsets.ModelViewSet):
     queryset = Inventory.objects.all()
     serializer_class = InventorySerializer
     permission_classes = [permissions.IsAdminUser]
     order_columns = [
-                "id",
-                "name",
-                "created_at",
-                "updated_at",
-            ]
-    
+        "id",
+        "name",
+        "created_at",
+        "updated_at",
+    ]
+
     @action(detail=True, methods=["get"])
     def datatable_list(self, request, *args, **kwargs):
-        return self.handle_datatables_request(self.queryset, self.serializer_class, self.order_columns, request)
-  
-  
+        return self.handle_datatables_request(
+            self.queryset, self.serializer_class, self.order_columns, request
+        )
+
+
 class ShippingCompanyViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
     queryset = ShippingCompany.objects.all()
     serializer_class = ShippingCompanySerializer
     permission_classes = [permissions.IsAdminUser]
     order_columns = [
-                "id",
-                "name",
-                "website",
-                "created_at",
-                "updated_at",
-            ]
+        "id",
+        "name",
+        "website",
+        "created_at",
+        "updated_at",
+    ]
 
     @action(detail=True, methods=["get"])
     def datatable_list(self, request, *args, **kwargs):
-        return self.handle_datatables_request(self.queryset, self.serializer_class, self.order_columns, request)
+        return self.handle_datatables_request(
+            self.queryset, self.serializer_class, self.order_columns, request
+        )
 
 
 class ShippingPriceViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
@@ -148,54 +153,63 @@ class ShippingPriceViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
     serializer_class = ShippingPriceSerializer
     permission_classes = [permissions.IsAdminUser]
     order_columns = [
-                "id",
-                "governorate",
-                "price",
-                "is_active",
-                "created_at",
-                "updated_at",
-            ] 
+        "id",
+        "governorate",
+        "price",
+        "is_active",
+        "created_at",
+        "updated_at",
+    ]
 
     @action(detail=True, methods=["get"])
     def datatable_list(self, request, *args, **kwargs):
-        return self.handle_datatables_request(self.queryset, self.serializer_class, self.order_columns, request)
-  
+        return self.handle_datatables_request(
+            self.queryset, self.serializer_class, self.order_columns, request
+        )
+
+
 class GovernorateViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
     queryset = Governorate.objects.all()
     serializer_class = GovernorateSerializer
     permission_classes = [permissions.IsAdminUser]
-    
+
 
 class ProductViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
-    queryset = Product.objects.select_related('inventory', 'vendor', 'category').prefetch_related('product_variant_set__color', 'product_variant_set__size', 'access_to')
+    queryset = Product.objects.select_related(
+        "inventory", "vendor", "category"
+    ).prefetch_related(
+        "product_variant_set__color", "product_variant_set__size", "access_to"
+    )
     serializer_class = ProductSerializer
     permission_classes = [permissions.IsAdminUser]
     http_method_names = ["get", "post", "retrieve", "put", "patch"]
     order_columns = [
-                "id",
-                "name",
-                "purchase_price",
-                "sale_price",
-                "image",
-                "product_variant_set",
-                "description",
-                "note",
-                "media_url",
-                "is_active",
-                "access_type",
-                "created_at",
-                "updated_at",
-                "inventory",
-                "vendor",
-                "category",
-                "access_to",
-                "barcode",
-            ]
+        "id",
+        "name",
+        "purchase_price",
+        "sale_price",
+        "image",
+        "product_variant_set",
+        "description",
+        "note",
+        "media_url",
+        "is_active",
+        "access_type",
+        "created_at",
+        "updated_at",
+        "inventory",
+        "vendor",
+        "category",
+        "access_to",
+        "barcode",
+    ]
 
     @action(detail=True, methods=["get"])
     def datatable_list(self, request, *args, **kwargs):
-        return self.handle_datatables_request(self.queryset, self.serializer_class, self.order_columns, request)
-  
+        return self.handle_datatables_request(
+            self.queryset, self.serializer_class, self.order_columns, request
+        )
+
     def create(self, request, *args, **kwargs):
         try:
             product_data = request.data
@@ -211,9 +225,9 @@ class ProductViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
             # print(product.id)
             # Create variants associated with the product
             for variant_data in variants_data:
-                variant_data[
-                    "product"
-                ] = product.id  # Link variant to the created product
+                variant_data["product"] = (
+                    product.id
+                )  # Link variant to the created product
                 variant_serializer = ProductVariantSerializer(data=variant_data)
                 variant_serializer.is_valid(raise_exception=True)
                 variant_serializer.save()
@@ -253,34 +267,40 @@ class ProductViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
 
 
 class ProductVariantViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
-    queryset = ProductVariant.objects.select_related('product',)
+    queryset = ProductVariant.objects.select_related(
+        "product",
+    )
     serializer_class = ProductVariantSerializer
     permission_classes = [permissions.IsAdminUser]
 
 
 class OrderViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
-    queryset = Order.objects.select_related('marketer', 'city', 'governorate__governorate', 'shipping_company').prefetch_related('items', 'history_entries__updated_by')
+    queryset = Order.objects.select_related(
+        "marketer", "city", "governorate__governorate", "shipping_company"
+    ).prefetch_related("items", "history_entries__updated_by")
     serializer_class = OrderSerializer
     permission_classes = [permissions.IsAdminUser]
     order_columns = [
-                "id",
-                "barcode",
-                "status",
-                "shiping_price",
-                "commission",
-                "total",
-                "marketer",
-                "governorate",
-                "city",
-                "shipping_company",
-                "created_at",
-                "updated_at",
-            ] 
-    
+        "id",
+        "barcode",
+        "status",
+        "shiping_price",
+        "commission",
+        "total",
+        "marketer",
+        "governorate",
+        "city",
+        "shipping_company",
+        "created_at",
+        "updated_at",
+    ]
+
     @action(detail=True, methods=["get"])
     def datatable_list(self, request, *args, **kwargs):
-        return self.handle_datatables_request(self.queryset, self.serializer_class, self.order_columns, request)
-  
+        return self.handle_datatables_request(
+            self.queryset, self.serializer_class, self.order_columns, request
+        )
+
     def create(self, request, *args, **kwargs):
         try:
             with transaction.atomic():
@@ -304,17 +324,15 @@ class OrderViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
                 # Calculate commission based on the formula
                 order.commission = self.calculate_commission(order, variants_data)
 
-                order.save(updated_by=request.user, action_type='تم اضافة طلب جديد')
+                order.save(updated_by=request.user, action_type="تم اضافة طلب جديد")
 
                 # Update the vendor's and admin's pending field with their profit
                 self.update_vendor_and_admin_pending_ADD(order)
 
-                
-
                 # Update the marketer's pending field with the commission
                 self.update_marketer_pending_ADD(order)
 
-                # Update quantity for the corresponding ProductVariant(s)   
+                # Update quantity for the corresponding ProductVariant(s)
                 self.update_product_variants_quantity_SUB(order)
 
                 response_data = {
@@ -362,25 +380,22 @@ class OrderViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
                 if order_serializer.is_valid():
                     updated_order = order_serializer.save()
                     self.create_or_update_variants(updated_order, variants_data)
-                    updated_order.shiping_price = self.get_shipping_price(
-                        updated_order
-                    )
+                    updated_order.shiping_price = self.get_shipping_price(updated_order)
                     updated_order.commission = self.calculate_commission(
                         updated_order, variants_data
                     )
-                    
 
                     # Create note for order history
                     note = ""
                     for item in variants_data:
                         # Fetching product details
-                        product_id = item['product']
+                        product_id = item["product"]
                         product = Product.objects.get(id=product_id)
                         product_barcode = product.barcode
 
                         # Quantity and variant details
-                        quantity = item['quantity']
-                        variant_id = item['variant']
+                        quantity = item["quantity"]
+                        variant_id = item["variant"]
                         variant = ProductVariant.objects.get(id=variant_id)
 
                         # Building the note with information about the ordered product
@@ -511,8 +526,9 @@ class OrderViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
     def calculate_commission(self, order, variants_data):
         item_total_price = sum(int(item["total_item_price"]) for item in variants_data)
         return order.total - (order.shiping_price + item_total_price)
-
+    
     def handle_order_status(request, order):
+    
         order_items = order.items.all()
 
         def update_vendor_account(vendor, update):
@@ -563,6 +579,7 @@ class OrderViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
                 "PREPARATION": F("PREPARATION") + order.commission,
             }
             update_marketer_account(order.marketer, marketer_update)
+
 
         elif order.status == order.SHIPPED:
             for item in order_items:
@@ -709,7 +726,6 @@ class OrderViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
                 }
                 update_admin_account(admin_update)
 
-                
             # Update marketer's account
             marketer_update = {
                 "SHIPPED": F("SHIPPED") - order.commission,
@@ -753,7 +769,7 @@ class OrderViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
                 print(variant_id)
                 product_update = {"quantity": F("quantity") + item.quantity}
                 update_product_quantity(product_update, variant_id)
-           
+
         elif order.status == order.RETURNED_AFTER_DELIVERY:
             for item in order_items:
                 # Update product variant quantity
@@ -762,133 +778,139 @@ class OrderViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
                 product_update = {"quantity": F("quantity") + item.quantity}
                 update_product_quantity(product_update, variant_id)
 
-           
-
-        # elif order.status == 'shipped':
-        #     for item in items:
-        #         merchant = item['merchant']
-        #         total_purchase_price = item['total_purchase_price']
-        #         update_merchant_account(merchant, {'preparing': models.F('preparing') - total_purchase_price, 'shipped': models.F('shipped') + total_purchase_price})
-        #     update_marketer_account(order.marketer, {'preparing': models.F('preparing') - order.commission, 'shipped': models.F('shipped') + order.commission})
-
-        # elif order.status == 'skip':
-        #     for item in items:
-        #         merchant = item['merchant']
-        #         total_purchase_price = item['total_purchase_price']
-        #         update_merchant_account(merchant, {'shipped': models.F('shipped') - total_purchase_price})
-
-        #     update_marketer_account(order.marketer, {'shipped': models.F('shipped') - order.commission})
-
-        # elif order.status == 'returned1':
-        #     for item in items:
-        #         product_property_id = item['property']
-        #         Product.objects.filter(properties__id=product_property_id).update(properties__value=models.F('properties__value') + item['qty'])
-
-        # # Add similar logic for other order statuses...
-
-        # elif order.status == 'returned2':
-        #     for item in items:
-        #         product_property_id = item['property']
-        #         Product.objects.filter(properties__id=product_property_id).update(properties__value=models.F('properties__value') + item['qty'])
-
-        # # Create a notification for the appropriate recipient
-        # recipient_user = order.moderator if order.moderator else order.marketer
-        # notification_content = f'The status of your order ({order.serial_number}) has changed to {order.status}'
-        # create_notification(notification_content, recipient_user)
-
         return JsonResponse({"status": "success"})
 
     @action(detail=False, methods=["post"])
     def update_status(self, request, *args, **kwargs):
         try:
             with transaction.atomic():
-                # Get the list of order IDs and new status from the request
                 selected_order_ids = request.data.get("selected_order_ids", [])
                 new_status = request.data.get("new_status")
 
-                # Validate if at least one order is selected and new status is provided
                 if not selected_order_ids:
                     return Response(
-                        {"error": "No orders selected for status update."},
+                        {"error": _("No orders selected for status update.")},
                         status=status.HTTP_400_BAD_REQUEST,
                     )
 
                 if not new_status:
                     return Response(
-                        {"error": "New status not provided."},
+                        {"error": _("New status not provided.")},
                         status=status.HTTP_400_BAD_REQUEST,
                     )
 
-                # Retrieve and update status for each selected order
-                for order_id in selected_order_ids:
-                    try:
-                        order = Order.objects.get(pk=order_id)
+                orders_to_update = Order.objects.filter(pk__in=selected_order_ids)
 
-                        # Validate the status transition
-                        order.validate_status_transition(new_status)
+                # Validate status transition for all selected orders
+                for order in orders_to_update:
+                    order.validate_status_transition(new_status)
 
-                        # Update the order status
-                        order.status = new_status
-                        order.save(updated_by=request.user)
-                        # Call the handle_order_status function to update vendor and marketer accounts
-                        self.handle_order_status(order)
+                # Perform bulk update for order statuses
+                orders_to_update.update(status=new_status)
 
-                    except Order.DoesNotExist:
-                        # Log or handle the case where the order doesn't exist
-                        pass
+                # Call the handle_order_status function to update vendor and marketer accounts
+                for order in orders_to_update:
+                    self.handle_order_status(order)
 
-                return JsonResponse(
+                return Response(
                     {"success": True, "message": f"تم تحديث حالة الطلب بنجاح إلى '{new_status}'."},
                     status=status.HTTP_200_OK,
                 )
 
-        except ValueError as ve:
-            return JsonResponse({"error": str(ve)}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            # Log the detailed error message for debugging
-            print(f"Error updating order status: {str(e)}")
-            return JsonResponse(
-                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+        except Order.DoesNotExist as e:
+            return Response({"error": _("Some orders do not exist.")}, status=status.HTTP_404_NOT_FOUND)
 
+        except ValueError as ve:
+            return Response({"error": str(ve)}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({"error": _("Internal Server Error.")}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+
+    # @action(detail=False, methods=["post"])
+    # def update_shipping_company(self, request, *args, **kwargs):
+    #     # selected_order_ids = request.data.get("selected_order_ids", [])
+    #     # print(selected_order_ids)
+    #     # return JsonResponse({"key": "value"})
+    #     try:
+    #         with transaction.atomic():
+    #             # Get the list of order IDs from the request
+    #             selected_order_ids = request.data.get("selected_order_ids", [])
+    #             shipping_company = request.data.get("shipping_company")
+
+    #             # Validate if at least one order is selected
+    #             if not selected_order_ids:
+    #                 return Response(
+    #                     {"error": "لم يتم تحديد أي طلبات لتحديث شركة الشحن."},
+    #                     status=status.HTTP_400_BAD_REQUEST,
+    #                 )
+
+    #             if not shipping_company:
+    #                 return Response(
+    #                     {"error": "لم يتم تحديد شركة شحن للطلبات المحددة."},
+    #                     status=status.HTTP_400_BAD_REQUEST,
+    #                 )
+    #             print(shipping_company)
+    #             # Retrieve and update shipping company for each selected order
+    #             for order_id in selected_order_ids:
+    #                 try:
+    #                     order = Order.objects.get(pk=order_id)
+    #                     # Update the shipping company (replace 'new_shipping_company' with your actual update logic)
+    #                     updated_shipping_company = ShippingCompany.objects.get(
+    #                         id=shipping_company
+    #                     )
+
+    #                     order.shipping_company = updated_shipping_company
+    #                     order.save(updated_by=request.user)
+    #                 except Order.DoesNotExist:
+    #                     # Log or handle the case where the order doesn't exist
+    #                     pass
+
+    #             return Response(
+    #                 {
+    #                     "success": True,
+    #                     "message": "تم تحديث شركة الشحن للطلبات المحددة.",
+    #                 },
+    #                 status=status.HTTP_200_OK,
+    #             )
+
+    #     except Exception as e:
+    #         # Log the detailed error message for debugging
+    #         print(f"Error updating shipping company: {str(e)}")
+    #         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
     @action(detail=False, methods=["post"])
     def update_shipping_company(self, request, *args, **kwargs):
-        # selected_order_ids = request.data.get("selected_order_ids", [])
-        # print(selected_order_ids)
-        # return JsonResponse({"key": "value"})
         try:
             with transaction.atomic():
-                # Get the list of order IDs from the request
                 selected_order_ids = request.data.get("selected_order_ids", [])
-                shipping_company = request.data.get("shipping_company")
+                shipping_company_id = request.data.get("shipping_company")
 
-                # Validate if at least one order is selected
                 if not selected_order_ids:
-                    return Response(
+                     return Response(
                         {"error": "لم يتم تحديد أي طلبات لتحديث شركة الشحن."},
                         status=status.HTTP_400_BAD_REQUEST,
                     )
 
-                if not shipping_company:
+                if not shipping_company_id:
                     return Response(
                         {"error": "لم يتم تحديد شركة شحن للطلبات المحددة."},
                         status=status.HTTP_400_BAD_REQUEST,
                     )
-                print(shipping_company)
-                # Retrieve and update shipping company for each selected order
-                for order_id in selected_order_ids:
-                    try:
-                        order = Order.objects.get(pk=order_id)
-                        # Update the shipping company (replace 'new_shipping_company' with your actual update logic)
-                        updated_shipping_company = ShippingCompany.objects.get(
-                            id=shipping_company
-                        )
 
-                        order.shipping_company = updated_shipping_company
-                        order.save(updated_by=request.user)
-                    except Order.DoesNotExist:
-                        # Log or handle the case where the order doesn't exist
-                        pass
+                # Validate that the ShippingCompany exists
+                updated_shipping_company = get_object_or_404(
+                    ShippingCompany, id=shipping_company_id
+                )
+
+                # Retrieve all orders at once using bulk and update shipping_company
+                orders_to_update = Order.objects.filter(pk__in=selected_order_ids)
+                for order in orders_to_update:
+                    order.shipping_company = updated_shipping_company
+                    order.save(updated_by=request.user, action_type="تم تحديث شركة الشحن")
+
+                Order.objects.bulk_update(orders_to_update, ['shipping_company'])
 
                 return Response(
                     {
@@ -898,35 +920,76 @@ class OrderViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
                     status=status.HTTP_200_OK,
                 )
 
+        except ValidationError as ve:
+            return Response({"error": str(ve)}, status=status.HTTP_400_BAD_REQUEST)
+
         except Exception as e:
             # Log the detailed error message for debugging
-            print(f"Error updating shipping company: {str(e)}")
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Internal Server Error."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        
     def retrieve(self, request, *args, **kwargs):
         # Assuming you have an 'Order' model
         try:
             # Call the default retrieve method to get the instance
             instance = self.get_object()
         except Http404:
-            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
 
         # Convert the instance to a serialized format using Django REST framework serializers
         serializer = self.get_serializer(instance)
         serialized_order = serializer.data
 
         # Get the IDs of the next and previous orders
-        next_order_id = Order.objects.filter(id__gt=instance.id).order_by('id').values_list('id', flat=True).first()
-        prev_order_id = Order.objects.filter(id__lt=instance.id).order_by('-id').values_list('id', flat=True).first()
+        next_order_id = (
+            Order.objects.filter(id__gt=instance.id)
+            .order_by("id")
+            .values_list("id", flat=True)
+            .first()
+        )
+        prev_order_id = (
+            Order.objects.filter(id__lt=instance.id)
+            .order_by("-id")
+            .values_list("id", flat=True)
+            .first()
+        )
 
-        return Response({'order': serialized_order, 'next_order_pk': next_order_id, 'prev_order_pk': prev_order_id}, status=status.HTTP_200_OK)
+        return Response(
+            {
+                "order": serialized_order,
+                "next_order_pk": next_order_id,
+                "prev_order_pk": prev_order_id,
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class OrderItemViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
-    queryset = OrderItem.objects.select_related('order', 'product').all()
+    queryset = OrderItem.objects.select_related("order", "product").all()
     serializer_class = OrderItemSerializer
     permission_classes = [permissions.IsAdminUser]
+
+
+class RequestViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
+    queryset = Request.objects.all()
+    serializer_class = RequestSerializer
+    permission_classes = [permissions.IsAdminUser]
+    order_columns = [
+        "id",
+        "Amount",
+        "Phone",
+        "payment_method",
+        "status",
+        "note",
+        "note",
+        "created_at",
+        "user",
+    ]
+
+    @action(detail=True, methods=["get"])
+    def datatable_list(self, request, *args, **kwargs):
+        return self.handle_datatables_request(
+            self.queryset, self.serializer_class, self.order_columns, request
+        )
 
 
 def get_cities(request, governorate_id):
@@ -1103,27 +1166,3 @@ def get_shipping_company(request):
             },
         }
     )
-
-
-
-
-class RequestViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
-    queryset = Request.objects.all()
-    serializer_class = RequestSerializer
-    permission_classes = [permissions.IsAdminUser]
-    order_columns = [
-                "id",
-                "Amount",
-                "Phone",
-                "payment_method",
-                "status",
-                "note",
-                "note",
-                "created_at",
-                "user",
-            ]
-
-    @action(detail=True, methods=["get"])
-    def datatable_list(self, request, *args, **kwargs):
-        return self.handle_datatables_request(self.queryset, self.serializer_class, self.order_columns, request)
-  

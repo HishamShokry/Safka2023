@@ -58,8 +58,8 @@ def marketer_product_detail(request, id):
 @marketer_required
 def marketer_orders(request):
     if request.method == "POST":
-        form = OrderForm(request.POST, request.FILES, user=request.user)
-        order_items = OrderForm.items(request.POST, request.FILES, instance=Product())
+        form = OrderFormMarketer(request.POST, request.FILES)
+        order_items = OrderFormMarketer.items(request.POST, request.FILES, instance=Product())
         if form.is_valid() and order_items.is_valid():
             # Process form data, including the uploaded file
             product = form.save()
@@ -70,9 +70,15 @@ def marketer_orders(request):
         else:
             return JsonResponse({"detail": "Invalid form data"}, status=400)
     else:
-        form = OrderForm(user=request.user)
-        order_items = OrderForm.items(instance=Product())
-    return render(request, "marketers/pages/affilate/orders.html")
+        form = OrderFormMarketer()
+        order_items = OrderFormMarketer.items(instance=Product())
+    return render(
+        request,
+        "marketers/pages/affilate/new_orders.html",
+        { "form": form, "variant_formset": order_items},
+    )
+
+
 
 
 @login_required
@@ -91,3 +97,9 @@ def marketer_support(request):
 @marketer_required
 def marketer_profile(request):
     return render(request, "marketers/profile.html")
+
+
+
+
+
+
