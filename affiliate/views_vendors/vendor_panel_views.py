@@ -25,11 +25,6 @@ def vendor_dashboard(request):
     return render(request, "vendors/dashboard.html")
 
 
-@login_required
-@vendor_required
-def vendor_category(request):
-    return render(request, "vendors/pages/affilate/category.html")
-
 
 @login_required
 @vendor_required
@@ -68,16 +63,6 @@ def vendor_product_detail(request, id):
                 raise Http404("Product not found or you do not have permission to view it.")
 
 
-@login_required
-@vendor_required
-def vendor_shipping(request):
-    return render(request, "vendors/pages/affilate/shipping.html")
-
-
-@login_required
-@vendor_required
-def vendor_inventory(request):
-    return render(request, "vendors/pages/affilate/inventory.html")
 
 
 @login_required
