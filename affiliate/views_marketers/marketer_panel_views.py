@@ -84,7 +84,14 @@ def marketer_orders(request):
 @login_required
 @marketer_required
 def marketer_requests(request):
-    return render(request, "marketers/pages/affilate/requests.html")
+    if request.method == "POST":
+        form = RequestForm(request.POST)
+        if form.is_valid():
+            form.save()  # This saves the new category to the database
+    else:
+        form = RequestForm()
+    return render(request, "marketers/pages/affilate/requests.html", { "form": form})
+
 
 
 @login_required

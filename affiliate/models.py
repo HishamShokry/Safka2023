@@ -431,13 +431,16 @@ class Request(models.Model):
     METHODS = [('vodafone', 'Vodafone Cash'), ('instapay', 'Insta Pay'), ('bank', 'Bank')]
     # role = models.CharField(max_length=255, blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, default=None, blank=True, null=True)
-    amount = models.FloatField(blank=True, null=True)
-    phone = models.IntegerField(blank=True, null=True)
+    amount = models.FloatField()
     payment_method = models.CharField(max_length=255, choices=METHODS, blank=True, null=True)
+
+    vodafone_field = models.CharField(max_length=11, blank=True, null=True)
+    instapay_field = models.CharField(max_length=11, blank=True, null=True)
+    bank_field = models.CharField(max_length=16, blank=True, null=True)
+
     status = models.CharField(max_length=255, choices=STATUS_CHOICES, default='pending')
     note = models.TextField(blank=True, null=True)
     # reason = models.TextField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-

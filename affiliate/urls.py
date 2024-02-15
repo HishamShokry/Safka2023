@@ -149,12 +149,4 @@ urlpatterns = [
 
 
 
-#     path("get-cities/<int:governorate_id>/", marketer_api_views.get_cities, name="get_cities"),
-#     path("get-product/<int:product_id>/", marketer_api_views.get_product, name="get_product"),
-#     path("get-variants/<int:product_id>/", marketer_api_views.get_variants, name="get_variants"),
-#     path("product/search/", marketer_api_views.product_search, name="product_search"),
-#     path("marketer/search/", marketer_api_views.marketer_search, name="marketer_search"),
-#     path("company/search/", marketer_api_views.get_shipping_company, name="get_shipping_company"),
-#     path("get_sale_price/<int:product_id>/", marketer_api_views.get_sale_price, name="get_sale_price"),
-#     path("get_shipping_price/<int:governorate_id>/", marketer_api_views.get_shipping_price, name="get_shipping_price"),
-# ]
+

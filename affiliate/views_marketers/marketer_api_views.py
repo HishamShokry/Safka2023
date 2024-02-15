@@ -364,398 +364,7 @@ class OrderViewSetMarketer(DataTableMixin, viewsets.ModelViewSet):
         item_total_price = sum(int(item["total_item_price"]) for item in variants_data)
         return order.total - (order.shiping_price + item_total_price)
 
-    def handle_order_status(request, order):
-        order_items = order.items.all()
 
-        def update_vendor_account(vendor, update):
-            User.objects.filter(id=vendor.id).update(**update)
-
-        def update_marketer_account(marketer, update):
-            User.objects.filter(id=marketer.id).update(**update)
-
-        def update_admin_account(update):
-            User.objects.filter(username="system", is_superuser=True).update(**update)
-
-        def update_product_quantity(update, variant):
-            variant_id = variant
-            ProductVariant.objects.filter(id=variant_id).update(**update)
-            # ProductVariant.objects.filter(id=variant_id).update(
-            #     quantity=F("quantity") + qty
-            # )
-
-        # Handle each order status
-        print(order.status, order.PREPARATION)
-
-        if order.status == order.PREPARATION:
-            for item in order_items:
-                product = item.product
-                vendor = product.vendor
-
-                # Update vendor's account
-                vendor_update = {
-                    "PENDING": F("PENDING") - product.purchase_price * item.quantity,
-                    "PREPARATION": F("PREPARATION")
-                    + product.purchase_price * item.quantity,
-                }
-                update_vendor_account(vendor, vendor_update)
-
-                # Update admin's account
-                admin_profit = (
-                    product.sale_price - product.purchase_price
-                ) * item.quantity
-                admin_update = {
-                    "PENDING": F("PENDING") - admin_profit,
-                    "PREPARATION": F("PREPARATION") + admin_profit,
-                }
-                update_admin_account(admin_update)
-
-            # Update marketer's account
-            marketer_update = {
-                "PENDING": F("PENDING") - order.commission,
-                "PREPARATION": F("PREPARATION") + order.commission,
-            }
-            update_marketer_account(order.marketer, marketer_update)
-
-        elif order.status == order.SHIPPED:
-            for item in order_items:
-                product = item.product
-                vendor = product.vendor
-
-                # Update vendor's account
-                vendor_update = {
-                    "PREPARATION": F("PREPARATION")
-                    - product.purchase_price * item.quantity,
-                    "SHIPPED": F("SHIPPED") + product.purchase_price * item.quantity,
-                }
-                update_vendor_account(vendor, vendor_update)
-
-                # Update admin's account
-                admin_profit = (
-                    product.sale_price - product.purchase_price
-                ) * item.quantity
-                admin_update = {
-                    "PREPARATION": F("PREPARATION") - admin_profit,
-                    "SHIPPED": F("SHIPPED") + admin_profit,
-                }
-                update_admin_account(admin_update)
-
-            # Update marketer's account
-            marketer_update = {
-                "PREPARATION": F("PREPARATION") - order.commission,
-                "SHIPPED": F("SHIPPED") + order.commission,
-            }
-            update_marketer_account(order.marketer, marketer_update)
-
-        elif order.status == order.DELIVERED:
-            for item in order_items:
-                product = item.product
-                vendor = product.vendor
-
-                # Update vendor's account
-                vendor_update = {
-                    "SHIPPED": F("SHIPPED") - product.purchase_price * item.quantity,
-                    "DELIVERED": F("DELIVERED")
-                    + product.purchase_price * item.quantity,
-                }
-                update_vendor_account(vendor, vendor_update)
-
-                # Update admin's account
-                admin_profit = (
-                    product.sale_price - product.purchase_price
-                ) * item.quantity
-                admin_update = {
-                    "SHIPPED": F("SHIPPED") - admin_profit,
-                    "DELIVERED": F("DELIVERED") + admin_profit,
-                }
-                update_admin_account(admin_update)
-
-            # Update marketer's account
-            marketer_update = {
-                "SHIPPED": F("SHIPPED") - order.commission,
-                "DELIVERED": F("DELIVERED") + order.commission,
-            }
-            update_marketer_account(order.marketer, marketer_update)
-
-        elif order.status == order.CANCELED:
-            for item in order_items:
-                product = item.product
-                vendor = product.vendor
-
-                # Update vendor's account
-                vendor_update = {
-                    "PENDING": F("PENDING") - product.purchase_price * item.quantity,
-                }
-                update_vendor_account(vendor, vendor_update)
-
-                # Update admin's account
-                admin_profit = (
-                    product.sale_price - product.purchase_price
-                ) * item.quantity
-                admin_update = {
-                    "PENDING": F("PENDING") - admin_profit,
-                }
-                update_admin_account(admin_update)
-
-                # Update product variant quantity
-                variant_id = item.variant.id
-                print(variant_id)
-                product_update = {"quantity": F("quantity") + item.quantity}
-                update_product_quantity(product_update, variant_id)
-
-            # Update marketer's account
-            marketer_update = {
-                "PENDING": F("PENDING") - order.commission,
-            }
-            update_marketer_account(order.marketer, marketer_update)
-
-        elif order.status == order.CANCELED_DURING_PREPARATION:
-            for item in order_items:
-                product = item.product
-                vendor = product.vendor
-
-                # Update vendor's account
-                vendor_update = {
-                    "PREPARATION": F("PREPARATION")
-                    - product.purchase_price * item.quantity,
-                }
-                update_vendor_account(vendor, vendor_update)
-
-                # Update admin's account
-                admin_profit = (
-                    product.sale_price - product.purchase_price
-                ) * item.quantity
-                admin_update = {
-                    "PREPARATION": F("PREPARATION") - admin_profit,
-                }
-                update_admin_account(admin_update)
-
-                # Update product variant quantity
-                variant_id = item.variant.id
-                print(variant_id)
-                product_update = {"quantity": F("quantity") + item.quantity}
-                update_product_quantity(product_update, variant_id)
-
-            # Update marketer's account
-            marketer_update = {
-                "PREPARATION": F("PREPARATION") - order.commission,
-            }
-            update_marketer_account(order.marketer, marketer_update)
-
-        elif order.status == order.RETURN_IN_PROGRESS:
-            for item in order_items:
-                product = item.product
-                vendor = product.vendor
-
-                # Update vendor's account
-                vendor_update = {
-                    "SHIPPED": F("SHIPPED") - product.purchase_price * item.quantity,
-                }
-                update_vendor_account(vendor, vendor_update)
-
-                # Update admin's account
-                admin_profit = (
-                    product.sale_price - product.purchase_price
-                ) * item.quantity
-                admin_update = {
-                    "SHIPPED": F("SHIPPED") - admin_profit,
-                }
-                update_admin_account(admin_update)
-
-                
-            # Update marketer's account
-            marketer_update = {
-                "SHIPPED": F("SHIPPED") - order.commission,
-            }
-            update_marketer_account(order.marketer, marketer_update)
-
-        elif order.status == order.RETURNE_REQUESTS:
-            for item in order_items:
-                product = item.product
-                vendor = product.vendor
-
-                # Update vendor's account
-                vendor_update = {
-                    "DELIVERED": F("DELIVERED")
-                    - product.purchase_price * item.quantity,
-                }
-                update_vendor_account(vendor, vendor_update)
-
-                # Update admin's account
-                admin_profit = (
-                    product.sale_price - product.purchase_price
-                ) * item.quantity
-                admin_update = {
-                    "DELIVERED": F("DELIVERED") - admin_profit,
-                }
-                update_admin_account(admin_update)
-
-            # Update marketer's account
-            marketer_update = {
-                "DELIVERED": F("DELIVERED") - order.commission,
-            }
-            update_marketer_account(order.marketer, marketer_update)
-
-            order.barcode_returned = order.barcode + "R"
-            order.save()
-
-        elif order.status == order.RETURNED:
-            for item in order_items:
-                # Update product variant quantity
-                variant_id = item.variant.id
-                print(variant_id)
-                product_update = {"quantity": F("quantity") + item.quantity}
-                update_product_quantity(product_update, variant_id)
-           
-        elif order.status == order.RETURNED_AFTER_DELIVERY:
-            for item in order_items:
-                # Update product variant quantity
-                variant_id = item.variant.id
-                print(variant_id)
-                product_update = {"quantity": F("quantity") + item.quantity}
-                update_product_quantity(product_update, variant_id)
-
-           
-
-        # elif order.status == 'shipped':
-        #     for item in items:
-        #         merchant = item['merchant']
-        #         total_purchase_price = item['total_purchase_price']
-        #         update_merchant_account(merchant, {'preparing': models.F('preparing') - total_purchase_price, 'shipped': models.F('shipped') + total_purchase_price})
-        #     update_marketer_account(order.marketer, {'preparing': models.F('preparing') - order.commission, 'shipped': models.F('shipped') + order.commission})
-
-        # elif order.status == 'skip':
-        #     for item in items:
-        #         merchant = item['merchant']
-        #         total_purchase_price = item['total_purchase_price']
-        #         update_merchant_account(merchant, {'shipped': models.F('shipped') - total_purchase_price})
-
-        #     update_marketer_account(order.marketer, {'shipped': models.F('shipped') - order.commission})
-
-        # elif order.status == 'returned1':
-        #     for item in items:
-        #         product_property_id = item['property']
-        #         Product.objects.filter(properties__id=product_property_id).update(properties__value=models.F('properties__value') + item['qty'])
-
-        # # Add similar logic for other order statuses...
-
-        # elif order.status == 'returned2':
-        #     for item in items:
-        #         product_property_id = item['property']
-        #         Product.objects.filter(properties__id=product_property_id).update(properties__value=models.F('properties__value') + item['qty'])
-
-        # # Create a notification for the appropriate recipient
-        # recipient_user = order.moderator if order.moderator else order.marketer
-        # notification_content = f'The status of your order ({order.serial_number}) has changed to {order.status}'
-        # create_notification(notification_content, recipient_user)
-
-        return JsonResponse({"status": "success"})
-
-    @action(detail=False, methods=["post"])
-    def update_status(self, request, *args, **kwargs):
-        try:
-            with transaction.atomic():
-                # Get the list of order IDs and new status from the request
-                selected_order_ids = request.data.get("selected_order_ids", [])
-                new_status = request.data.get("new_status")
-
-                # Validate if at least one order is selected and new status is provided
-                if not selected_order_ids:
-                    return Response(
-                        {"error": "No orders selected for status update."},
-                        status=status.HTTP_400_BAD_REQUEST,
-                    )
-
-                if not new_status:
-                    return Response(
-                        {"error": "New status not provided."},
-                        status=status.HTTP_400_BAD_REQUEST,
-                    )
-
-                # Retrieve and update status for each selected order
-                for order_id in selected_order_ids:
-                    try:
-                        order = Order.objects.get(pk=order_id)
-
-                        # Validate the status transition
-                        order.validate_status_transition(new_status)
-
-                        # Update the order status
-                        order.status = new_status
-                        order.save(updated_by=request.user)
-                        # Call the handle_order_status function to update vendor and marketer accounts
-                        self.handle_order_status(order)
-
-                    except Order.DoesNotExist:
-                        # Log or handle the case where the order doesn't exist
-                        pass
-
-                return JsonResponse(
-                    {"success": True, "message": f"تم تحديث حالة الطلب بنجاح إلى '{new_status}'."},
-                    status=status.HTTP_200_OK,
-                )
-
-        except ValueError as ve:
-            return JsonResponse({"error": str(ve)}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            # Log the detailed error message for debugging
-            print(f"Error updating order status: {str(e)}")
-            return JsonResponse(
-                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-
-    @action(detail=False, methods=["post"])
-    def update_shipping_company(self, request, *args, **kwargs):
-        # selected_order_ids = request.data.get("selected_order_ids", [])
-        # print(selected_order_ids)
-        # return JsonResponse({"key": "value"})
-        try:
-            with transaction.atomic():
-                # Get the list of order IDs from the request
-                selected_order_ids = request.data.get("selected_order_ids", [])
-                shipping_company = request.data.get("shipping_company")
-
-                # Validate if at least one order is selected
-                if not selected_order_ids:
-                    return Response(
-                        {"error": "لم يتم تحديد أي طلبات لتحديث شركة الشحن."},
-                        status=status.HTTP_400_BAD_REQUEST,
-                    )
-
-                if not shipping_company:
-                    return Response(
-                        {"error": "لم يتم تحديد شركة شحن للطلبات المحددة."},
-                        status=status.HTTP_400_BAD_REQUEST,
-                    )
-                print(shipping_company)
-                # Retrieve and update shipping company for each selected order
-                for order_id in selected_order_ids:
-                    try:
-                        order = Order.objects.get(pk=order_id)
-                        # Update the shipping company (replace 'new_shipping_company' with your actual update logic)
-                        updated_shipping_company = ShippingCompany.objects.get(
-                            id=shipping_company
-                        )
-
-                        order.shipping_company = updated_shipping_company
-                        order.save(updated_by=request.user)
-                    except Order.DoesNotExist:
-                        # Log or handle the case where the order doesn't exist
-                        pass
-
-                return Response(
-                    {
-                        "success": True,
-                        "message": "تم تحديث شركة الشحن للطلبات المحددة.",
-                    },
-                    status=status.HTTP_200_OK,
-                )
-
-        except Exception as e:
-            # Log the detailed error message for debugging
-            print(f"Error updating shipping company: {str(e)}")
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-        
     def retrieve(self, request, *args, **kwargs):
         # Assuming you have an 'Order' model
         try:
@@ -784,9 +393,11 @@ class OrderItemViewSetMarketer(DataTableMixin, viewsets.ModelViewSet):
 
 
 class RequestViewSetMarketer(DataTableMixin, viewsets.ModelViewSet):
-    queryset = Request.objects.all()
+    # queryset = Request.objects.all()
     serializer_class = RequestSerializer
     # permission_classes = [permissions.IsAdminUser]
+
+    
     order_columns = [
                 "id",
                 "Amount",
@@ -799,7 +410,41 @@ class RequestViewSetMarketer(DataTableMixin, viewsets.ModelViewSet):
                 "user",
             ]
 
+
+    def get_queryset(self):
+        # Assuming you have access to the requesting user
+        requesting_user = self.request.user
+
+        # Get the marketer object for the requesting user
+        marketer = get_object_or_404(User, email=requesting_user)
+        queryset = Request.objects.filter(user=marketer)
+
+        return queryset
+    
     @action(detail=True, methods=["get"])
     def datatable_list(self, request, *args, **kwargs):
-        return self.handle_datatables_request(self.queryset, self.serializer_class, self.order_columns, request)
+        queryset = self.get_queryset()
+        return self.handle_datatables_request(queryset, self.serializer_class, self.order_columns, request)
   
+
+    def create(self, request, *args, **kwargs):
+        try:
+            with transaction.atomic():
+                request_data = request.data.copy()
+                request_data['user'] = request.user.id 
+                serializer = self.serializer_class(data=request_data)
+
+            if serializer.is_valid():
+                # If the data is valid, save the instance and return a successful response
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(
+                        {"error": serializer.errors},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+        except Exception as e:
+            # Log the detailed error message for debugging
+            print(f"Error creating order: {str(e)}")
+            # transaction.set_rollback(True)  # Rollback the transaction
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

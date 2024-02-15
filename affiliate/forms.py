@@ -560,3 +560,42 @@ class OrderFormMarketer(forms.ModelForm):
         return cleaned_data
     
 
+
+class RequestForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["amount"].label = False
+        self.fields["amount"].widget.attrs.update(
+            {"class": "form-control", "placeholder": "القيمة"}
+        )
+
+        self.fields["payment_method"].label = False
+        self.fields["payment_method"].widget.attrs.update(
+            {"class": "form-control", "placeholder": "طريقة الدفع"}
+        )
+
+
+        self.fields["vodafone_field"].label = False
+        self.fields["vodafone_field"].widget.attrs.update(
+            {"class": "form-control", "placeholder": "فودافون كاش"}
+        )
+
+        self.fields["instapay_field"].label = False
+        self.fields["instapay_field"].widget.attrs.update(
+            {"class": "form-control", "placeholder": "انستا باي"}
+        )
+
+        self.fields["bank_field"].label = False
+        self.fields["bank_field"].widget.attrs.update(
+            {"class": "form-control", "placeholder": "تحويل بنكي"}
+        )
+
+        self.fields["note"].label = False
+        self.fields["note"].widget.attrs.update(
+            {"class": "form-control", "placeholder": "ملاحظة"}
+        )
+
+        
+    class Meta:
+        model = Request
+        fields = ["amount", "payment_method", 'vodafone_field', 'instapay_field', 'bank_field', 'note']

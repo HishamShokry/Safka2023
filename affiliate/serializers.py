@@ -383,3 +383,30 @@ class RequestSerializer(serializers.ModelSerializer):
     class Meta:
             model = Request
             fields = '__all__'
+
+
+
+    def validate_vodafone_field(self, value):
+        """
+        Validate the 'vodafone_field' field to be in the format '01XXXXXXXXX'.
+        """
+        if len(value) > 0:
+            phone_pattern = re.compile(r'^01\d{9}$')
+
+            if not phone_pattern.match(value):
+                raise serializers.ValidationError("تنسيق رقم الهاتف غير صالح. ينبغي أن يكون مثل '01XXXXXXXXX'.")
+
+            return value
+    
+
+    def validate_instapay_field(self, value):
+        """
+        Validate the 'instapay_field' field to be in the format '01XXXXXXXXX'.
+        """
+        if len(value) > 0:
+            phone_pattern = re.compile(r'^01\d{9}$')
+
+            if not phone_pattern.match(value):
+                raise serializers.ValidationError("تنسيق رقم الهاتف غير صالح. ينبغي أن يكون مثل '01XXXXXXXXX'.")
+
+            return value
