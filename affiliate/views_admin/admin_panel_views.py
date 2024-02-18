@@ -72,7 +72,7 @@ def list_of_product(request):
 @login_required
 @admin_required
 def products(request):
-    products_list = get_list_or_404(Product)
+    products_list = Product.objects.all()
     paginator = Paginator(products_list, 12)  # Show 12 products per page
 
     page = request.GET.get("page")
