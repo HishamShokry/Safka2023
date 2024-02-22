@@ -68,13 +68,21 @@ def vendor_product_detail(request, id):
 @login_required
 @vendor_required
 def vendor_orders(request):
-    return render(request, "vendors/pages/affilate/orders.html")
-
+    return render(
+        request,
+        "vendors/pages/affilate/new_orders.html",
+    )
 
 @login_required
 @vendor_required
 def vendor_requests(request):
-    return render(request, "vendors/pages/affilate/requests.html")
+    if request.method == "POST":
+        form = RequestForm(request.POST)
+        if form.is_valid():
+            form.save()  # This saves the new category to the database
+    else:
+        form = RequestForm()
+    return render(request, "vendors/pages/affilate/requests.html", {'form': form})
 
 
 @login_required

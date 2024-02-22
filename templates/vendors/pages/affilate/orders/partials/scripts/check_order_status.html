@@ -1,0 +1,36 @@
+<!-- <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("addShippingForm");
+    const statusField = form.querySelector("#id_status");
+
+    // Define a function to update status field options
+    function updateStatusFieldOptions(validStatusChoices) {
+      // Clear existing options
+      statusField.innerHTML = '';
+      console.log(statusField);
+      // Create and append new options based on validStatusChoices
+      validStatusChoices.forEach(function (choice) {
+        console.log(choice);
+        const option = document.createElement("option");
+        option.value = choice;
+        option.text = choice;
+        statusField.appendChild(option);
+      });
+    }
+
+    // Fetch and parse valid status choices from the Django template
+    const data = "{{ form.get_valid_status_choices|safe }}";
+    validStatusChoices = JSON.parse(data.replace(/'/g, '"'));
+
+    // Initialize status field options
+    updateStatusFieldOptions(validStatusChoices);
+
+    // Event listener to update options when the form is submitted
+    form.addEventListener("submit", function (event) {
+      if (validStatusChoices.indexOf(statusField.value) === -1) {
+        alert("Invalid status transition. Please select a valid status.");
+        event.preventDefault();
+      }
+    });
+  });
+</script> -->

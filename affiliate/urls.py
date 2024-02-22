@@ -77,6 +77,15 @@ router.register(r"requests_api_marketer", marketer_api_views.RequestViewSetMarke
 
 
 
+# Vendor API
+# router.register(r"order_api_vendor", vendor_api_views.OrderViewSetVendor, basename="order_vendor")
+# router.register(r"order_item_api_vendor", vendor_api_views.OrderItemViewSetVendor, basename="order_item_vendor")
+router.register(r"requests_api_vendor", vendor_api_views.RequestViewSetVendor, basename="requests_vendor")
+
+
+
+
+
 
 
 

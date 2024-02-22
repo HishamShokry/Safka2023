@@ -2,244 +2,275 @@
 
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Safka | Dashboard</title>
 
-    <!-- Google Font: Source Sans Pro -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback" />
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.min.css' %}" />
-    <!-- Ionicons -->
-    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" />
-    <!-- Tempusdominus Bootstrap 4 -->
-    <link rel="stylesheet" href="{% static 'plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css' %}" />
-    <!-- iCheck -->
-    <link rel="stylesheet" href="{% static 'plugins/icheck-bootstrap/icheck-bootstrap.min.css' %}" />
-    <!-- JQVMap -->
-    <link rel="stylesheet" href="{% static 'plugins/jqvmap/jqvmap.min.css' %}" />
-    <!-- Theme style -->
-    <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css' %}" />
-    <!-- overlayScrollbars -->
-    <link rel="stylesheet" href="{% static 'plugins/overlayScrollbars/css/OverlayScrollbars.min.css' %}" />
-    <!-- Daterange picker -->
-    <link rel="stylesheet" href="{% static 'plugins/daterangepicker/daterangepicker.css' %}" />
-    <!-- summernote -->
-    <link rel="stylesheet" href="{% static 'plugins/summernote/summernote-bs4.min.css' %}" />
-    <!-- custom css -->
-    <link rel="stylesheet" href="{% static 'dist/css/custom.css' %}" />
-    <!-- DataTables -->
-    <link rel="stylesheet" href="{% static 'plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}" />
-    <link rel="stylesheet" href="{% static 'plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}" />
-    <link rel="stylesheet" href="{% static 'plugins/datatables-buttons/css/buttons.bootstrap4.min.css' %}" />
-    <!--     custom font
-  <link href="https://db.onlinewebfonts.com/c/067cfe393274fa953239880b78e65229?family=BBCNassim-Bold" rel="stylesheet">
-     -->
-    <!-- <link href="https://db.onlinewebfonts.com/c/14b4bf4df4455e6a1277f2b2584dadd6?family=BBCNassim" rel="stylesheet"> -->
-  </head>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Safka | Dashboard</title>
 
-  <body class="hold-transition sidebar-mini layout-fixed">
-    <!-- wrapper -->
-    <div class="wrapper">
-      <!-- Preloader -->
-      <div class="preloader flex-column justify-content-center align-items-center">
-        <img class="animation__shake" src="{% static 'dist/img/logo.png' %}" alt="Safka" height="250" width="250" />
-      </div>
+  <!-- jQuery -->
+  <script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+  <!-- jQuery UI 1.11.4 -->
+  <script src="{% static 'plugins/jquery-ui/jquery-ui.min.js' %}"></script>
 
-      {% include 'vendors/parts/nav.html' %}
-      {% include 'vendors/parts/aside.html' %}
 
-      {% block content %}
 
-      {% endblock %}
-
-      {% include 'vendors/parts/footer.html' %}
-
-      <!-- Control Sidebar -->
-      <aside class="control-sidebar control-sidebar-dark">
-        <!-- Control sidebar content goes here -->
-      </aside>
-      <!-- /.control-sidebar -->
-    </div>
-    <!-- ./wrapper -->
-
-    <!-- jQuery -->
-    <script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
-    <!-- jQuery UI 1.11.4 -->
-    <script src="{% static 'plugins/jquery-ui/jquery-ui.min.js' %}"></script>
+  <!-- Bootstrap JS and Popper.js (required for Toasts) -->
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
     <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
-    <script>
-      $.widget.bridge('uibutton', $.ui.button)
-    </script>
-    <!-- Bootstrap 4 -->
-    <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
-    <!-- DataTables & Plugins -->
-    <script src="{% static 'plugins/datatables/jquery.dataTables.min.js' %}"></script>
-    <script src="{% static 'plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
-    <script src="{% static 'plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
-    <script src="{% static 'plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
-    <script src="{% static 'plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
-    <script src="{% static 'plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
-    <script src="{% static 'plugins/jszip/jszip.min.js' %}"></script>
-    <script src="{% static 'plugins/pdfmake/pdfmake.min.js' %}"></script>
-    <script src="{% static 'plugins/pdfmake/vfs_fonts.js' %}"></script>
-    <script src="{% static 'plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
-    <script src="{% static 'plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
-    <script src="{% static 'plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
-    <!-- ChartJS -->
-    <script src="{% static 'plugins/chart.js/Chart.min.js' %}"></script>
-    <!-- Sparkline -->
-    <script src="{% static 'plugins/sparklines/sparkline.js' %}"></script>
-    <!-- JQVMap -->
-    <script src="{% static 'plugins/jqvmap/jquery.vmap.min.js' %}"></script>
-    <script src="{% static 'plugins/jqvmap/maps/jquery.vmap.usa.js' %}"></script>
-    <!-- jQuery Knob Chart -->
-    <script src="{% static 'plugins/jquery-knob/jquery.knob.min.js' %}"></script>
-    <!-- daterangepicker -->
-    <script src="{% static 'plugins/moment/moment.min.js' %}"></script>
-    <script src="{% static 'plugins/daterangepicker/daterangepicker.js' %}"></script>
-    <!-- Tempusdominus Bootstrap 4 -->
-    <script src="{% static 'plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js' %}"></script>
-    <!-- Summernote -->
-    <script src="{% static 'plugins/summernote/summernote-bs4.min.js' %}"></script>
-    <!-- overlayScrollbars -->
-    <script src="{% static 'plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js' %}"></script>
-    <!-- AdminLTE App -->
-    <script src="{% static 'dist/js/adminlte.js' %}"></script>
-    <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-    <script src="{% static 'dist/js/pages/dashboard.js' %}"></script>
-    <script src="{% static 'dist/js/myDashboard.js' %}"></script>
-    <script>
-      var donutData = {
-        labels: ['طلبات معلقة', 'طلبات جار التحضير', 'طلبات تم الشحن', 'طلبات تم التوصيل', 'طلبات جار الاسترجاع', 'طلبات مؤجلة', 'طلبات استرجاع من عميل', 'طلبات مرتجعة', 'طلبات مرتجعة بعد التسليم', 'طلبات ملغية', 'طلبات ملغية اثناء التحضير'],
-        datasets: [
-          {
-            data: [700, 500, 400, 600, 300, 100, 90, 50, 120, 30, 55],
-            backgroundColor: ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf', '#ff9896', '#9edae5']
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback" />
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.min.css' %}" />
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" />
+  <!-- Tempusdominus Bootstrap 4 -->
+  <link rel="stylesheet"
+    href="{% static 'plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css' %}" />
+  <!-- iCheck -->
+  <link rel="stylesheet" href="{% static 'plugins/icheck-bootstrap/icheck-bootstrap.min.css' %}" />
+  <!-- JQVMap -->
+  <link rel="stylesheet" href="{% static 'plugins/jqvmap/jqvmap.min.css' %}" />
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css' %}" />
+  <!-- overlayScrollbars -->
+  <link rel="stylesheet" href="{% static 'plugins/overlayScrollbars/css/OverlayScrollbars.min.css' %}" />
+  <!-- Daterange picker -->
+  <link rel="stylesheet" href="{% static 'plugins/daterangepicker/daterangepicker.css' %}" />
+  <!-- summernote -->
+  <link rel="stylesheet" href="{% static 'plugins/summernote/summernote-bs4.min.css' %}" />
+  <!-- Bootstrap 4 -->
+  <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <!-- DataTables & Plugins -->
+  <link
+    href="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-1.13.7/af-2.6.0/b-2.4.2/b-colvis-2.4.2/b-html5-2.4.2/b-print-2.4.2/cr-1.7.0/date-1.5.1/fc-4.3.0/fh-3.4.0/kt-2.11.0/r-2.5.0/rg-1.4.1/rr-1.4.1/sc-2.3.0/sb-1.6.0/sp-2.2.0/sl-1.7.0/sr-1.3.0/datatables.min.css"
+    rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+  <script
+    src="https://cdn.datatables.net/v/bs5/jszip-3.10.1/dt-1.13.7/af-2.6.0/b-2.4.2/b-colvis-2.4.2/b-html5-2.4.2/b-print-2.4.2/cr-1.7.0/date-1.5.1/fc-4.3.0/fh-3.4.0/kt-2.11.0/r-2.5.0/rg-1.4.1/rr-1.4.1/sc-2.3.0/sb-1.6.0/sp-2.2.0/sl-1.7.0/sr-1.3.0/datatables.min.js"></script>
+  <!-- ChartJS -->
+  <script src="{% static 'plugins/chart.js/Chart.min.js' %}"></script>
+  <!-- Sparkline -->
+  <script src="{% static 'plugins/sparklines/sparkline.js' %}"></script>
+  <!-- JQVMap -->
+  <script src="{% static 'plugins/jqvmap/jquery.vmap.min.js' %}"></script>
+  <script src="{% static 'plugins/jqvmap/maps/jquery.vmap.usa.js' %}"></script>
+  <!-- jQuery Knob Chart -->
+  <script src="{% static 'plugins/jquery-knob/jquery.knob.min.js' %}"></script>
+  <!-- daterangepicker -->
+  <script src="{% static 'plugins/moment/moment.min.js' %}"></script>
+  <script src="{% static 'plugins/daterangepicker/daterangepicker.js' %}"></script>
+  <!-- Tempusdominus Bootstrap 4 -->
+  <script src="{% static 'plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js' %}"></script>
+  <!-- Summernote -->
+  <script src="{% static 'plugins/summernote/summernote-bs4.min.js' %}"></script>
+  <!-- overlayScrollbars -->
+  <script src="{% static 'plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js' %}"></script>
+
+  <!-- growl-style notification bars -->
+  <script src="{% static 'plugins/growl-notification-bootstrap-alert/bootstrap-notify.min.js' %}"></script>
+  <!-- AdminLTE App -->
+  <script src="{% static 'dist/js/adminlte.js' %}"></script>
+  <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+  <script src="{% static 'dist/js/pages/dashboard.js' %}"></script>
+  <script src="{% static 'dist/js/myDashboard.js' %}"></script>
+
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>  <!-- custom css -->
+
+  <link rel="stylesheet" href="{% static 'dist/css/custom.css' %}" />
+  <!-- <style>
+    .select2-container .select2-selection--single {
+      height: 60px;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+      line-height: 58px; /* Adjust as needed for vertical centering */
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+      height: 58px; /* Adjust as needed */
+    }
+    
+  </style> -->
+</head>
+
+<body class="hold-transition sidebar-mini layout-fixed">
+  <!-- wrapper -->
+  <div class="wrapper">
+    <!-- Preloader -->
+    <div class="preloader flex-column justify-content-center align-items-center">
+      <img class="animation__shake" src="{% static 'dist/img/logo.png' %}" alt="Safka" height="250" width="250" />
+    </div>
+
+    {% include 'vendors/parts/nav.html' %}
+    {% include 'vendors/parts/aside.html' %}
+
+    {% block content %}
+
+    {% endblock %}
+
+    {% include 'vendors/parts/footer.html' %}
+
+    <!-- Control Sidebar -->
+    <aside class="control-sidebar control-sidebar-dark">
+      <!-- Control sidebar content goes here -->
+    </aside>
+    <!-- /.control-sidebar -->
+  </div>
+  <!-- ./wrapper -->
+
+
+  <script>
+    $.widget.bridge('uibutton', $.ui.button)
+  </script>
+
+  <script>
+    var donutData = {
+      labels: ['طلبات معلقة', 'طلبات جار التحضير', 'طلبات تم الشحن', 'طلبات تم التوصيل', 'طلبات جار الاسترجاع', 'طلبات مؤجلة', 'طلبات استرجاع من عميل', 'طلبات مرتجعة', 'طلبات مرتجعة بعد التسليم', 'طلبات ملغية', 'طلبات ملغية اثناء التحضير'],
+      datasets: [
+        {
+          data: [700, 500, 400, 600, 300, 100, 90, 50, 120, 30, 55],
+          backgroundColor: ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf', '#ff9896', '#9edae5']
+        }
+      ]
+    }
+
+    var pieChartCanvas = document.getElementById('pieChart').getContext('2d')
+    var pieData = donutData
+    var pieOptions = {
+      maintainAspectRatio: false,
+      responsive: true
+    }
+
+    var totalValueElement = document.getElementById('totalValue')
+
+    // Create and render the pie chart
+    var pieChart = new Chart(pieChartCanvas, {
+      type: 'pie',
+      data: pieData,
+      options: pieOptions,
+      plugins: [
+        {
+          title: {
+            display: true,
+            text: 'Chart Title'
+          },
+          afterDraw: function (chart) {
+            var totalValue = 0
+            chart.data.datasets.forEach(function (dataset) {
+              dataset.data.forEach(function (value, index) {
+                totalValue += value
+
+                // Calculate the percentage
+                var percentage = ((value / totalValue) * 100).toFixed(2)
+
+                // Update the tooltip
+                var meta = chart.getDatasetMeta(0)
+                var tooltipLabel = meta.data[index]._model.label
+                var tooltipValue = meta.data[index]._model.datasetLabel
+                meta.data[index]._model.tooltip = tooltipLabel + ': ' + tooltipValue + ' (' + percentage + '%)'
+              })
+            })
+            totalValueElement.innerText = totalValue
           }
-        ]
-      }
-      
-      var pieChartCanvas = document.getElementById('pieChart').getContext('2d')
-      var pieData = donutData
-      var pieOptions = {
-        maintainAspectRatio: false,
-        responsive: true
-      }
-      
-      var totalValueElement = document.getElementById('totalValue')
-      
-      // Create and render the pie chart
-      var pieChart = new Chart(pieChartCanvas, {
-        type: 'pie',
-        data: pieData,
-        options: pieOptions,
-        plugins: [
-          {
-            title: {
-              display: true,
-              text: 'Chart Title'
-            },
-            afterDraw: function (chart) {
-              var totalValue = 0
-              chart.data.datasets.forEach(function (dataset) {
-                dataset.data.forEach(function (value, index) {
-                  totalValue += value
-      
-                  // Calculate the percentage
-                  var percentage = ((value / totalValue) * 100).toFixed(2)
-      
-                  // Update the tooltip
-                  var meta = chart.getDatasetMeta(0)
-                  var tooltipLabel = meta.data[index]._model.label
-                  var tooltipValue = meta.data[index]._model.datasetLabel
-                  meta.data[index]._model.tooltip = tooltipLabel + ': ' + tooltipValue + ' (' + percentage + '%)'
+        }
+      ]
+    })
+  </script>
+  <script>
+    $(function () {
+      $('#example1')
+        .DataTable({
+          initComplete: function () {
+            this.api()
+              .columns()
+              .every(function () {
+                let column = this
+                let title = column.footer().textContent
+
+                // Create input element
+                let input = document.createElement('input')
+                input.placeholder = title
+                column.footer().replaceChildren(input)
+
+                // Event listener for user input
+                input.addEventListener('keyup', () => {
+                  if (column.search() !== this.value) {
+                    column.search(input.value).draw()
+                  }
                 })
               })
-              totalValueElement.innerText = totalValue
-            }
-          }
-        ]
-      })
-    </script>
-    <script>
-      $(function () {
-        $('#example1')
-          .DataTable({
-            initComplete: function () {
-              this.api()
-                .columns()
-                .every(function () {
-                  let column = this
-                  let title = column.footer().textContent
-      
-                  // Create input element
-                  let input = document.createElement('input')
-                  input.placeholder = title
-                  column.footer().replaceChildren(input)
-      
-                  // Event listener for user input
-                  input.addEventListener('keyup', () => {
-                    if (column.search() !== this.value) {
-                      column.search(input.value).draw()
-                    }
-                  })
-                })
-            },
-            scrollY: 500,
-            scrollX: 1000,
-            responsive: false,
-            lengthChange: false,
-            autoWidth: false,
-            buttons: ['pageLength', 'copy', 'csv', 'excel', 'pdf', 'print', 'colvis']
-          })
-          .buttons()
-          .container()
-          .appendTo('#example1_wrapper .col-md-6:eq(0)')
-      })
-    </script>
-    <script>
+          },
+          scrollY: 500,
+          scrollX: 1000,
+          responsive: false,
+          lengthChange: false,
+          autoWidth: false,
+          buttons: ['pageLength', 'copy', 'csv', 'excel', 'pdf', 'print', 'colvis']
+        })
+        .buttons()
+        .container()
+        .appendTo('#example1_wrapper .col-md-6:eq(0)')
+    })
+  </script>
+  <script>
 
-      if ($('#category-menu').hasClass('active')){
-        $('#affiliate-menu').addClass('active');
-        $('#affiliate-menu-list').addClass('menu-open');
-      }
+    if ($('#category-menu').hasClass('active')) {
+      $('#affiliate-menu').addClass('active');
+      $('#affiliate-menu-list').addClass('menu-open');
+    }
 
-      if ($('#products-menu').hasClass('active')){
-        $('#affiliate-menu').addClass('active');
-        $('#affiliate-menu-list').addClass('menu-open');
-      }
+    if ($('#products-menu').hasClass('active')) {
+      $('#affiliate-menu').addClass('active');
+      $('#affiliate-menu-list').addClass('menu-open');
+    }
 
-      if ($('#shipping-menu').hasClass('active')){
-        $('#affiliate-menu').addClass('active');
-        $('#affiliate-menu-list').addClass('menu-open');
-      }
+    if ($('#list_of_product-menu').hasClass('active')) {
+      $('#affiliate-menu').addClass('active');
+      $('#affiliate-menu-list').addClass('menu-open');
+    }
 
-      if ($('#inventory-menu').hasClass('active')){
-        $('#affiliate-menu').addClass('active');
-        $('#affiliate-menu-list').addClass('menu-open');
-      }
+    if ($('#shipping-menu').hasClass('active')) {
+      $('#affiliate-menu').addClass('active');
+      $('#affiliate-menu-list').addClass('menu-open');
+    }
+    
+    if ($('#price_shipping-menu').hasClass('active')) {
+      $('#affiliate-menu').addClass('active');
+      $('#affiliate-menu-list').addClass('menu-open');
+    }
 
-      if ($('#orders-menu').hasClass('active')){
-        $('#affiliate-menu').addClass('active');
-        $('#affiliate-menu-list').addClass('menu-open');
-      }
+    if ($('#inventory-menu').hasClass('active')) {
+      $('#affiliate-menu').addClass('active');
+      $('#affiliate-menu-list').addClass('menu-open');
+    }
 
-      if ($('#requests-menu').hasClass('active')){
-        $('#affiliate-menu').addClass('active');
-        $('#affiliate-menu-list').addClass('menu-open');
-      }
+    if ($('#orders-menu').hasClass('active')) {
+      $('#affiliate-menu').addClass('active');
+      $('#affiliate-menu-list').addClass('menu-open');
+    }
 
-      if ($('#vendors_accounts-menu').hasClass('active')){
-        $('#affiliate-menu').addClass('active');
-        $('#affiliate-menu-list').addClass('menu-open');
-      }
+    if ($('#requests-menu').hasClass('active')) {
+      $('#affiliate-menu').addClass('active');
+      $('#affiliate-menu-list').addClass('menu-open');
+    }
 
-      if ($('#marketers_accounts-menu').hasClass('active')){
-        $('#affiliate-menu').addClass('active');
-        $('#affiliate-menu-list').addClass('menu-open');
-      }
-    </script>
-  </body>
+    if ($('#vendors_accounts-menu').hasClass('active')) {
+      $('#affiliate-menu').addClass('active');
+      $('#affiliate-menu-list').addClass('menu-open');
+    }
+
+    if ($('#marketers_accounts-menu').hasClass('active')) {
+      $('#affiliate-menu').addClass('active');
+      $('#affiliate-menu-list').addClass('menu-open');
+    }
+  </script>
+  
+</body>
+
 </html>

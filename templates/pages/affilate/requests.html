@@ -312,6 +312,7 @@
 <script>
   function valid_status(selectedStatus) {
     let validStatuses = [];
+    console.log(selectedStatus);
     switch (selectedStatus) {
       case 'جار مراجعة':
         validStatuses = ['تم الموافقة', 'تم الرفض'];
@@ -344,33 +345,43 @@
     // Perform update status action on selected rows
     var requestId = $(this).data('id');
     var currentStatus = $(this).data('status');
+
+
+    getnerate_dynamic_status(currentStatus)
+
     // Show the order status modal
     $('#orderStatusModal').modal('show');
 
+    const $saveOrderStatusBtn = $('#saveorderStatusBtn');
 
     // Send a POST request to update the order status on the backend
-    $.ajax({
-      url: '/affiliate/api/order_api/update_status/',
-      type: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify({ selected_order_ids: selectedOrderIds, new_status: selectedStatus }),
-      headers: { 'X-CSRFToken': csrf_token },
-      success: function (response) {
-        console.log('Update Successful:', response);
-        // Optionally, you can update the DataTable or perform other actions
-        dataTable.draw(); // Refresh the DataTable
-        showSuccessMessage(response.message);
-      },
-      error: function (jqXHR, textStatus, errorThrown) {
-        console.error('Update Failed:', jqXHR);
-        showErrorMessage(jqXHR.responseJSON.error);
-      }
-    });
+    $saveOrderStatusBtn.off('click').on('click', function () {
+      // Get the selected status value from the dropdown
+      const selectedStatus = $('#orderStatus').val();
 
+      // Send a POST request to update the order status on the backend
+      $.ajax({
+        url: '/affiliate/api/requests_api/update_status/',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ selected_request_id: requestId, new_status: selectedStatus}),
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+        success: function (response) {
+          console.log('Update Successful:', response);
+          // Optionally, you can update the DataTable or perform other actions
+          dataTable.draw(); // Refresh the DataTable
+          showSuccessMessage(response.message);
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          console.error('Update Failed:', jqXHR.responseText);
+          showErrorMessage(jqXHR.responseJSON.message);
+        }
+      });
+      $('#orderStatusModal').modal('hide');
+    })
+   
+    
 
-    // Optionally, close the modal
-    $('#orderStatusModal').modal('hide');
-    // });
   });
 
 

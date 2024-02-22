@@ -431,7 +431,7 @@ class Request(models.Model):
     METHODS = [('vodafone', 'Vodafone Cash'), ('instapay', 'Insta Pay'), ('bank', 'Bank')]
     # role = models.CharField(max_length=255, blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, default=None, blank=True, null=True)
-    amount = models.FloatField()
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     payment_method = models.CharField(max_length=255, choices=METHODS, blank=True, null=True)
 
     vodafone_field = models.CharField(max_length=11, blank=True, null=True)

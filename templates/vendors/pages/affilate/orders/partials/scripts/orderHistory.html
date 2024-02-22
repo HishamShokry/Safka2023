@@ -1,0 +1,15 @@
+<script>
+    $(document).ready(function () {
+        function toggleOrderHistoryTable() {
+            $('#orderHistoryTable').toggle();
+            console.log('test');
+        }
+
+        $('.modal-footer').on('click', '#OrderHistoryBtn', function () {
+
+            // Display or hide the order history table
+            toggleOrderHistoryTable();
+
+        });
+    });
+</script>

@@ -1,0 +1,15 @@
+{% extends "marketers/base.html" %}
+{% load static %}
+
+{% block content %}
+  <!-- Content goes here -->
+  <div class="content-wrapper">
+    {% include 'marketers/pages/affilate/orders/partials/orders_header.html' %}
+    {% include 'marketers/pages/affilate/orders/partials/orders_table.html' %}
+  </div>
+
+  <!-- JavaScript files -->
+  {% include 'marketers/pages/affilate/orders/partials/orders_scripts.html' %}
+
+
+{% endblock %}

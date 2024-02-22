@@ -1,0 +1,249 @@
+<!-- Main content -->
+<section class="content">
+  <div class="container-fluid">
+    <div class="row"></div>
+    <!-- /.card -->
+    <div class="card">
+      <div class="card-header bg-primary">
+        <div class="card-tools">
+          <button type="button" class="btn btn-outline-light btn-sm" data-card-widget="collapse">
+            <i class="fas fa-minus"></i>
+          </button>
+          <button type="button" class="btn btn-danger btn-sm" data-card-widget="remove">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      <!-- /.card-header -->
+      <div id="error-message-container" class="alert alert-danger" style="display: none;"></div>
+      <div id="success-message-container" class="alert alert-success" style="display: none;"></div>
+      <div class="card-body">
+        <button id="addRowBtn" class="btn btn-primary float-right"><i class="fas fa-plus"></i></button>
+
+        <!-- Add these input fields above the DataTable -->
+        <form class="form-group row m-2">
+          <label class="form-label" for="date_range">تاريخ:</label>
+          <div class="col-xs-3 ml-">
+            <input type="text" class="form-control" id="date_range" />
+          </div>
+          <div class="col">
+            <button type="button" class="btn btn-primary" id="submitBtn">فلتر</button>
+          </div>
+          <!-- <div class="col">
+              <button type="button" class="btn btn-warning" id="submitBtn">تحديث شركة الشحن</button>
+              <button type="button" class="btn btn-secondary" id="submitBtn">تحديث حالة الطلب</button>
+            </div> -->
+
+        </form>
+        <table id="example2" class="table table-bordered table-striped table-hover">
+          <thead class="bg-primary">
+            <tr>
+              <th>#</th>
+              <th>الباركود</th>
+              <th>الحالة</th>
+              <!-- <th>اسم العميل</th> -->
+              <!-- <th>رقم الهاتف 1</th> -->
+              <!-- <th>رقم الهاتف 2</th> -->
+              <!-- <th>عنوان العميل</th> -->
+              <th>سعر الشحن</th>
+              <th>العمولة</th>
+              <th>الإجمالي</th>
+              <!-- <th>إجمالي سعر العناصر</th> -->
+              <!-- <th>ملاحظة</th> -->
+              <!-- <th>واتساب (1) مفعل</th> -->
+              <!-- <th>الهاتف (1) مفعل</th> -->
+              <!-- <th>رسالة نصية (1) مفعلة</th> -->
+              <!-- <th>واتساب (2) مفعل</th> -->
+              <!-- <th>الهاتف (2) مفعل</th> -->
+              <!-- <th>رسالة نصية (2) مفعلة</th> -->
+              <!-- <th>تاريخ الإنشاء</th> -->
+              <th>المسوق</th>
+              <th>المحافظة</th>
+              <th>المدينة</th>
+              <th>تاريخ التحديث</th>
+              <th>اختر عملية</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+          <tfoot>
+            <tr>
+              <th>#</th>
+              <th>الباركود</th>
+              <th>الحالة</th>
+              <!-- <th>اسم العميل</th> -->
+              <!-- <th>رقم الهاتف 1</th> -->
+              <!-- <th>رقم الهاتف 2</th> -->
+              <!-- <th>عنوان العميل</th> -->
+              <th>سعر الشحن</th>
+              <th>العمولة</th>
+              <th>الإجمالي</th>
+              <!-- <th>إجمالي سعر العناصر</th> -->
+              <!-- <th>ملاحظة</th> -->
+              <!-- <th>واتساب (1) مفعل</th> -->
+              <!-- <th>الهاتف (1) مفعل</th> -->
+              <!-- <th>رسالة نصية (1) مفعلة</th> -->
+              <!-- <th>واتساب (2) مفعل</th> -->
+              <!-- <th>الهاتف (2) مفعل</th> -->
+              <!-- <th>رسالة نصية (2) مفعلة</th> -->
+              <!-- <th>تاريخ الإنشاء</th> -->
+              <th>المسوق</th>
+              <th>المحافظة</th>
+              <th>المدينة</th>
+              <th>تاريخ التحديث</th>
+
+              <th>اختر عملية</th>
+            </tr>
+          </tfoot>
+        </table>
+
+
+
+        <div class="modal fade" id="orderModal" tabindex="-1" role="dialog" aria-labelledby="orderModalLabel"
+          aria-hidden="true">
+          <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="orderModalLabel">تفاصيل الطلب</h5>
+
+
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body" id="orderDetailsBody">
+
+              </div>
+              <div class="modal-footer">
+                <!-- Add these buttons in your HTML where you want them to appear -->
+                <button id="prevPageBtn" class="btn btn-primary"><i class="fas fa-arrow-right"></i></button>
+                <button id="nextPageBtn" class="btn btn-primary"><i class="fas fa-arrow-left"></i></button>
+                <button class="btn btn-warning mr-auto" id="OrderHistoryBtn"><i class="fas fa-history"></i></button>
+
+
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">اغلاق</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add Product Modal -->
+
+        <div class="modal fade" id="addShippingModal" tabindex="-1" role="dialog"
+          aria-labelledby="addShippingModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="addShippingModalLabel">اضافة طلب جديد</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form method="post" id="addShippingForm" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  {{ form.as_p }}
+                  
+
+                  <div id="variant-formset-container">
+                    {{ variant_formset.management_form }}
+                    {% for form in variant_formset %}
+                    <div class="variant-form">
+                      {{ form.as_p }}
+                    </div>
+                    {% endfor %}
+
+                  </div>
+
+
+                  <button type="button" class="btn btn-outline-success" id="add-variant"><i class="fas fa-cart-plus"></i></button>
+                  <br>
+                  <div>
+                    <label for="id_difference">العمولة:</label>
+                    <input type="number" name="difference" class="form-control" required="" id="id_difference" readonly>
+                  </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">اغلاق</button>
+                <button type="button" class="btn btn-primary" id="saveShippingBtn">حفظ</button>
+                <button type="button" class="btn btn-primary" id="updateShippingBtn">تحديث</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="modal fade" id="shippingCompanyModal" tabindex="-1" role="dialog"
+          aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">اختر شركة شحن</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <!-- Your form with a select dropdown for shipping companies -->
+                <form id="shippingCompanyForm">
+                  <div class="form-group">
+                    <label for="shippingCompany">طلبات</label>
+                    <select class="form-control" id="shippingCompany" name="shippingCompany">
+                      <!-- Populate this dropdown with your shipping company options -->
+
+                      <!-- Add more options as needed -->
+                    </select>
+                  </div>
+                  <!-- Add other form fields as needed -->
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">اغلاق</button>
+                <button type="button" class="btn btn-primary" id="saveShippingCompanyBtn">حفظ</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal fade" id="orderStatusModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+          aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">اختر حالة الطلب</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <!-- Your form with a select dropdown for Order Status -->
+                <form id="orderStatusForm">
+                  {% csrf_token %}
+                  <div class="form-group">
+                    <label for="orderStatus">حالة الطلب:</label>
+                    <select class="form-control" id="orderStatus" name="orderStatus">
+                    </select>
+                  </div>
+                  <!-- Add other form fields as needed -->
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">اغلاق</button>
+                <button type="button" class="btn btn-primary" id="saveorderStatusBtn">حفظ</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+      <!-- /.card-body -->
+    </div>
+  </div>
+  <!-- /.card -->
+  <!-- /.col -->
+  <!-- /.row -->
+  <!-- /.container-fluid -->
+</section>
+
+<!-- /.content -->

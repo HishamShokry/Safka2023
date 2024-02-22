@@ -991,6 +991,62 @@ class RequestViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
             self.queryset, self.serializer_class, self.order_columns, request
         )
 
+    @action(detail=False, methods=["post"])
+    def update_status(self, request, *args, **kwargs):
+        try:
+            with transaction.atomic():
+                selected_request_id = request.data.get("selected_request_id", None)
+                new_status = request.data.get("new_status")
+
+                if not selected_request_id:
+                    return Response(
+                        {"error": _("No Request selected for status update.")},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
+                if not new_status:
+                    return Response(
+                        {"error": _("New status not provided.")},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
+                request_to_update = Request.objects.get(pk=selected_request_id)
+                # Perform update for request statuses
+                if new_status == "تم الموافقة" and request_to_update.amount <= request_to_update.user.DELIVERED:
+                    
+                    request_to_update.user.DELIVERED -= request_to_update.amount
+                    request_to_update.status = new_status
+                    request_to_update.save()
+                    request_to_update.user.save()
+
+                    return Response(
+                    {"success": True, "message": f"تم تحديث حالة طلب السحب بنجاح إلى '{new_status}'."},
+                    status=status.HTTP_200_OK,
+                )
+                    
+                elif new_status == "تم الرفض":
+                    request_to_update.status = new_status
+                    request_to_update.save()
+                    return Response(
+                        {"success": True, "message": f"تم تحديث حالة طلب السحب بنجاح إلى '{new_status}'."},
+                        status=status.HTTP_200_OK,
+                    )
+                else:
+                    return Response(
+                        {"error": True, "message": f"لا يوجد رصيد في الحساب كافي"},
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
+
+        except Order.DoesNotExist as e:
+            return Response({"error": _("Some orders do not exist.")}, status=status.HTTP_404_NOT_FOUND)
+
+        except ValueError as ve:
+            return Response({"error": str(ve)}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({"error": _("Internal Server Error.")}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
 
 def get_cities(request, governorate_id):
     cities = City.objects.filter(governorate_id=governorate_id)
