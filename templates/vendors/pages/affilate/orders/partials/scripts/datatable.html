@@ -36,7 +36,7 @@
       'order': [[10, 'desc']],
       'lengthMenu': [10, 50, 100, 200, 500, 1000], // Set the desired number of rows to display on the client side
       'ajax': {
-        'url': '/affiliate/api/order_api_marketer/Hisham/datatable_list/',
+        'url': '/affiliate/api/order_api_vendor/Hisham/datatable_list/',
         'type': 'GET',
         'data': function (d) {
           d.extra_search = {};  // Add an object to store individual column searches
@@ -62,25 +62,12 @@
         { 'data': 'id', 'visible': false },
         { 'data': 'barcode' },
         { 'data': 'status' },
-        // { 'data': 'client_name' },
-        // { 'data': 'client_phone1' },
-        // { 'data': 'client_phone2' },
-        // { 'data': 'client_address' },
         { 'data': 'shiping_price' },
-        { 'data': 'commission' },
-        { 'data': 'total' },
-        // { 'data': 'total_items_price' },
-        // { 'data': 'note' },
-        // { 'data': 'whats1_clicked' },
-        // { 'data': 'phone1_clicked' },
-        // { 'data': 'sms1_clicked' },
-        // { 'data': 'whats2_clicked' },
-        // { 'data': 'phone2_clicked' },
-        // { 'data': 'sms2_clicked' },
-        // { 'data': 'created_at' },
-        { 'data': 'marketer_name' },
         { 'data': 'governorate_name' },
         { 'data': 'city_name' },
+        
+        // { 'data': 'updated_at' },
+
         {
           'data': 'updated_at', 'render': function (data, type, row) {
             // Call the formatDate function for formatting the date column
@@ -88,22 +75,22 @@
           }
         },
 
-        {
-          'data': null,
-          'render': function (data, type, row) {
-            // Add Edit and Delete buttons for each row
-            if (row.status === 'طلبات معلقة') {
-              return '<button class="btn btn-primary btn-show-details" data-id="' + row.id + '"><i class="far fa-eye"></i></button>' +
-                '<button class="btn btn-warning edit-btn" data-id="' + row.id + '"><i class="fas fa-edit"></i></button>';
-            } else {
-              return '<button class="btn btn-primary btn-show-details" data-id="' + row.id + '"><i class="far fa-eye"></i></button>';
-            }
-          },
-          'orderable': false,
-          "searchable": false
-        },
+        // {
+        //   'data': null,
+        //   'render': function (data, type, row) {
+        //     // Add Edit and Delete buttons for each row
+        //     if (row.status === 'طلبات معلقة') {
+        //       return '<button class="btn btn-primary btn-show-details" data-id="' + row.id + '"><i class="far fa-eye"></i></button>' +
+        //         '<button class="btn btn-warning edit-btn" data-id="' + row.id + '"><i class="fas fa-edit"></i></button>';
+        //     } else {
+        //       return '<button class="btn btn-primary btn-show-details" data-id="' + row.id + '"><i class="far fa-eye"></i></button>';
+        //     }
+        //   },
+        //   'orderable': false,
+        //   "searchable": false
+        // },
       ],
-      // 'order': [], // Disable default sorting
+      'order': [], // Disable default sorting
       dom: 'frBtip',
       scrollY: 500,
       responsive: false,

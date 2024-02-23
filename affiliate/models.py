@@ -90,7 +90,7 @@ class City(models.Model):
 
 class ShippingPrice(models.Model):
     governorate = models.ForeignKey(Governorate, on_delete=models.CASCADE, db_index=True)
-    price = models.IntegerField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     is_active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)

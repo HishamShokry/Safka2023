@@ -5,6 +5,7 @@ from rest_framework.decorators import action, api_view
 from rest_framework import status
 from rest_framework import generics, permissions
 from django.views.decorators.http import require_GET
+from decimal import Decimal
 
 from django.http import JsonResponse
 from django.db import transaction
@@ -524,9 +525,14 @@ class OrderViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
             )
 
     def calculate_commission(self, order, variants_data):
-        item_total_price = sum(int(item["total_item_price"]) for item in variants_data)
-        return order.total - (order.shiping_price + item_total_price)
-    
+        shipping_price = Decimal(order.shiping_price)
+        total_item_price = sum(Decimal(item["total_item_price"]) for item in variants_data)
+        order_total = Decimal(order.total)
+
+        return order_total - (shipping_price + total_item_price)
+
+        return order_total - (shipping_price + total_item_price)
+
     def handle_order_status(request, order):
     
         order_items = order.items.all()

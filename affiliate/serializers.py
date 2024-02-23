@@ -410,3 +410,27 @@ class RequestSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("تنسيق رقم الهاتف غير صالح. ينبغي أن يكون مثل '01XXXXXXXXX'.")
 
             return value
+
+
+
+
+
+class OrderSerializerVendor(serializers.ModelSerializer):
+    items = serializers.SerializerMethodField()
+    governorate_name = serializers.StringRelatedField(source="governorate")
+    city_name = serializers.StringRelatedField(source="city")
+
+    class Meta:
+        model = Order
+        fields = ['id', 'barcode', 'status', 'governorate_name', 'city_name', 'governorate', 'city', 'shiping_price', 'items', 'updated_at']
+
+    def get_items(self, order):
+        # Retrieve the vendor from the request user
+        vendor = self.context['request'].user
+
+        # Filter order items related to the vendor's products
+        items = OrderItem.objects.filter(order=order, product__vendor=vendor)
+
+        # Serialize the filtered items
+        serializer = OrderItemSerializer(instance=items, many=True)
+        return serializer.data

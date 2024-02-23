@@ -6,6 +6,7 @@ from rest_framework import status
 from rest_framework import generics, permissions
 from django.views.decorators.http import  require_GET
 
+
 from django.http import JsonResponse
 from django.db import transaction
 from affiliate.models import *
@@ -78,7 +79,7 @@ class DataTableMixin:
             # Apply pagination
             items = items[start : start + length]
 
-            serializer = serializer_class(items, many=True)
+            serializer = serializer_class(items, many=True, context={'request': request})
 
             response_data = {
                 "draw": draw,
@@ -92,6 +93,65 @@ class DataTableMixin:
         except Exception as e:
             # Handle exceptions, log the error, and return an appropriate response
             return Response({"error": str(e)})
+
+
+
+class OrderViewSetVendor(DataTableMixin, viewsets.ModelViewSet):
+    serializer_class = OrderSerializerVendor
+    # permission_classes = [permissions.IsAdminUser]
+    order_columns = [
+                "id",
+                "barcode",
+                "status",
+                "shiping_price",
+                "governorate",
+                "city",
+                "updated_at"
+            ] 
+    http_method_names = ['get']
+
+    def get_queryset(self):
+        # Assuming you have access to the requesting user
+        requesting_user = self.request.user
+        # Get the marketer object for the requesting user
+        vendor = get_object_or_404(User, email=requesting_user)
+        queryset = Order.objects.filter(items__product__vendor=vendor).select_related('marketer', 'city', 'governorate__governorate', 'shipping_company').prefetch_related('items', 'history_entries__updated_by')
+        return queryset
+
+    
+
+
+    @action(detail=True, methods=["get"])
+    def datatable_list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        return self.handle_datatables_request(queryset, self.serializer_class, self.order_columns, request)
+    
+
+
+    # def retrieve(self, request, *args, **kwargs):
+    #     # Assuming you have an 'Order' model
+    #     try:
+    #         # Call the default retrieve method to get the instance
+    #         instance = self.get_object()
+    #     except Http404:
+    #         return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    #     # Convert the instance to a serialized format using Django REST framework serializers
+    #     serializer = self.get_serializer(instance)
+    #     serialized_order = serializer.data
+
+    #     # Get the IDs of the next and previous orders
+    #     next_order_id = Order.objects.filter(id__gt=instance.id).order_by('id').values_list('id', flat=True).first()
+    #     prev_order_id = Order.objects.filter(id__lt=instance.id).order_by('-id').values_list('id', flat=True).first()
+
+    #     return Response({'order': serialized_order, 'next_order_pk': next_order_id, 'prev_order_pk': prev_order_id}, status=status.HTTP_200_OK)
+
+
+class OrderItemViewSetVendor(DataTableMixin, viewsets.ModelViewSet):
+    queryset = OrderItem.objects.select_related('order', 'product').all()
+    serializer_class = OrderItemSerializer
+    # permission_classes = [permissions.IsAdminUser]
+
 
 
 
