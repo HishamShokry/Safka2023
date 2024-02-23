@@ -158,7 +158,17 @@ def orders(request):
 @login_required
 @admin_required
 def requests(request):
-    return render(request, "pages/affilate/requests.html")
+    if request.method == "POST":
+        form = RequestFormِAdmin(request.POST, request.FILES)
+        if form.is_valid():
+            # Process form data, including the uploaded file
+            request = form.save()
+            return JsonResponse({"detail": "Product created successfully"})
+        else:
+            return JsonResponse({"detail": "Invalid form data"}, status=400)
+    else:
+        form = RequestFormِAdmin()
+    return render(request, "pages/affilate/requests.html", {'form': form})
 
 
 @login_required

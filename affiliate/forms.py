@@ -599,3 +599,23 @@ class RequestForm(forms.ModelForm):
     class Meta:
         model = Request
         fields = ["amount", "payment_method", 'vodafone_field', 'instapay_field', 'bank_field', 'note']
+
+
+
+
+
+
+class RequestFormِAdmin(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.fields["status"].label = False
+        self.fields["status"].widget.attrs.update(
+            {"class": "form-control", "placeholder": "الحالة"}
+        )
+
+
+        
+    class Meta:
+        model = Request
+        fields = ["status"]

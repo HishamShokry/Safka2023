@@ -427,7 +427,7 @@ class OrderHistory(models.Model):
 
 
 class Request(models.Model):
-    STATUS_CHOICES = [('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')]
+    STATUS_CHOICES = [('جار مراجعة', 'جار مراجعة'), ('تم الموافقة', 'تم الموافقة'), ('تم الرفض', 'تم الرفض')]
     METHODS = [('vodafone', 'Vodafone Cash'), ('instapay', 'Insta Pay'), ('bank', 'Bank')]
     # role = models.CharField(max_length=255, blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, default=None, blank=True, null=True)
@@ -438,7 +438,7 @@ class Request(models.Model):
     instapay_field = models.CharField(max_length=11, blank=True, null=True)
     bank_field = models.CharField(max_length=16, blank=True, null=True)
 
-    status = models.CharField(max_length=255, choices=STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=255, choices=STATUS_CHOICES, default='جار مراجعة')
     note = models.TextField(blank=True, null=True)
     # reason = models.TextField(blank=True, null=True)
 

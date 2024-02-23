@@ -54,12 +54,15 @@
                 <th>#</th>
                 <th>اسم المستخدم</th>
                 <th>المبلغ</th>
-                <th>رقم الموبايل</th>
                 <th>الحالة</th>
                 <th>الوسيلة</th>
+                <th>فودافون كاش</th>
+                <th>انستا باي</th>
+                <th>حساب بنكي</th>
                 <th>ملاحظة</th>
                 <th>انشئت في</th>
                 <th>حدثت في</th>
+                <th>عملية</th>
               </tr>
             </thead>
             <tbody>
@@ -70,15 +73,49 @@
                 <th>#</th>
                 <th>اسم المستخدم</th>
                 <th>المبلغ</th>
-                <th>رقم الموبايل</th>
                 <th>الحالة</th>
                 <th>الوسيلة</th>
+                <th>فودافون كاش</th>
+                <th>انستا باي</th>
+                <th>حساب بنكي</th>
                 <th>ملاحظة</th>
                 <th>انشئت في</th>
                 <th>حدثت في</th>
+                <th>عملية</th>
               </tr>
             </tfoot>
           </table>
+
+
+          <div class="modal fade" id="orderStatusModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">اختر حالة طلب السحب</h5>
+                  <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <!-- Your form with a select dropdown for Order Status -->
+                  <form id="orderStatusForm">
+                    {% csrf_token %}
+                    <div class="form-group">
+                      <label for="orderStatus">حالة الطلب:</label>
+                      <select class="form-control" id="orderStatus" name="orderStatus">
+                      </select>
+                    </div>
+                    <!-- Add other form fields as needed -->
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">اغلاق</button>
+                  <button type="button" class="btn btn-primary" id="saveorderStatusBtn">حفظ</button>
+                </div>
+              </div>
+            </div>
+          </div>
 
         </div>
         <!-- /.card-body -->
@@ -130,7 +167,7 @@
         'type': 'GET',
         'data': function (d) {
           d.extra_search = {};  // Add an object to store individual column searches
-          
+
           // Add date filters from Date Range Picker
           var dateRange = $('#date_range').val();
           if (dateRange) {
@@ -150,23 +187,24 @@
       'columns': [
         { 'data': 'id' },
         { 'data': 'username' },
-        { 'data': 'amount'},
-        { 'data': 'phone'},
-        { 'data': 'status'},
-        { 'data': 'payment_method'},
-        { 'data': 'note'},
-        { 'data': 'created_at', 'visible': false},
-        { 'data': 'updated_at', 'visible': false},
-        // {
-        //   'data': null,
-        //   'render': function (data, type, row) {
-        //     // Add Edit and Delete buttons for each row
-        //     return '<button class="btn btn-warning edit-btn" data-id="' + row.id + '">تعديل</button>' +
-        //       '<button class="btn btn-danger delete-btn" data-id="' + row.id + '">حذف</button>';
-        //   },
-        //   'orderable': false,
-        //   "searchable": false
-        // },
+        { 'data': 'amount' },
+        { 'data': 'status' },
+        { 'data': 'payment_method' },
+        { 'data': 'vodafone_field' },
+        { 'data': 'instapay_field' },
+        { 'data': 'bank_field' },
+        { 'data': 'note' },
+        { 'data': 'created_at', 'visible': false },
+        { 'data': 'updated_at', 'visible': false },
+        {
+          'data': null,
+          'render': function (data, type, row) {
+            // update Status
+            return '<button class="btn btn-warning update-status" data-id="' + row.id + '" data-status="' + row.status + '"><i class="fas fa-edit"></i></button>'
+          },
+          'orderable': false,
+          "searchable": false
+        },
         // Add other columns as needed
       ],
       'order': [], // Disable default sorting
@@ -232,6 +270,113 @@
   }
 </script>
 
+
+<!-- 
+<script>
+  // Handle click on "Edit" button
+  $('#example2').on('click', '.update-status', function () {
+    var requestId = $(this).data('id');
+    var currentStatus = $(this).data('status');
+
+    $('#orderStatusModal').modal('show');
+
+    $('#saveStatusBtn').on('click', function () {
+            var newStatus = $('#id_status').val();
+
+            // Make an AJAX request to update the status in the database
+            $.ajax({
+                url: '/your-api-endpoint/' + requestId + '/',
+                type: 'PATCH',
+                data: {
+                    status: newStatus
+                },
+                success: function (data) {
+                    // Handle success, close modal, refresh DataTable, etc.
+                    $('#editStatusModal').modal('hide');
+                    // Refresh the DataTable (you might need to adjust this based on your DataTable configuration)
+                    $('#yourDataTableId').DataTable().ajax.reload();
+                },
+                error: function (error) {
+                    // Handle error
+                    console.log(error);
+                }
+            });
+        });
+  });
+
+</script>
+ -->
+
+
+
+<script>
+  function valid_status(selectedStatus) {
+    let validStatuses = [];
+    switch (selectedStatus) {
+      case 'جار مراجعة':
+        validStatuses = ['تم الموافقة', 'تم الرفض'];
+        break;
+      default:
+        validStatuses = [];
+        break;
+    }
+    return validStatuses
+  }
+
+
+
+  function getnerate_dynamic_status(params) {
+    // Dynamically update dropdown options based on valid statuses
+    const validStatuses = valid_status(params);
+    // console.log(validStatuses);
+    const $orderStatusDropdown = $('#orderStatus');
+
+    $orderStatusDropdown.empty(); // Clear existing options
+
+    validStatuses.forEach(status => {
+      $orderStatusDropdown.append(`<option value="${status}">${status}</option>`);
+    });
+  }
+
+
+  $('#example2').on('click', '.update-status', function () {
+
+    // Perform update status action on selected rows
+    var requestId = $(this).data('id');
+    var currentStatus = $(this).data('status');
+    // Show the order status modal
+    $('#orderStatusModal').modal('show');
+
+
+    // Send a POST request to update the order status on the backend
+    $.ajax({
+      url: '/affiliate/api/order_api/update_status/',
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({ selected_order_ids: selectedOrderIds, new_status: selectedStatus }),
+      headers: { 'X-CSRFToken': csrf_token },
+      success: function (response) {
+        console.log('Update Successful:', response);
+        // Optionally, you can update the DataTable or perform other actions
+        dataTable.draw(); // Refresh the DataTable
+        showSuccessMessage(response.message);
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        console.error('Update Failed:', jqXHR);
+        showErrorMessage(jqXHR.responseJSON.error);
+      }
+    });
+
+
+    // Optionally, close the modal
+    $('#orderStatusModal').modal('hide');
+    // });
+  });
+
+
+
+
+</script>
 
 
 
