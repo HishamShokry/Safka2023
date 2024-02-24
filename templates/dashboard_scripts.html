@@ -1,0 +1,132 @@
+<script>
+
+    var cardValues = ["{{ orders_today }}", "{{ orders_this_week }}", "{{ orders_this_month}} ", "{{ total_orders }}"]; // List of values for the card
+    var time = ["طلبات اليوم", "طلبات هذا الاسبوع", "طلبات هذا الشهر", "اجمالي الطلبات"];
+    var currentIndex = 0; // Index of the current value
+
+    function OrderschangeCard() {
+        var cardNumber = document.getElementById('cardNumber');
+        var cardText = document.getElementById('cardText');
+
+        currentIndex = (currentIndex + 1) % cardValues.length; // Increment the index and wrap around
+
+        cardNumber.innerHTML = cardValues[currentIndex];
+        cardText.innerHTML = time[currentIndex];
+        console.log(time[0]);
+    }
+
+</script>
+
+
+
+<script>
+    function initializeLineChart(labels, values) {
+        const lineChartCanvas = document.getElementById("revenue-chart-canvas").getContext("2d");
+        const lineChartOptions = {
+            maintainAspectRatio: false,
+            responsive: true,
+            scales: {
+                xAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Months'
+                    }
+                }],
+                yAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Values'
+                    }
+                }]
+            }
+        };
+
+        return new Chart(lineChartCanvas, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'عدد الطلبات',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    data: values,
+                }]
+            },
+            options: lineChartOptions
+        });
+    }
+
+    function initializeDoughnutChart(labels, values, colors) {
+        const doughnutChartCanvas = document.getElementById("sales-chart-canvas").getContext("2d");
+        const doughnutData = {
+            labels: labels,
+            datasets: [{
+                data: values,
+                backgroundColor: colors
+            }]
+        };
+        const doughnutOptions = {
+            legend: {
+                display: false
+            },
+            maintainAspectRatio: false,
+            responsive: true
+        };
+
+        return new Chart(doughnutChartCanvas, {
+            type: 'doughnut',
+            data: doughnutData,
+            options: doughnutOptions
+        });
+    }
+
+
+    function initializeBarChart(labels, values) {
+        const barChartCanvas = document.getElementById("order-governorates-chart-canvas").getContext("2d");
+        const barChartOptions = {
+            maintainAspectRatio: false,
+            responsive: true,
+            scales: {
+                xAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Governorates'
+                    }
+                }],
+                yAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Order Counts'
+                    }
+                }]
+            }
+        };
+
+        return new Chart(barChartCanvas, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'عدد الطلبات لكل محافظة',
+                    backgroundColor: 'rgba(75, 192, 192, 0.8)',
+                    data: values,
+                }]
+            },
+            options: barChartOptions
+        });
+    }
+
+    // Initial chart creation
+    const salesChart = initializeLineChart({{ sales_chart.labels | safe }}, {{ sales_chart.values | safe }});
+    const doughnutChart = initializeDoughnutChart({{ sales_chart.labels | safe }}, {{ sales_chart.values | safe }}, [
+        '#3498db', '#2ecc71', '#f39c12', '#e74c3c', '#9b59b6', '#34495e', '#1abc9c', '#e67e22', '#d35400', '#c0392b', '#95a5a6', '#16a085'
+    ]);
+    const barChart = initializeBarChart({{ governorate_chart.labels | safe }}, {{ governorate_chart.values | safe }});
+
+</script>
+
+

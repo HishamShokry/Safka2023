@@ -6,6 +6,7 @@ from rest_framework import status
 from rest_framework import generics, permissions
 from django.views.decorators.http import require_GET
 from decimal import Decimal
+from django_filters.rest_framework import DjangoFilterBackend
 
 from django.http import JsonResponse
 from django.db import transaction
@@ -13,7 +14,7 @@ from affiliate.models import *
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Q, Case, When, F, Value
+from django.db.models import Q, Case, When, F, Value, Count
 from django.db.models import Case, When, F, Value
 from django.utils.translation import gettext as _
 
@@ -28,6 +29,11 @@ class DataTableMixin:
             start_date, end_date = request.GET.get("start_date", ""), request.GET.get(
                 "end_date", ""
             )
+            
+            # Filter by status
+            status_filter = request.GET.get("status", "")
+            if status_filter and status_filter != "اجمالي عدد الطلبات":
+                queryset = queryset.filter(status=status_filter)
 
             # Split the global search value into individual terms
             global_search_terms = global_search_value.split()
@@ -183,6 +189,8 @@ class ProductViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
     )
     serializer_class = ProductSerializer
     permission_classes = [permissions.IsAdminUser]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['category', 'sale_price']
     http_method_names = ["get", "post", "retrieve", "put", "patch"]
     order_columns = [
         "id",
@@ -280,6 +288,8 @@ class OrderViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
         "marketer", "city", "governorate__governorate", "shipping_company"
     ).prefetch_related("items", "history_entries__updated_by")
     serializer_class = OrderSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['status']
     permission_classes = [permissions.IsAdminUser]
     order_columns = [
         "id",
@@ -834,58 +844,6 @@ class OrderViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
         
 
 
-    # @action(detail=False, methods=["post"])
-    # def update_shipping_company(self, request, *args, **kwargs):
-    #     # selected_order_ids = request.data.get("selected_order_ids", [])
-    #     # print(selected_order_ids)
-    #     # return JsonResponse({"key": "value"})
-    #     try:
-    #         with transaction.atomic():
-    #             # Get the list of order IDs from the request
-    #             selected_order_ids = request.data.get("selected_order_ids", [])
-    #             shipping_company = request.data.get("shipping_company")
-
-    #             # Validate if at least one order is selected
-    #             if not selected_order_ids:
-    #                 return Response(
-    #                     {"error": "لم يتم تحديد أي طلبات لتحديث شركة الشحن."},
-    #                     status=status.HTTP_400_BAD_REQUEST,
-    #                 )
-
-    #             if not shipping_company:
-    #                 return Response(
-    #                     {"error": "لم يتم تحديد شركة شحن للطلبات المحددة."},
-    #                     status=status.HTTP_400_BAD_REQUEST,
-    #                 )
-    #             print(shipping_company)
-    #             # Retrieve and update shipping company for each selected order
-    #             for order_id in selected_order_ids:
-    #                 try:
-    #                     order = Order.objects.get(pk=order_id)
-    #                     # Update the shipping company (replace 'new_shipping_company' with your actual update logic)
-    #                     updated_shipping_company = ShippingCompany.objects.get(
-    #                         id=shipping_company
-    #                     )
-
-    #                     order.shipping_company = updated_shipping_company
-    #                     order.save(updated_by=request.user)
-    #                 except Order.DoesNotExist:
-    #                     # Log or handle the case where the order doesn't exist
-    #                     pass
-
-    #             return Response(
-    #                 {
-    #                     "success": True,
-    #                     "message": "تم تحديث شركة الشحن للطلبات المحددة.",
-    #                 },
-    #                 status=status.HTTP_200_OK,
-    #             )
-
-    #     except Exception as e:
-    #         # Log the detailed error message for debugging
-    #         print(f"Error updating shipping company: {str(e)}")
-    #         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
     @action(detail=False, methods=["post"])
     def update_shipping_company(self, request, *args, **kwargs):
         try:
@@ -968,6 +926,30 @@ class OrderViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
+    
+    @action(detail=False, methods=["get"])
+    def filters(self, request, *args, **kwargs):
+
+        # Extracting data for the bar chart
+        status_data = Order.objects.values('status').annotate(order_count=Count('id'))
+        labels = [entry['status'] for entry in status_data]
+        values = [entry['order_count'] for entry in status_data]
+        
+        
+        # Calculate the total orders count
+        total_orders_count = sum(values)
+
+        # Add total orders count as a label and value
+        labels.append('اجمالي عدد الطلبات')
+        values.append(total_orders_count)
+        
+        bar_chart_data = {
+            'labels': labels,
+            'values': values,
+        }
+
+         # Return the bar chart data in the response
+        return Response({'bar_chart_data': bar_chart_data})
 
 class OrderItemViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
     queryset = OrderItem.objects.select_related("order", "product").all()

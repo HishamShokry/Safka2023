@@ -109,6 +109,7 @@
                                     // Optionally, you can update the DataTable or perform other actions
                                     dataTable.draw(); // Refresh the DataTable
                                     showSuccessMessage(response.message);
+                                    getOrderChart();
                                 },
                                 error: function (jqXHR, textStatus, errorThrown) {
                                     console.error('Update Failed:', jqXHR);

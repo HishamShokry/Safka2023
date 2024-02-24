@@ -7,9 +7,16 @@ from django.utils.timezone import now
 from faker import Faker
 from affiliate.models import ShippingPrice, City, Order, generate_unique_barcode
 from accounts.models import User
+from django.utils import timezone
+from datetime import timedelta
+import calendar
+
+
+
+
 fake = Faker()
 marketer_user = User.objects.get(id=4)
-governorate = ShippingPrice.objects.get(id=1)
+governorate = ShippingPrice.objects.get(id=2)
 city = City.objects.get(id=1)
 
 class Command(BaseCommand):
@@ -23,6 +30,11 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f'Creating {total} fake orders...'))
 
         for _ in range(total):
+
+            created_at = fake.date_time_between(start_date="-365d", end_date=timezone.now())
+            print(created_at)
+
+
             Order.objects.create(
                 status= Order.PENDING,
                 barcode= generate_unique_barcode(),
@@ -46,8 +58,8 @@ class Command(BaseCommand):
                 whats2_clicked=random.randint(0, 10),
                 phone2_clicked=random.randint(0, 10),
                 sms2_clicked=random.randint(0, 10),
-                created_at=now(),
-                updated_at=now(),
+                created_at=created_at,
+                updated_at=created_at,
             )
 
         self.stdout.write(self.style.SUCCESS('Fake orders created successfully.'))

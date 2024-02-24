@@ -1,11 +1,15 @@
 from django.contrib.auth.decorators import login_required
 from affiliate.models import *
+from django.db.models import Count, Q
 from affiliate.forms import *
 from accounts.decorators import admin_required
 from django.shortcuts import render
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import JsonResponse
 from django.shortcuts import get_list_or_404, render
+from datetime import datetime, timedelta
+from accounts.models import User
+
 
 
 # from affiliate.views import 
@@ -23,11 +27,100 @@ def index(request):
     return render(request, "dashboard.html")
 
 
-@login_required()
-@admin_required
 def dashboard(request):
-    return render(request, "dashboard.html")
+    # Calculate counts for today, this week, this month, and total
+    today = datetime.now().date()
+    start_of_week = today - timedelta(days=today.weekday())
+    start_of_month = today.replace(day=1)
 
+    # Orders counts
+    orders_today = Order.objects.filter(created_at__date=today).count()
+    orders_this_week = Order.objects.filter(created_at__date__gte=start_of_week).count()
+    orders_this_month = Order.objects.filter(created_at__date__gte=start_of_month).count()
+    total_orders = Order.objects.all().count()
+
+    # Users counts
+    total_users = User.objects.all().count()
+
+
+    # Products counts
+    total_products = Product.objects.all().count()
+
+
+    # Top Marketers
+    top_marketers = User.objects.filter(is_marketer=True).values('email').annotate(
+        order_count=Count('marketer_orders')
+    ).order_by(
+        '-order_count'
+    )[:10]
+
+
+    top_marketers_this_week = User.objects.filter(is_marketer=True).values('email').annotate(
+        order_count=Count('marketer_orders', filter=Q(marketer_orders__created_at__gte=start_of_week))
+    ).order_by(
+        '-order_count'
+    )[:10]
+
+
+    top_marketers_this_month = User.objects.filter(is_marketer=True).values('email').annotate(
+        order_count=Count('marketer_orders', filter=Q(marketer_orders__created_at__gte=start_of_month))
+    ).order_by(
+        '-order_count'
+    )[:10]
+
+
+
+
+
+
+    data_points = Order.objects.values_list('created_at__month').annotate(count=Count('id')).order_by('created_at__month')
+    arabic_month_names = [
+    'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+    'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+    ]
+
+    
+    labels = [f'{arabic_month_names[point[0] - 1]}' for point in data_points]
+    values = [point[1] for point in data_points]
+
+    sales_chart = {
+        'labels': labels,
+        'values': values,
+    }
+
+
+    governorate_data = (
+        ShippingPrice.objects.annotate(order_count=Count('order'))
+        .values('governorate__governorate_name_ar', 'order_count')
+    )
+
+    # Extracting labels and values for the chart
+    governorate_labels = [entry['governorate__governorate_name_ar'] for entry in governorate_data]
+    governorate_values = [entry['order_count'] for entry in governorate_data]
+
+
+    governorate_chart = {
+            'labels': governorate_labels,
+            'values': governorate_values,
+        }
+
+    print(governorate_chart)
+
+    context = {
+        'orders_today': orders_today,
+        'orders_this_week': orders_this_week,
+        'orders_this_month': orders_this_month,
+        'total_orders': total_orders,
+        'total_users': total_users,
+        'total_products': total_products,
+        'top_marketers': top_marketers,
+        'top_marketers_this_week': top_marketers_this_week,
+        'top_marketers_this_month': top_marketers_this_month,
+        'sales_chart': sales_chart,
+        'governorate_chart': governorate_chart,
+    }
+
+    return render(request, "dashboard.html", context)
 
 @login_required
 @admin_required

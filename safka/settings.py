@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "active_link",
     "accounts.apps.AccountsConfig",
+    'django_filters',
     "silk",
 ]
 

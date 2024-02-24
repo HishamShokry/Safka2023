@@ -91,7 +91,7 @@ class ShippingPriceSerializer(serializers.ModelSerializer):
         """
         Validate that the price is a positive integer.
         """
-        if value <= 0 or type(value) is not int:
+        if value <= 0:
             raise serializers.ValidationError("يجب أن يكون السعر عددًا صحيحًا موجبًا.")
         return value
 
