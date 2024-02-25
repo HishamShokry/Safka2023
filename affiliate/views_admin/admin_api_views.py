@@ -14,7 +14,7 @@ from affiliate.models import *
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Q, Case, When, F, Value, Count
+from django.db.models import Q, Case, When, F, Value, Count, IntegerField
 from django.db.models import Case, When, F, Value
 from django.utils.translation import gettext as _
 
@@ -153,6 +153,61 @@ class ShippingCompanyViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
         return self.handle_datatables_request(
             self.queryset, self.serializer_class, self.order_columns, request
         )
+        
+    @action(detail=False, methods=["get"])
+    def orders_count(self, request, *args, **kwargs):
+        # Extracting data for the bar chart
+        orders_count_data = ShippingCompany.objects.annotate(
+            total_orders=Count('order'),
+            delivered_orders=Count(Case(When(order__status=Order.DELIVERED, then=1), output_field=IntegerField())),
+            return_requests_orders=Count(Case(When(order__status=Order.RETURNE_REQUESTS, then=1), output_field=IntegerField())),
+        ).values('name', 'total_orders', 'delivered_orders', 'return_requests_orders')
+
+        labels = [entry['name'] for entry in orders_count_data]
+        total_orders_values = [entry['total_orders'] for entry in orders_count_data]
+        delivered_orders_values = [entry['delivered_orders'] for entry in orders_count_data]
+        return_requests_orders_values = [entry['return_requests_orders'] for entry in orders_count_data]
+
+        # Calculate the total orders count
+        total_orders_count = sum(total_orders_values)
+        delivered_orders_count = sum(delivered_orders_values)
+        return_requests_orders_count = sum(return_requests_orders_values)
+
+        # Add total orders count as a label and value
+        labels.append('اجمالي عدد الطلبات')
+        total_orders_values.append(total_orders_count)
+        delivered_orders_values.append(delivered_orders_count)
+        return_requests_orders_values.append(return_requests_orders_count)
+
+        bar_chart_data = {
+            'labels': labels,
+            'datasets': [
+                {
+                    'label': 'اجمالي عدد الطلبات',
+                    'data': total_orders_values,
+                    'backgroundColor': 'rgba(75, 192, 192, 0.2)',
+                    'borderColor': 'rgba(75, 192, 192, 1)',
+                    'borderWidth': 1,
+                },
+                {
+                    'label': 'طلبات تم التوصيل',
+                    'data': delivered_orders_values,
+                    'backgroundColor': 'rgba(0, 255, 0, 0.2)',  # Green color
+                    'borderColor': 'rgba(0, 255, 0, 1)',  # Green color
+                    'borderWidth': 1,
+                },
+                {
+                    'label': 'طلبات استرجاع من العميل',
+                    'data': return_requests_orders_values,
+                    'backgroundColor': 'rgba(255, 0, 0, 0.2)',  # Red color
+                    'borderColor': 'rgba(255, 0, 0, 1)',  # Red color
+                    'borderWidth': 1,
+                },
+            ],
+        }
+
+        # Return the bar chart data in the response
+        return Response({'bar_chart_data': bar_chart_data})
 
 
 class ShippingPriceViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
