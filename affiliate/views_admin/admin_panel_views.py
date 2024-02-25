@@ -26,7 +26,8 @@ from accounts.models import User
 def index(request):
     return render(request, "dashboard.html")
 
-
+@login_required()
+@admin_required
 def dashboard(request):
     # Calculate counts for today, this week, this month, and total
     today = datetime.now().date()
