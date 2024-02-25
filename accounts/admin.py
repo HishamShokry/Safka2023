@@ -52,13 +52,27 @@ class UserAdmin(BaseUserAdmin):
 
     def show_impersonate_link(self, obj):
         url = reverse("impersonate-start", args=[obj.pk])
+        redirect_url = self.get_redirect_url(obj)
+        print(redirect_url)
         return format_html(
-            f'<button class="btn btn-dark"><a href="{url}">Login</a></button>'
+            f'<button class="btn btn-dark"><a href="{url}?next={redirect_url}">Login</a></button>'
         )
 
     show_impersonate_link.short_description = "Impersonate"
     form = CustomUserAdminForm  # Use the custom form for the UserAdmin
 
+    def get_redirect_url(self, user):
+        # Customize the redirection based on the user's role
+        if user.is_superuser:
+            return reverse('dashboard')
+        elif user.is_admin:
+            return reverse('dashboard')
+        elif user.is_vendor:
+            return reverse('vendor_dashboard')
+        elif user.is_marketer:
+            return reverse('marketer_dashboard')
+        else:
+            return reverse('/')
 
 # admin.site.unregister(models.User)
 admin.site.register(models.User, UserAdmin)

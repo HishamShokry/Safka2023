@@ -56,11 +56,14 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "silk.middleware.SilkyMiddleware",
-    "django.middleware.common.CommonMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "impersonate.middleware.ImpersonateMiddleware",
+    "django.middleware.common.CommonMiddleware",
+
+    # 'accounts.middleware.RoleRedirectMiddleware',
+
 ]
 
 ROOT_URLCONF = "safka.urls"
@@ -166,7 +169,9 @@ LOGIN_URL = "signin"
 AUTHENTICATION_BACKENDS = ["accounts.backends.EmailBackend"]
 
 
-IMPERSONATE = {"PAGINATE_COUNT": 10, "ALLOW_SUPERUSER": True}
+IMPERSONATE = {"PAGINATE_COUNT": 10, "ALLOW_SUPERUSER": True, 'REDIRECT_FIELD_NAME': 'next'}
+# IMPERSONATE_REDIRECT_URL = '/affiliate/marketers'   
+IMPERSONATE_REQUIRE_SUPERUSER = True  # Restrict impersonation to superusers
 
 
 REST_FRAMEWORK = {
