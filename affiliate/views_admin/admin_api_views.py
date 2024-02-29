@@ -163,24 +163,24 @@ class ShippingCompanyViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
         orders_count_data = ShippingCompany.objects.annotate(
             total_orders=Count('order'),
             delivered_orders=Count(Case(When(order__status=Order.DELIVERED, then=1), output_field=IntegerField())),
-            return_requests_orders=Count(Case(When(order__status=Order.RETURNE_REQUESTS, then=1), output_field=IntegerField())),
-        ).values('name', 'total_orders', 'delivered_orders', 'return_requests_orders')
+            returned_agter_delivery_orders=Count(Case(When(order__status=Order.RETURNED_AFTER_DELIVERY, then=1), output_field=IntegerField())),
+        ).values('name', 'total_orders', 'delivered_orders', 'returned_agter_delivery_orders')
 
         labels = [entry['name'] for entry in orders_count_data]
         total_orders_values = [entry['total_orders'] for entry in orders_count_data]
         delivered_orders_values = [entry['delivered_orders'] for entry in orders_count_data]
-        return_requests_orders_values = [entry['return_requests_orders'] for entry in orders_count_data]
+        returned_agter_delivery_orders_values = [entry['returned_agter_delivery_orders'] for entry in orders_count_data]
 
         # Calculate the total orders count
         total_orders_count = sum(total_orders_values)
         delivered_orders_count = sum(delivered_orders_values)
-        return_requests_orders_count = sum(return_requests_orders_values)
+        returned_agter_delivery_orders_count = sum(returned_agter_delivery_orders_values)
 
         # Add total orders count as a label and value
         labels.append('اجمالي عدد الطلبات')
         total_orders_values.append(total_orders_count)
         delivered_orders_values.append(delivered_orders_count)
-        return_requests_orders_values.append(return_requests_orders_count)
+        returned_agter_delivery_orders_values.append(returned_agter_delivery_orders_count)
 
         bar_chart_data = {
             'labels': labels,
@@ -200,8 +200,8 @@ class ShippingCompanyViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
                     'borderWidth': 1,
                 },
                 {
-                    'label': 'طلبات استرجاع من العميل',
-                    'data': return_requests_orders_values,
+                    'label': 'طلبات مرتجعة بعد التوصيل',
+                    'data': returned_agter_delivery_orders_values,
                     'backgroundColor': 'rgba(255, 0, 0, 0.2)',  # Red color
                     'borderColor': 'rgba(255, 0, 0, 1)',  # Red color
                     'borderWidth': 1,
