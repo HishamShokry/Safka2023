@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "accounts.apps.AccountsConfig",
     'django_filters',
     "silk",
+    'notifications',
 ]
 
 MIDDLEWARE = [

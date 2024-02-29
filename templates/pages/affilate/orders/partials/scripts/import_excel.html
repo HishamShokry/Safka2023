@@ -1,0 +1,26 @@
+<script>
+  function uploadExcelFile() {
+    var fileInput = document.getElementById('excelFile');
+    var formData = new FormData();
+    formData.append('excel_file', fileInput.files[0]);
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+
+    fetch('/affiliate/api/order_api/create_order/', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        alert('Orders created successfully!');
+        // Handle success, e.g., redirect or update UI
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error creating orders. Please check the console for details.');
+        // Handle error, e.g., show error message to the user
+    });
+}
+
+</script>

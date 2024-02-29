@@ -106,6 +106,8 @@ urlpatterns = [
     path("marketers_accounts", admin_panel_views.marketers_accounts, name="marketers_accounts"),
     path("support", admin_panel_views.support, name="support"),
     path("profile", admin_panel_views.profile, name="profile"),
+    path('mark_as_read/<int:notification_id>/', admin_panel_views.mark_as_read, name='mark_as_read'),
+
     
     
     

@@ -2,7 +2,7 @@
 <section class="content">
   <div class="container-fluid">
     <div class="row"></div>
-    
+
     <div class="chart tab-pane active" id="order-chart" style="position: relative; height: 300px;">
       <canvas id="order-status-chart-canvas" height="300" style="height: 300px;"></canvas>
     </div>
@@ -11,12 +11,8 @@
     <div class="card">
       <div class="card-header bg-primary">
         <div class="card-tools">
-          <button type="button" class="btn btn-outline-light btn-sm" data-card-widget="collapse">
-            <i class="fas fa-minus"></i>
-          </button>
-          <button type="button" class="btn btn-danger btn-sm" data-card-widget="remove">
-            <i class="fas fa-times"></i>
-          </button>
+          <button type="button" class="btn btn-outline-light btn-sm" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          <button type="button" class="btn btn-danger btn-sm" data-card-widget="remove"><i class="fas fa-times"></i></button>
         </div>
       </div>
       <!-- /.card-header -->
@@ -24,6 +20,11 @@
       <div id="success-message-container" class="alert alert-success" style="display: none;"></div>
       <div class="card-body">
         <button id="addRowBtn" class="btn btn-primary float-right"><i class="fas fa-plus"></i></button>
+
+        <label class="btn btn-primary float-right mr-2">
+          <input type="file" id="excelFile" accept=".xlsx" style="display: none;" onchange="uploadExcelFile()" />
+          <i class="fas fa-file-excel"></i>
+        </label>
 
         <!-- Add these input fields above the DataTable -->
         <form class="form-group row m-2">
@@ -34,11 +35,10 @@
           <div class="col">
             <button type="button" class="btn btn-primary" id="submitBtn">فلتر</button>
           </div>
-          <!-- <div class="col">
+          <!--  <div class="col">
               <button type="button" class="btn btn-warning" id="submitBtn">تحديث شركة الشحن</button>
               <button type="button" class="btn btn-secondary" id="submitBtn">تحديث حالة الطلب</button>
-            </div> -->
-
+            </div>  -->
         </form>
         <table id="example2" class="table table-bordered table-striped table-hover">
           <thead class="bg-primary">
@@ -102,29 +102,20 @@
           </tfoot>
         </table>
 
-
-
-        <div class="modal fade" id="orderModal" tabindex="-1" role="dialog" aria-labelledby="orderModalLabel"
-          aria-hidden="true">
+        <div class="modal fade" id="orderModal" tabindex="-1" role="dialog" aria-labelledby="orderModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title" id="orderModalLabel">تفاصيل الطلب</h5>
 
-
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
               </div>
-              <div class="modal-body" id="orderDetailsBody">
-
-              </div>
+              <div class="modal-body" id="orderDetailsBody"></div>
               <div class="modal-footer">
                 <!-- Add these buttons in your HTML where you want them to appear -->
                 <button id="prevPageBtn" class="btn btn-primary"><i class="fas fa-arrow-right"></i></button>
                 <button id="nextPageBtn" class="btn btn-primary"><i class="fas fa-arrow-left"></i></button>
                 <button class="btn btn-warning mr-auto" id="OrderHistoryBtn"><i class="fas fa-history"></i></button>
-
 
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">اغلاق</button>
               </div>
@@ -134,15 +125,12 @@
 
         <!-- Add Product Modal -->
 
-        <div class="modal fade" id="addShippingModal" tabindex="-1" role="dialog"
-          aria-labelledby="addShippingModalLabel" aria-hidden="true">
+        <div class="modal fade" id="addShippingModal" tabindex="-1" role="dialog" aria-labelledby="addShippingModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title" id="addShippingModalLabel">اضافة طلب جديد</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
               </div>
               <div class="modal-body">
                 <form method="post" id="addShippingForm" enctype="multipart/form-data">
@@ -152,19 +140,15 @@
                   <div id="variant-formset-container">
                     {{ variant_formset.management_form }}
                     {% for form in variant_formset %}
-                    <div class="variant-form">
-                      {{ form.as_p }}
-                    </div>
+                      <div class="variant-form">{{ form.as_p }}</div>
                     {% endfor %}
-
                   </div>
 
-
                   <button type="button" class="btn btn-outline-success" id="add-variant"><i class="fas fa-cart-plus"></i></button>
-                  <br>
+                  <br />
                   <div>
                     <label for="id_difference">العمولة:</label>
-                    <input type="number" name="difference" class="form-control" required="" id="id_difference" readonly>
+                    <input type="number" name="difference" class="form-control" required="" id="id_difference" readonly />
                   </div>
                 </form>
               </div>
@@ -177,16 +161,12 @@
           </div>
         </div>
 
-
-        <div class="modal fade" id="shippingCompanyModal" tabindex="-1" role="dialog"
-          aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal fade" id="shippingCompanyModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">اختر شركة شحن</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
               </div>
               <div class="modal-body">
                 <!-- Your form with a select dropdown for shipping companies -->
@@ -210,15 +190,12 @@
           </div>
         </div>
 
-        <div class="modal fade" id="orderStatusModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-          aria-hidden="true">
+        <div class="modal fade" id="orderStatusModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">اختر حالة الطلب</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
               </div>
               <div class="modal-body">
                 <!-- Your form with a select dropdown for Order Status -->
@@ -226,8 +203,7 @@
                   {% csrf_token %}
                   <div class="form-group">
                     <label for="orderStatus">حالة الطلب:</label>
-                    <select class="form-control" id="orderStatus" name="orderStatus">
-                    </select>
+                    <select class="form-control" id="orderStatus" name="orderStatus"></select>
                   </div>
                   <!-- Add other form fields as needed -->
                 </form>
@@ -239,8 +215,6 @@
             </div>
           </div>
         </div>
-
-
       </div>
       <!-- /.card-body -->
     </div>

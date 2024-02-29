@@ -17,6 +17,9 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q, Case, When, F, Value, Count, IntegerField
 from django.db.models import Case, When, F, Value
 from django.utils.translation import gettext as _
+import pandas as pd
+from notifications.signals import notify
+
 
 
 class DataTableMixin:
@@ -366,11 +369,78 @@ class OrderViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
         return self.handle_datatables_request(
             self.queryset, self.serializer_class, self.order_columns, request
         )
+        
+    @action(detail=False, methods=["post"])
+    def create_order(self, request, *args, **kwargs):
+        data = request.data
+        user = request.user
+        
+        
+        file = request.FILES.get('excel_file')
 
-    def create(self, request, *args, **kwargs):
+        # if not file:
+        #     return Response({"error": "Excel file is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        
+
+        if file:  # Check if it's a bulk request
+            try:
+                # Read Excel file into a pandas DataFrame
+                excel_data = pd.read_excel(file)
+                data_list = excel_data.to_dict(orient='records')
+                print(data_list)
+
+                # Call the create_bulk_order method with the data
+                response = self.create_bulk_order(data_list)
+
+                return response
+
+            except Exception as e:
+                print(f"Error processing Excel file: {str(e)}")
+                return Response
+        else:
+            return self.create_single_order(data, user)
+        
+    def create_bulk_order(self, data_list, user):
+        created_orders = []
+
         try:
             with transaction.atomic():
-                order_data, variants_data = self.extract_data_from_request(request.data)
+                for data in data_list:
+                    order_data, variants_data = self.extract_data_from_request(data)
+
+                    order_serializer = OrderSerializer(data=order_data)
+                    if not order_serializer.is_valid():
+                        return Response(
+                            {"error": order_serializer.errors},
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
+
+                    order = order_serializer.save()
+
+                    self.create_or_update_variants(order, variants_data)
+                    order.shiping_price = self.get_shipping_price(order)
+                    order.commission = self.calculate_commission(order, variants_data)
+
+                    order.save(updated_by=user, action_type="تم اضافة طلب جديد")
+
+                    self.update_vendor_and_admin_pending_ADD(order)
+                    self.update_marketer_pending_ADD(order)
+                    self.update_product_variants_quantity_SUB(order)
+
+                    created_orders.append(order_serializer.data)
+
+                return Response({"orders": created_orders}, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            print(f"Error creating bulk orders: {str(e)}")
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+    def create_single_order(self, data, user):
+        try:
+            with transaction.atomic():
+                order_data, variants_data = self.extract_data_from_request(data)
 
                 # Validate and create order
                 order_serializer = OrderSerializer(data=order_data)
@@ -390,7 +460,18 @@ class OrderViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
                 # Calculate commission based on the formula
                 order.commission = self.calculate_commission(order, variants_data)
 
-                order.save(updated_by=request.user, action_type="تم اضافة طلب جديد")
+                order.save(updated_by=user, action_type="تم اضافة طلب جديد")
+                
+                
+                # Notify the user about the successful order creation
+                admin_users = User.objects.filter(Q(is_staff=True) | Q(is_superuser=True))
+
+                notify.send(
+                    user,
+                    recipient=admin_users,
+                    verb=f'اضف طلب جديد {order.barcode}.',
+                    action_object=order
+                )
 
                 # Update the vendor's and admin's pending field with their profit
                 self.update_vendor_and_admin_pending_ADD(order)
@@ -407,12 +488,58 @@ class OrderViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
                 }
                 print(order_serializer.data)
                 return Response(response_data, status=status.HTTP_201_CREATED)
-
         except Exception as e:
             # Log the detailed error message for debugging
             print(f"Error creating order: {str(e)}")
             # transaction.set_rollback(True)  # Rollback the transaction
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    # def create(self, request, *args, **kwargs):
+    #     try:
+    #         with transaction.atomic():
+    #             order_data, variants_data = self.extract_data_from_request(request.data)
+
+    #             # Validate and create order
+    #             order_serializer = OrderSerializer(data=order_data)
+    #             if not order_serializer.is_valid():
+    #                 return Response(
+    #                     {"error": order_serializer.errors},
+    #                     status=status.HTTP_400_BAD_REQUEST,
+    #                 )
+
+    #             order = order_serializer.save()
+
+    #             # Create variants associated with the order
+    #             self.create_or_update_variants(order, variants_data)
+
+    #             # Get shipping price
+    #             order.shiping_price = self.get_shipping_price(order)
+    #             # Calculate commission based on the formula
+    #             order.commission = self.calculate_commission(order, variants_data)
+
+    #             order.save(updated_by=request.user, action_type="تم اضافة طلب جديد")
+
+    #             # Update the vendor's and admin's pending field with their profit
+    #             self.update_vendor_and_admin_pending_ADD(order)
+
+    #             # Update the marketer's pending field with the commission
+    #             self.update_marketer_pending_ADD(order)
+
+    #             # Update quantity for the corresponding ProductVariant(s)
+    #             self.update_product_variants_quantity_SUB(order)
+
+    #             response_data = {
+    #                 "order": order_serializer.data,
+    #                 "variants": OrderItemSerializer(order.items.all(), many=True).data,
+    #             }
+    #             print(order_serializer.data)
+    #             return Response(response_data, status=status.HTTP_201_CREATED)
+
+    #     except Exception as e:
+    #         # Log the detailed error message for debugging
+    #         print(f"Error creating order: {str(e)}")
+    #         # transaction.set_rollback(True)  # Rollback the transaction
+    #         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, *args, **kwargs):
         try:
@@ -619,8 +746,6 @@ class OrderViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
             # )
 
         # Handle each order status
-        print(order.status, order.PREPARATION)
-
         if order.status == order.PREPARATION:
             for item in order_items:
                 product = item.product
@@ -882,6 +1007,23 @@ class OrderViewSetAdmin(DataTableMixin, viewsets.ModelViewSet):
                 # Call the handle_order_status function to update vendor and marketer accounts
                 for order in orders_to_update:
                     self.handle_order_status(order)
+                    # Notify the user about the successful order creation
+                    
+                    notify.send(
+                    request.user,
+                    recipient=order.marketer,
+                    verb=f"تم تحديث حالة الطلب بنجاح إلى '{new_status}'.",
+                    action_object=order
+                    )
+                    
+                    for item in order.items.all():
+                        notify.send(
+                        request.user,
+                        recipient=item.product.vendor,
+                        verb=f"تم تحديث حالة الطلب بنجاح إلى '{new_status}'.",
+                        action_object=order
+                    )
+                
 
                 return Response(
                     {"success": True, "message": f"تم تحديث حالة الطلب بنجاح إلى '{new_status}'."},

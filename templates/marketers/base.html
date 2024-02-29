@@ -270,6 +270,34 @@
       $('#affiliate-menu-list').addClass('menu-open');
     }
   </script>
+
+
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      var notificationItems = document.querySelectorAll('.notification-item');
+    
+      notificationItems.forEach(function(item) {
+        item.addEventListener('click', function(event) {
+          event.preventDefault();
+    
+          var notificationId = item.getAttribute('data-notification-id');
+    
+          // You can send an AJAX request to mark the notification as read
+          // For simplicity, let's assume you have a view called mark_as_read
+          // that handles marking the notification as read
+    
+          fetch('/affiliate/mark_as_read/' + notificationId + '/')
+            .then(response => response.json())
+            .then(data => {
+              // Optionally, you can update the UI to reflect that the notification is read
+              item.style.backgroundColor = '#f0f0f0';
+            })
+            .catch(error => console.error('Error:', error));
+        });
+      });
+    });
+    </script>
   
 </body>
 

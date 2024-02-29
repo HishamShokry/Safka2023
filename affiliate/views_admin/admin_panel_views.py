@@ -9,6 +9,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_list_or_404, render
 from datetime import datetime, timedelta
 from accounts.models import User
+from notifications.models import Notification
 
 
 
@@ -288,3 +289,14 @@ def support(request):
 def profile(request):
     return render(request, "profile.html")
 
+
+
+
+@login_required
+def mark_as_read(request, notification_id):
+    try:
+        notification = Notification.objects.get(id=notification_id, recipient=request.user)
+        notification.mark_as_read()
+        return JsonResponse({'success': True})
+    except Notification.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Notification not found'})

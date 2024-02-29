@@ -25,7 +25,10 @@ urlpatterns = [
     path("affiliate/", include("affiliate.urls")),  # Affiliate application
     path("", include("accounts.urls")),  # Accounts application
     path("impersonate/", include("impersonate.urls")),  # Impersonate application
-    re_path(r'^chaining/', include('smart_selects.urls')),]
+    re_path(r'^chaining/', include('smart_selects.urls')),
+    path('notifications/', include('notifications.urls', namespace='notifications')),
+]
+
 
 
 if settings.DEBUG:
